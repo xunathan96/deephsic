@@ -1,0 +1,25 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.MNIST
+  root: 'data/mnist'
+  train: True
+  download: True
+  transform: !transform.Compose
+    - !transform.CenterCrop   {size: 28}
+    - !transform.Resize       {size: 32}
+    - !transform.ToTensor
+    - !transform.Normalize    {mean: 0.5, std: 0.5} #{mean: [0.499, 0.535, 0.551], std: [0.371, 0.386, 0.387]}
+
+val: &data !dataset.MNIST
+  root: 'data/mnist'
+  train: False
+  download: True
+  transform: !transform.Compose
+    - !transform.CenterCrop   {size: 28}
+    - !transform.Resize       {size: 32}
+    - !transform.ToTensor
+    - !transform.Normalize    {mean: 0.5, std: 0.5} #{mean: [0.499, 0.535, 0.551], std: [0.371, 0.386, 0.387]}
+
+test: *data

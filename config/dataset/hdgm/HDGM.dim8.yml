@@ -1,0 +1,19 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.HDGM
+  name: HDGM-8
+  size: 10000
+  dim: 8
+
+val: &data !dataset.HDGM
+  name: HDGM-8
+  size: 4000
+  dim: 8
+
+test: !dataset.HDGM
+  name: HDGM-8
+  size: 200000
+  dim: 8
+

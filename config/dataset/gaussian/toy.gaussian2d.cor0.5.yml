@@ -1,0 +1,19 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.Gaussian2D
+  size: 10000
+  mean: [0,0]
+  var: [1,1]
+  cor: 0.5
+  seed: 0
+
+val: &data !dataset.Gaussian2D
+  size: 2000
+  mean: [0,0]
+  var: [1,1]
+  cor: 0.5
+  seed: 0
+
+test: *data

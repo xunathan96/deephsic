@@ -1,0 +1,16 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+dataset:
+  test: !dataset.HDGM
+    size: 100000
+    dim: 40
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 1000
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True

@@ -1,0 +1,27 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+
+model: !kernel.WeightedGaussian
+  ndim: 25
+  scale: 1
+  bandwidth: 1
+  trainable: True
+
+dataset:
+  test: !dataset.BlobHD
+    size: 200000
+    dim: 50
+    var: 1
+    seed: 0
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 2000
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

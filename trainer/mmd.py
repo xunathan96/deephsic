@@ -1,0 +1,145 @@
+import numpy as np
+import torch
+from tqdm import tqdm
+from .base import BaseTrainer
+import metrics
+
+RUNNING_PER_EPOCH = 4   # number of running statistics computed per epoch
+
+class MMD(BaseTrainer):
+
+    def train_one_epoch(self, epoch: int):
+        self.model.train()
+        losses = list()
+        running_loss = 0
+        RUNNING_INTERVAL = len(self.dataloader['train'])//RUNNING_PER_EPOCH
+        for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
+                                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                                             dynamic_ncols=True,
+                                             leave=False)):
+            joint = batch.to(self.device)   # (N, 2D)
+            X,Y = marginals(joint)          # (N, D) and (N, D)
+            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+
+            loss = self.criterion(self.model, Z_alt, Z_null)
+            self.backprop(loss, self.optimizer)
+
+            losses.append(loss.item())
+            running_loss += loss.item()
+            if (i+1)%RUNNING_INTERVAL==0:
+                pbar.set_description(f"[{epoch+1}, {i+1:4d}]    loss: {running_loss/RUNNING_INTERVAL:.2e}")
+                running_loss = 0
+
+        return sum(losses)/len(losses)
+
+
+    @torch.no_grad
+    def validation(self, epoch: int, *args, **kwds):
+        self.model.eval()
+        losses = list()
+        running_loss = 0
+        RUNNING_INTERVAL = len(self.dataloader['val'])//RUNNING_PER_EPOCH
+        for i, batch in enumerate(pbar:=tqdm(self.dataloader['val'],
+                                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                                             dynamic_ncols=True,
+                                             leave=False)):
+            joint = batch.to(self.device)   # (N, 2D)
+            X,Y = marginals(joint)          # (N, D) and (N, D)
+            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+            loss = self.criterion(self.model, Z_alt, Z_null)
+
+            losses.append(loss.item())
+            running_loss += loss.item()
+            if (i+1)%RUNNING_INTERVAL==0:
+                pbar.set_description(f"[{epoch+1}, {i+1:4d}]    loss: {running_loss/RUNNING_INTERVAL:.2e}")
+                running_loss = 0
+
+        return sum(losses)/len(losses)
+
+
+    @torch.no_grad
+    def inference(self,
+                  n_permutations: int = 500,
+                  significance: float = 0.05):
+        self.model.eval()
+        n_tests = len(self.dataloader['test'])
+        samples = list()
+        for i, batch in enumerate(pbar:=tqdm(self.dataloader['test'],
+                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                                            dynamic_ncols=True,
+                                            leave=False)):
+            joint = batch.to(self.device)   # (N, 2D)
+            X,Y = marginals(joint)          # (N, D) and (N, D)
+            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+            mmd2, var, p_value, r = metrics.mmd.permutation_test(self.model,
+                                                                 Z_alt, Z_null,
+                                                                 compute_var=False,
+                                                                 n_permutations=n_permutations)
+            samples.append((mmd2, var, p_value, r))
+            pbar.set_description(f"[{i+1}/{n_tests}] mmd2: {mmd2}, p-value: {p_value:.4f}")
+        return samples
+
+
+    def compute_metrics(self,
+                        samples: list,
+                        significance: float = 0.05):
+        mmd2_arr, var_arr, p_value_arr, thresh_arr = zip(*samples)
+        mmd2_arr = np.array(mmd2_arr)
+        var_arr = np.array(var_arr)
+        p_value_arr = np.array(p_value_arr)
+        thresh_arr = np.array(thresh_arr)
+        stats = dict()
+        stats['mmd2'] = mmd2_arr.mean()
+        stats['var'] = var_arr.mean() if None not in var_arr else None
+        stats['p-value'] = p_value_arr.mean()
+        stats['thresh'] = thresh_arr.mean()
+        stats['power'] = (p_value_arr < significance).mean()
+        return stats
+
+
+    def eval(self):
+        # run inference on the test set and return the computed metrics dictionary
+        if not self.is_test:
+            raise Exception(f"Evaluation error: no test data specified.")
+        samples = self.inference(n_permutations=500)
+        stats = self.compute_metrics(samples, significance=0.05)
+        return stats
+
+
+
+
+
+
+# ==============================
+#       HELPER FUNCTIONS
+# ==============================
+
+def marginals(joint: torch.Tensor):
+    # split joint samples into marginals X,Y
+    dim = joint.shape[-1]
+    mask = torch.zeros(dim, dtype=torch.bool, device=joint.device)
+    mask[dim//2+1:] = True
+    mask[1] = True
+    return joint[:,~mask], joint[:,mask]
+
+def compile_samples(X, Y, test='two-sample'):
+    # prepare the data samples based on the type of hypothesis test
+    # X: (N, D)
+    # Y: (N, D)
+    if (m:=X.shape[0]) != (n:=Y.shape[0]):
+        raise Exception(f"Error: expected X and Y to have equal number of samples but got {m} and {n} samples.")
+    device = X.device
+
+    if test=='two-sample':
+        return X, Y
+
+    elif test=='independence':
+        # compile samples from null and alternate hypotheses
+        Y_shuff = Y[torch.randperm(n, device=device)]
+        Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
+        Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
+        return Z_alt, Z_null
+
+    else:
+        raise NotImplementedError()
+

@@ -1,0 +1,20 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/deepkernel/mlp/mlpB.dim30.yml
+
+dataset:
+  test: !dataset.HDGM
+    size: 20000
+    dim: 30
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 200
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

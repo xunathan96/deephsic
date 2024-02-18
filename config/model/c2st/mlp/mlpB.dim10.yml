@@ -1,0 +1,9 @@
+# -----------------------
+#     MLP CLASSIFIER
+# -----------------------
+
+!model.MLP
+name: mlpB
+features: [10, 20, 20, 10, 1]
+activations: ELU
+batch_norm: False

@@ -1,0 +1,18 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.HDGM
+  name: HDGM-40
+  size: 100000  # needs at least 100,000 samples for deep kernel to train
+  dim: 40
+
+val: &data !dataset.HDGM
+  name: HDGM-40
+  size: 4000
+  dim: 40
+
+test: !dataset.HDGM
+  name: HDGM-40
+  size: 200000  # 2000 samples * 100 batches
+  dim: 40

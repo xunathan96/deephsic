@@ -1,0 +1,21 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/c2st/mlp/mlpA.dim40.yml
+
+dataset:
+  test: !dataset.HDGM
+    name: HDGM-40
+    size: 20000
+    dim: 40
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 200
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

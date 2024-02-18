@@ -1,0 +1,22 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !kernel.Gaussian
+  name: bandwidth
+  scale: 1
+  bandwidth: 1
+  trainable: True
+dataset:
+  test: !dataset.HDGM
+    name: HDGM-30
+    size: 20000
+    dim: 30
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 200
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True

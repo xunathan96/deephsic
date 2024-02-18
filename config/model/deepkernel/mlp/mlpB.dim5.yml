@@ -1,0 +1,20 @@
+# -----------------------
+#      MLP KERNEL
+# -----------------------
+
+!kernel.DeepKernel
+name: mlpB
+featurizer: !model.MLP
+  features: [5, 10, 10, 5]
+  activations: ELU
+  batch_norm: False
+feature_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+eps: 0.01
+trainable: True

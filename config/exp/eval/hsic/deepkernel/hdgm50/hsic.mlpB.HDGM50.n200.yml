@@ -1,0 +1,24 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model:
+  tied: False
+  k: !include config/model/deepkernel/mlp/mlpB.dim25.yml
+  l: !include config/model/deepkernel/mlp/mlpB.dim25.yml
+
+dataset:
+  test: !dataset.HDGM
+    name: HDGM-50
+    size: 20000
+    dim: 50
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 200
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

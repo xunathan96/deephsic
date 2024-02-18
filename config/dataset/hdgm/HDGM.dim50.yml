@@ -1,0 +1,18 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.HDGM
+  name: HDGM-50
+  size: 100000
+  dim: 50
+
+val: &data !dataset.HDGM
+  name: HDGM-50
+  size: 4000
+  dim: 50
+
+test: !dataset.HDGM
+  name: HDGM-50
+  size: 200000  # 2000 samples * 100 batches
+  dim: 50

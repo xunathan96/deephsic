@@ -1,0 +1,24 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model:
+  tied: False
+  k: !include config/model/deepkernel/mlp/mlpA.dim10.yml
+  l: !include config/model/deepkernel/mlp/mlpA.dim10.yml
+
+dataset:
+  test: !dataset.HDGM
+    name: HDGM-20
+    size: 200000  # 2000 samples * 100 batches
+    dim: 20
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 2000  # each permutation test on 2000 samples
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

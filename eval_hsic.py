@@ -1,0 +1,198 @@
+import argparse
+import torch
+from torch.utils.data import DataLoader
+from datetime import datetime
+from tqdm import tqdm
+from pathlib import Path
+from collections import defaultdict
+
+import metrics
+from config.config import Config
+from trainer import registry
+from utils import utils
+from kernel import Kernel
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config',
+                        type=str,
+                        help='path to the experiment config file.')
+    parser.add_argument('--cpu',
+                        action='store_true',
+                        help='use cpu during experiement.')
+    parser.add_argument('--gpu',
+                        type=int,
+                        default=0,
+                        help='the gpu core to use during experiment.')
+    parser.add_argument('--save-dir',
+                        type=str,
+                        default=default_save_dir(),
+                        help='directory to save experiment results/logs.')
+    parser.add_argument('--pretrained-path',
+                        type=str,
+                        help='filepath from which to load the checkpoint.')
+    return parser.parse_args()
+
+def default_save_dir():
+    dt = datetime.now()
+    dtstr = dt.strftime('%Y%m%d-%H%M%S')
+    return f'exp/{dtstr}/'
+
+
+
+def main(args):
+    cfg = Config(file=args.config,
+                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
+                 save_dir=args.save_dir)
+    utils.seed_all(cfg['seed'])
+    dHsic = registry.get('HSIC').build(cfg)
+    dHsic.load(args.pretrained_path)
+    stats = dHsic.eval()
+    print(stats)
+
+    # save evaluation metrics
+    table = utils.Tabular(f"{args.save_dir}/stats.csv")
+    row = {
+        'dataset': cfg['dataset']['test']['name'],
+        'kernel': kernel_name(cfg),
+        'n-samples': cfg['dataloader']['test']['batch_size'],
+        **stats
+    }
+    table.append(row)
+    table.to_csv()
+
+    # save config
+    sf = Path(cfg['save_dir'])/"settings"/Path(args.config).name
+    cfg.save(sf)
+
+
+
+
+
+
+# ==============================
+#       HYPOTHESIS TESTS
+# ==============================
+
+def eval_test_power(dataloader: DataLoader,
+                k: Kernel,
+                l: Kernel,
+                n_permutations: int = 500,
+                significance: float = 0.05,
+                device: torch.device = torch.device('cpu')):
+    r"""evaluate the empirical test power on the given dataloader using hsic with kernels k and l"""
+    stats = defaultdict(list)
+    n_tests = len(dataloader)
+    n_reject = 0
+    for i, batch in enumerate(pbar:=tqdm(dataloader,
+                                         bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                                         dynamic_ncols=True,
+                                         leave=False)):
+        joint = batch.to(device)    # (B, D)
+        X,Y = marginals(joint)
+        hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
+                                                              X, Y,
+                                                              compute_var=False,
+                                                              n_permutations=n_permutations,
+                                                              significance=significance)
+        if p_value < significance:
+            n_reject += 1   # reject null hypothesis
+        pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
+        stats['hsic'].append(hsic.item())
+        stats['p-value'].append(p_value)
+        stats['thresh'].append(r)
+
+    avg = lambda x: sum(x)/len(x)
+    stats['hsic'] = avg(stats['hsic'])
+    stats['var'] = None
+    stats['p-value'] = avg(stats['p-value'])
+    stats['thresh'] = avg(stats['thresh'])
+    stats['power'] = n_reject/n_tests
+    return stats
+
+
+def type1_err(args):
+    cfg = Config(file=args.config,
+                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
+                 save_dir=args.save_dir)
+    utils.seed_all(cfg['seed'])
+    dHsic = registry.get('HSIC').build(cfg)
+    dHsic.load(args.pretrained_path)
+    type1 = dHsic.eval_typeI_error()
+    print(type1)
+
+    # save evaluation metrics
+    table = utils.Tabular(f"{args.save_dir}/stats.csv")
+    row = {
+        'dataset': f"HDGM-{cfg['dataset']['test']['dim']}",
+        'kernel': kernel_name(cfg),
+        'n-samples': cfg['dataloader']['test']['batch_size'],
+        'type1_err':type1,
+    }
+    table.append(row)
+    table.to_csv()
+
+    # save config
+    sf = Path(cfg['save_dir'])/"settings"/Path(args.config).name
+    cfg.save(sf)
+
+
+
+# ==============================
+#       HELPER FUNCTIONS
+# ==============================
+
+def marginals(joint: torch.Tensor):
+    # split joint samples into marginals X,Y
+    dim = joint.shape[-1]
+    mask = torch.zeros(dim, dtype=torch.bool, device=joint.device)
+    mask[dim//2+1:] = True
+    mask[1] = True
+    return joint[:,~mask], joint[:,mask]
+
+
+def kernel_name(cfg):
+    k_name = cfg['model']['k']['name']
+    l_name = cfg['model']['l']['name']
+    if cfg['model']['tied']:
+        return f"{k_name}-tied"
+    else:
+        return f"{k_name}:{l_name}"
+
+
+def print_params(model):
+    print('feature_kernel_bandwidth:', model.feature_kernel.bandwidth)
+    print('smoothing_kernel_bandwidth',model.smoothing_kernel.bandwidth)
+    print('deepkernel_eps:', model.eps)
+    print(model.featurizer.net[1].linear.weight)
+
+def are_params_equal(model_1: torch.nn.Module, model_2: torch.nn.Module):
+    for p1, p2 in zip(model_1.parameters(), model_2.parameters()):
+        if p1.data.ne(p2.data).sum() > 0:
+            return False
+    return True
+
+
+def compare_models(model_1: torch.nn.Module, model_2: torch.nn.Module):
+    models_differ = 0
+    for key_item_1, key_item_2 in zip(model_1.state_dict().items(), model_2.state_dict().items()):
+        if torch.equal(key_item_1[1], key_item_2[1]):
+            pass
+        else:
+            models_differ += 1
+            if (key_item_1[0] == key_item_2[0]):
+                print('Mismtach found at', key_item_1[0])
+            else:
+                raise Exception
+    if models_differ == 0:
+        #print('Models match perfectly! :)')
+        return True
+    return False
+
+
+if __name__=='__main__':
+    main(parse_args())
+
+
+
+

@@ -1,0 +1,27 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+
+train: !dataset.CIFAR10H
+  name: 'Cifar10h'
+  root: 'data/cifar10h/raw'
+  split: 'train'
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
+
+val: !dataset.CIFAR10H
+  name: 'Cifar10h'
+  root: 'data/cifar10h/raw'
+  split: 'val'
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
+
+test: !dataset.CIFAR10H
+  name: 'Cifar10h'
+  root: 'data/cifar10h/raw'
+  split: 'test'
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
