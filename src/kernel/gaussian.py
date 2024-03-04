@@ -113,7 +113,9 @@ def median_heuristic(*batches):
     Z = torch.cat(batches, dim=0)
     Dzz = pDist2(Z,Z)
     upper_idx = torch.triu_indices(*Dzz.shape, offset=1)
-    dist2 = Dzz[*upper_idx]
+    row_ids, col_ids = zip(*upper_idx)
+    dist2 = Dzz[list(zip(*upper_idx))]
+    # dist2 = Dzz[*upper_idx]   # NOTE: Unpack operator in subscript requires Python 3.11 or newer
     return torch.sqrt(dist2.median()/2).item()
 
 

@@ -16,11 +16,11 @@ class C2ST(BaseTrainer):
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
                                              leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
-            Z,t = compile_samples(X,Y)      # (2N 2D) and (2N)
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
+            X, Y, t = compile_samples(X,Y)  # (2N, *, Dx), (2N, *, Dy), and (2N,)
 
-            logits = self.model(Z)          # (2N, 1)
+            logits = self.model(X, Y)       # (2N, 1)
             logits = torch.flatten(logits, start_dim=-2)
             loss = self.criterion(logits, t)
             self.backprop(loss, self.optimizer)
@@ -43,11 +43,11 @@ class C2ST(BaseTrainer):
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
                                              leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
-            Z,t = compile_samples(X,Y)      # (2N 2D) and (2N)
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
+            X, Y, t = compile_samples(X,Y)  # (2N, *, Dx), (2N, *, Dy), and (2N,)
 
-            logits = self.model(Z)          # (2N, 1)
+            logits = self.model(X, Y)       # (2N, 1)
             logits = torch.flatten(logits, start_dim=-2)
             loss = self.criterion(logits, t)
 
@@ -62,17 +62,24 @@ class C2ST(BaseTrainer):
 
     @torch.no_grad
     def inference(self,
+                  n_tests: int = 100,
                   n_permutations: int = 500,
                   significance: float = 0.05):
         self.model.eval()
-        n_tests = len(self.dataloader['test'])
         samples = list()
-        for i, batch in enumerate(pbar:=tqdm(self.dataloader['test'],
-                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                            dynamic_ncols=True,
-                                            leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
             acc, p_value = metrics.c2st.permutation_test(self.model,
                                                          X, Y,
                                                          n_permutations=n_permutations)
@@ -117,7 +124,7 @@ def marginals(joint: torch.Tensor):
     mask[1] = True
     return joint[:,~mask], joint[:,mask]
 
-def compile_samples(X, Y, test='independence'):
+def compile_samples_depreciated(X, Y, test='independence'):
     # prepare the data samples based on the type of hypothesis test
     if (m:=X.shape[0]) != (n:=Y.shape[0]):
         raise Exception(f"Error: expected X and Y to have equal number of samples but got {m} and {n} samples.")
@@ -143,3 +150,55 @@ def compile_samples(X, Y, test='independence'):
     return Z, t
 
 
+def compile_samples(X, Y, test='independence'):
+    # prepare the data samples based on the type of hypothesis test
+    if (m:=X.shape[0]) != (n:=Y.shape[0]):
+        raise Exception(f"Error: expected X and Y to have equal number of samples but got {m} and {n} samples.")
+    device = X.device
+
+    if test=='independence':
+        # compile samples from null (Px*Py) and alternate (Pxy) hypotheses
+        Y_prime = Y[torch.randperm(n, device=device)]
+        X_null_alt = torch.cat((X, X), dim=0)        # (2N, *, Dx)
+        Y_null_alt = torch.cat((Y_prime, Y), dim=0)  # (2N, *, Dy)
+        # create label vector
+        t = torch.zeros(2*n, device=device)
+        t[n:] = 1
+        # shuffle samples
+        shuffle_idx = torch.randperm(2*n, device=device)
+        X = X_null_alt[shuffle_idx]
+        Y = Y_null_alt[shuffle_idx]
+        t = t[shuffle_idx]
+
+    elif test=='two-sample':
+        raise NotImplementedError()
+
+    return X, Y, t
+
+
+"""
+def train_one_epoch_depreciated(self, epoch: int):
+    self.model.train()
+    losses = list()
+    running_loss = 0
+    for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
+                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                                            dynamic_ncols=True,
+                                            leave=False)):
+        X = batch[0].to(self.device)    # (N,Dx)
+        Y = batch[1].to(self.device)    # (N,Dy)
+        Z,t = compile_samples(X,Y)      # (2N 2D) and (2N)
+
+        logits = self.model(Z)          # (2N, 1)
+        logits = torch.flatten(logits, start_dim=-2)
+        loss = self.criterion(logits, t)
+        self.backprop(loss, self.optimizer)
+
+        losses.append(loss.item())
+        running_loss += loss.item()
+        if (i+1)%RUNNING_INTERVAL==0:
+            pbar.set_description(f"[{epoch+1}, {i+1:4d}]    loss: {running_loss/RUNNING_INTERVAL:.4f}")
+            running_loss = 0
+
+    return sum(losses)/len(losses)
+"""

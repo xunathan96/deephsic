@@ -150,7 +150,7 @@ class HSIC(HSICBaseTrainer):
 
 
     @torch.no_grad
-    def inference(self,
+    def inference_depreciated(self,
                   n_permutations: int = 500,
                   significance: float = 0.05):
         self.model['k'].eval()
@@ -161,6 +161,36 @@ class HSIC(HSICBaseTrainer):
                                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                             dynamic_ncols=True,
                                             leave=False)):
+            X = batch[0].to(self.device)    # (B,Dx)
+            Y = batch[1].to(self.device)    # (B,Dy)
+            hsic, var, p_value, r = metrics.hsic.permutation_test(self.model['k'], self.model['l'],
+                                                                  X, Y,
+                                                                  compute_var=False,
+                                                                  n_permutations=n_permutations)
+            samples.append((hsic, var, p_value, r))
+            pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
+        return samples
+
+
+    @torch.no_grad
+    def inference(self,
+                  n_tests: int = 100,
+                  n_permutations: int = 500,
+                  significance: float = 0.05):
+        self.model['k'].eval()
+        self.model['l'].eval()
+        samples = list()
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
             X = batch[0].to(self.device)    # (B,Dx)
             Y = batch[1].to(self.device)    # (B,Dy)
             hsic, var, p_value, r = metrics.hsic.permutation_test(self.model['k'], self.model['l'],
@@ -193,7 +223,7 @@ class HSIC(HSICBaseTrainer):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
-        samples = self.inference(n_permutations=500)
+        samples = self.inference(n_tests=100, n_permutations=500)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 
@@ -284,40 +314,6 @@ class HSIC(HSICBaseTrainer):
         with np.printoptions(precision=5, suppress=True):
             print(grid)
 
-
-
-
-class HSIC_cifar10h(BaseTrainer):
-    
-    def train_one_epoch(self, epoch: int):
-        self.model.train()
-        RUNNING_INTERVAL = len(self.dataloader['train'])//RUNNING_PER_EPOCH
-
-        l = Gaussian().to(self.device)
-        #k = lambda img: torch.flatten(self.model(img), start_dim=-3)
-
-        losses = list()
-        running_loss = 0
-        for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
-                                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                             dynamic_ncols=True,
-                                             leave=False)):
-            img, t, soft_t = batch
-            img: torch.Tensor = img.to(self.device)#.double()
-            t: torch.Tensor = t.to(self.device)
-            soft_t: torch.Tensor = soft_t.to(self.device)
-
-            loss = self.criterion(self.model, l, img, soft_t)
-            self.backprop(loss, self.optimizer)
-            #print('power:', -loss)
-        
-            losses.append(loss.item())
-            running_loss += loss.item()
-            if (i+1)%RUNNING_INTERVAL==0:
-                pbar.set_description(f"[{epoch+1}, {i+1:4d}]    loss: {running_loss/RUNNING_INTERVAL:.2e}")
-                running_loss = 0
-
-        return sum(losses)/len(losses)
 
 
 

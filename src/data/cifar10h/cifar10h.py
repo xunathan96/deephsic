@@ -51,6 +51,7 @@ class CIFAR10H(CIFAR10):
             tuple: (image, target, softlabel) where target is index of the target class, softlabel is the vector of class probs
         """
         img, target = self.data[index], self.soft_labels[index] # self.targets[index]
+        target_id = self.targets[index]
 
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
@@ -62,4 +63,4 @@ class CIFAR10H(CIFAR10):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        return img, target
+        return img, target[[target_id]]

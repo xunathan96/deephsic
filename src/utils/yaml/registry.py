@@ -1,6 +1,7 @@
 from .base import *
 from utils.enums import YamlNodeType
 
+import torch.nn as nn
 import torchvision
 import optim, data, model, kernel, mcmc
 
@@ -77,6 +78,9 @@ yamlRegistry.register(yaml_tag=u'!criterion.MMDTestPower',          nodetype=Yam
 yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.HSICTestPower)
 
 # models
+yamlRegistry.register(yaml_tag=u'!nn.ModuleList',   nodetype=YamlNodeType.SEQUENCE).map_to(nn.ModuleList)
+yamlRegistry.register(yaml_tag=u'!model.Identity',  nodetype=YamlNodeType.SCALAR).map_to(model.base.Identity)
+yamlRegistry.register(yaml_tag=u'!model.Neck',      nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
 yamlRegistry.register(yaml_tag=u'!model.MLP',       nodetype=YamlNodeType.MAPPING).map_to(model.mlp.MLP)
 yamlRegistry.register(yaml_tag=u'!model.CNN',       nodetype=YamlNodeType.MAPPING).map_to(model.cnn.CNN)
 yamlRegistry.register(yaml_tag=u'!model.Gaussian',  nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Gaussian)
