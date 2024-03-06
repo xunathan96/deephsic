@@ -80,6 +80,7 @@ yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=Yam
 # models
 yamlRegistry.register(yaml_tag=u'!nn.ModuleList',   nodetype=YamlNodeType.SEQUENCE).map_to(nn.ModuleList)
 yamlRegistry.register(yaml_tag=u'!model.Identity',  nodetype=YamlNodeType.SCALAR).map_to(model.base.Identity)
+yamlRegistry.register(yaml_tag=u'!model.Flatten',   nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
 yamlRegistry.register(yaml_tag=u'!model.Neck',      nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
 yamlRegistry.register(yaml_tag=u'!model.MLP',       nodetype=YamlNodeType.MAPPING).map_to(model.mlp.MLP)
 yamlRegistry.register(yaml_tag=u'!model.CNN',       nodetype=YamlNodeType.MAPPING).map_to(model.cnn.CNN)
@@ -88,6 +89,7 @@ yamlRegistry.register(yaml_tag=u'!model.Dirichlet', nodetype=YamlNodeType.MAPPIN
 
 # kernels
 yamlRegistry.register(yaml_tag=u'!kernel.Gaussian',         nodetype=YamlNodeType.MAPPING).map_to(kernel.Gaussian)
+yamlRegistry.register(yaml_tag=u'!kernel.Linear',           nodetype=YamlNodeType.MAPPING).map_to(kernel.Linear)
 yamlRegistry.register(yaml_tag=u'!kernel.DeepKernel',       nodetype=YamlNodeType.MAPPING).map_to(kernel.DeepKernel)
 yamlRegistry.register(yaml_tag=u'!kernel.WeightedGaussian', nodetype=YamlNodeType.MAPPING).map_to(kernel.WeightedGaussian)
 

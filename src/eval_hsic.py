@@ -162,7 +162,7 @@ def kernel_name(cfg):
 
 def print_params(model):
     print('feature_kernel_bandwidth:', model.feature_kernel.bandwidth)
-    print('smoothing_kernel_bandwidth',model.smoothing_kernel.bandwidth)
+    print('smoothing_kernel_bandwidth', model.smoothing_kernel.bandwidth)
     print('deepkernel_eps:', model.eps)
     print(model.featurizer.net[1].linear.weight)
 

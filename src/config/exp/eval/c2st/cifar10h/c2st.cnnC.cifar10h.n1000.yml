@@ -1,0 +1,16 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/c2st/cnn/cnnC.yml
+dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 1000
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

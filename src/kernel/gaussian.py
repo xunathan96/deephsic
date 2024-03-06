@@ -8,9 +8,11 @@ class Gaussian(BaseKernel):
     def __init__(self,
                  scale: float = 1.,
                  bandwidth: float = 1.,
+                 flatten_input: bool = False,
                  trainable: bool = False):
         super().__init__()
         self.scale = scale
+        self.flatten_input = flatten_input
         log_sigma = torch.empty(1)
         if trainable:
             nn.init.normal_(log_sigma, mean=math.log(bandwidth), std=1)
@@ -29,6 +31,9 @@ class Gaussian(BaseKernel):
         self._bandwidth = value
 
     def forward(self, X: torch.Tensor, Y: torch.Tensor):
+        if self.flatten_input:
+            X = X.flatten(start_dim=1)
+            Y = Y.flatten(start_dim=1)
         return self.gram(X, Y)
 
     def gram(self, X: torch.Tensor, Y: torch.Tensor):
@@ -102,7 +107,7 @@ def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
     y_norm2 = torch.sum(Y**2, dim=-1)   # (Ny,)
     x_norm2 = x_norm2.unsqueeze(-1)     # (Nx, 1)
     Dxy = x_norm2 - 2*xyT + y_norm2     # (Nx, Ny) pairwise distances |x_i - y_j|^2
-    Dxy[Dxy<0] = 0
+    Dxy[Dxy<0] = 0  # TODO: clamp to stable values
     return Dxy
 
 

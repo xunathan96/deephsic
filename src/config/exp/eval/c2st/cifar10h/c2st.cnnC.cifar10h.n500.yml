@@ -3,12 +3,12 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/c2st/cnn/cnnB.yml
+model: !include config/model/c2st/cnn/cnnC.yml
 dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
 
 dataloader:
   test: !torch.DataLoader
-    batch_size: 2000
+    batch_size: 500
     shuffle: True
     drop_last: True
     num_workers: 0

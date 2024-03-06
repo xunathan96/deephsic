@@ -1,15 +1,23 @@
 import torch
-from .base import Kernel
+import torch.nn as nn
+from .base import BaseKernel
 __all__ = ['Polynomial', 'Linear']
 
 
-class Polynomial(Kernel):
+class Polynomial(BaseKernel):
     def __init__(self,
                  shift: float = 0.,
-                 degree: int = 1,):
-        self.shift = shift
+                 degree: int = 1,
+                 trainable: bool = False):
+        super().__init__()
         self.degree = degree
-    
+        shift_raw = torch.empty(1)
+        if trainable:
+            nn.init.normal_(shift_raw, mean=shift, std=1)
+        else:
+            nn.init.constant_(shift_raw, val=shift)
+        self.shift = nn.Parameter(shift_raw, requires_grad=trainable)
+
     def gram(self, X: torch.Tensor, Y: torch.Tensor):
         r"""compute the kernel gram matrix between samples X and Y
         X: (Nx, D) torch.Tensor
@@ -19,8 +27,8 @@ class Polynomial(Kernel):
 
 
 class Linear(Polynomial):
-    def __init__(self):
-        super().__init__(shift=0, degree=1)
+    def __init__(self, shift, trainable):
+        super().__init__(shift=shift, degree=1, trainable=trainable)
 
-    def gram(self, X: torch.Tensor, Y: torch.Tensor):
-        return X @ Y.T
+    #def gram(self, X: torch.Tensor, Y: torch.Tensor):
+    #    return X @ Y.T

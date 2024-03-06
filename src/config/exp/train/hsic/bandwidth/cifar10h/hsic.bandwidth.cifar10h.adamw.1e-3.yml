@@ -1,0 +1,42 @@
+# -----------------------
+#    TRAINING SETTINGS
+# -----------------------
+
+seed: 0
+model:
+  name: bandwidth
+  tied: False
+  k: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    flatten_input: True
+    trainable: True
+  l: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
+
+dataloader:
+  train: &loader !torch.DataLoader
+    batch_size: 512
+    shuffle: True
+    drop_last: False
+    num_workers: 0
+    pin_memory: True
+  val: *loader
+  test: !torch.DataLoader
+    batch_size: 128
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
+optimizer: !optim.AdamW
+  lr: 1.0e-3
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  weight_decay: 0.005
+
+criterion: !criterion.HSICTestPower
+  reg: 1.e-8
