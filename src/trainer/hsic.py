@@ -150,29 +150,6 @@ class HSIC(HSICBaseTrainer):
 
 
     @torch.no_grad
-    def inference_depreciated(self,
-                  n_permutations: int = 500,
-                  significance: float = 0.05):
-        self.model['k'].eval()
-        self.model['l'].eval()
-        n_tests = len(self.dataloader['test'])
-        samples = list()
-        for i, batch in enumerate(pbar:=tqdm(self.dataloader['test'],
-                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                            dynamic_ncols=True,
-                                            leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
-            hsic, var, p_value, r = metrics.hsic.permutation_test(self.model['k'], self.model['l'],
-                                                                  X, Y,
-                                                                  compute_var=False,
-                                                                  n_permutations=n_permutations)
-            samples.append((hsic, var, p_value, r))
-            pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
-        return samples
-
-
-    @torch.no_grad
     def inference(self,
                   n_tests: int = 100,
                   n_permutations: int = 500,
@@ -219,10 +196,14 @@ class HSIC(HSICBaseTrainer):
         return stats
 
 
-    def eval(self, *args, **kwds):
+    def eval(self, n_samples=None):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
+        if n_samples is not None:
+            self.dataloader['test'] = self.cfg['dataloader']['test'].build(
+                dataset=self.dataset['test'],
+                batch_size=n_samples)
         samples = self.inference(n_tests=100, n_permutations=500)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats

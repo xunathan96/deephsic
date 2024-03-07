@@ -1,0 +1,37 @@
+# -----------------------
+#         NECK-A
+# -----------------------
+
+!model.Neck
+name: cnnA-id@mlpA
+backbones: !nn.ModuleList
+  - !model.CNN
+    name: cnn_featurizer
+    channels:     [3,8,16,32,64,10]
+    kernel_size:  [4,4,4,4,1]
+    stride:       [2,2,2,1,1]
+    padding:      [1,1,1,0,0]
+    dilation:     [1,1,1,1,1]
+    activation:   ELU
+    batch_norm:   False
+    flatten:      True
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.MLP
+    name: mlp_head
+    features: [11, 11, 1]
+    activations: ELU
+    batch_norm: False
+connection: cat
+squeeze_single_head: True
+
+# ------------------
+# 3x32x32   (input)
+# 8x16x16
+# 16x8x8
+# 32x4x4
+# 64x1x1
+# 10x1x1
+# 10        (output)
+# ------------------
+# 11 -> 11 -> 1

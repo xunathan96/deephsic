@@ -43,6 +43,14 @@ class Gaussian(BaseKernel):
         returns the gram matrix of size (Nx, Ny) with elements k(x_i, y_j)"""
         Dxy = pDist2(X, Y)    # (Nx, Ny)
         mahalanobis = -0.5*Dxy/(self.bandwidth**2)
+
+        # print('Dxy:', Dxy)
+        # print('Dxy.max():', Dxy.max())  # for image x this max is 1730 !!
+        # print('Dxy.min():', Dxy.min())  # 0
+        # print('mahalanobis.max():', mahalanobis.max())
+        # print('mahalanobis.min():', mahalanobis.min())
+        # print('gram:', self.scale * torch.exp(mahalanobis))
+
         return self.scale * torch.exp(mahalanobis)
 
 
@@ -107,7 +115,7 @@ def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
     y_norm2 = torch.sum(Y**2, dim=-1)   # (Ny,)
     x_norm2 = x_norm2.unsqueeze(-1)     # (Nx, 1)
     Dxy = x_norm2 - 2*xyT + y_norm2     # (Nx, Ny) pairwise distances |x_i - y_j|^2
-    Dxy[Dxy<0] = 0  # TODO: clamp to stable values
+    Dxy[Dxy<0] = 0                      # TODO: clamp to stable values
     return Dxy
 
 

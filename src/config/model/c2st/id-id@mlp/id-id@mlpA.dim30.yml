@@ -1,0 +1,17 @@
+# -----------------------
+#     MLP CLASSIFIER
+# -----------------------
+
+!model.Neck
+name: id-id@mlpA.dim30
+backbones: !nn.ModuleList
+  - !model.Identity
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.MLP
+    name: mlpA
+    features: [30, 90, 90, 90, 1]
+    activations: ELU
+    batch_norm: False
+connection: cat
+squeeze_single_head: True

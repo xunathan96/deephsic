@@ -25,6 +25,10 @@ def parse_args():
     parser.add_argument('--pretrained-path',
                         type=str,
                         help='filepath from which to load the checkpoint.')
+    parser.add_argument('--n-samples',
+                        type=int,
+                        default=100,
+                        help='number of samples used to compute the test statistic (default 100).')
     return parser.parse_args()
 
 def default_save_dir():
@@ -41,7 +45,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     c2st = registry.get('C2ST').build(cfg)
     c2st.load(args.pretrained_path)
-    stats = c2st.eval()
+    stats = c2st.eval(n_samples=args.n_samples)
     print(stats)
 
     # save evaluation metrics
@@ -49,7 +53,7 @@ def main(args):
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'classifier': cfg['model']['name'],
-        'n-samples': cfg['dataloader']['test']['batch_size'],
+        'n-samples': args.n_samples,
         **stats
     }
     table.append(row)

@@ -31,6 +31,10 @@ def parse_args():
     parser.add_argument('--pretrained-path',
                         type=str,
                         help='filepath from which to load the checkpoint.')
+    parser.add_argument('--n-samples',
+                        type=int,
+                        default=100,
+                        help='number of samples used to compute the test statistic (default 100).')
     return parser.parse_args()
 
 def default_save_dir():
@@ -47,7 +51,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     dHsic = registry.get('HSIC').build(cfg)
     dHsic.load(args.pretrained_path)
-    stats = dHsic.eval()
+    stats = dHsic.eval(n_samples=args.n_samples)
     print(stats)
 
     # save evaluation metrics
@@ -55,7 +59,7 @@ def main(args):
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'kernel': kernel_name(cfg),
-        'n-samples': cfg['dataloader']['test']['batch_size'],
+        'n-samples': args.n_samples,
         **stats
     }
     table.append(row)

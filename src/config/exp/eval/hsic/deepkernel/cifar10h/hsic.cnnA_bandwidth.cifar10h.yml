@@ -1,0 +1,23 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model:
+  tied: False
+  k: !include config/model/deepkernel/cnn/cnnA.yml
+  l: !kernel.Gaussian
+    name: bandwidth
+    scale: 1
+    bandwidth: 1
+    trainable: True
+
+dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
+dataloader:
+  test: !torch.DataLoader
+    #batch_size: 128  # placeholder value
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
