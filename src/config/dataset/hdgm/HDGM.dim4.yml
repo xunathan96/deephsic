@@ -14,6 +14,6 @@ val: &data !dataset.HDGM
 
 test: !dataset.HDGM
   name: HDGM-4
-  size: 200000
+  size: 400000
   dim: 4
 

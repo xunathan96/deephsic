@@ -14,5 +14,5 @@ val: &data !dataset.HDGM
 
 test: !dataset.HDGM
   name: HDGM-50
-  size: 200000  # 2000 samples * 100 batches
+  size: 400000  # 4000 samples * 100 batches
   dim: 50

@@ -1,8 +1,0 @@
-# -----------------------
-#         MLP-0
-# -----------------------
-
-!model.MLP
-features: [32, 16, 8, 1]
-activations: ReLU
-batch_norm: True
