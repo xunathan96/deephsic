@@ -1,0 +1,13 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/deepkernel/mlp/mlpB.dim8.yml
+dataset: !include config/dataset/hdgm/HDGM.dim8.yml
+dataloader:
+  test: !torch.DataLoader
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True

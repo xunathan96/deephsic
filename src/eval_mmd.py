@@ -25,6 +25,10 @@ def parse_args():
     parser.add_argument('--pretrained-path',
                         type=str,
                         help='filepath from which to load the checkpoint.')
+    parser.add_argument('--n-samples',
+                        type=int,
+                        default=100,
+                        help='number of samples used to compute the test statistic (default 100).')
     return parser.parse_args()
 
 def default_save_dir():
@@ -41,15 +45,15 @@ def main(args):
     utils.seed_all(cfg['seed'])
     deepMMD = registry.get('MMD').build(cfg)
     deepMMD.load(args.pretrained_path)
-    stats = deepMMD.eval()
+    stats = deepMMD.eval(n_samples=args.n_samples)
     print(stats)
 
     # save evaluation metrics
     table = utils.Tabular(f"{args.save_dir}/stats.csv")
     row = {
-        'dataset': f"HDGM-{cfg['dataset']['test']['dim']}",
-        'kernel': "mlp_small",
-        'n-samples': cfg['dataloader']['test']['batch_size'],
+        'dataset': cfg['dataset']['test']['name'],
+        'kernel': cfg['model']['name'],
+        'n-samples': args.n_samples,
         **stats
     }
     table.append(row)
@@ -58,6 +62,20 @@ def main(args):
     # save config
     sf = Path(cfg['save_dir'])/"settings"/Path(args.config).name
     cfg.save(sf)
+
+
+
+# ==============================
+#       HELPER FUNCTIONS
+# ==============================
+
+def kernel_name(cfg):
+    k_name = cfg['model']['k']['name']
+    l_name = cfg['model']['l']['name']
+    if cfg['model']['tied']:
+        return f"{k_name}-tied"
+    else:
+        return f"{k_name}:{l_name}"
 
 
 

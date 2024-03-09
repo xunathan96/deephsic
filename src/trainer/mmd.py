@@ -4,7 +4,7 @@ from tqdm import tqdm
 from .base import BaseTrainer
 import metrics
 
-RUNNING_PER_EPOCH = 4   # number of running statistics computed per epoch
+RUNNING_PER_EPOCH = 1   # number of running statistics computed per epoch
 
 class MMD(BaseTrainer):
 
@@ -17,11 +17,11 @@ class MMD(BaseTrainer):
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
                                              leave=False)):
-            joint = batch.to(self.device)   # (N, 2D)
-            X,Y = marginals(joint)          # (N, D) and (N, D)
-            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+            X = batch[0].to(self.device)    # (N,Dx)
+            Y = batch[1].to(self.device)    # (N,Dy)
+            Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D)
 
-            loss = self.criterion(self.model, Z_alt, Z_null)
+            loss = self.criterion(self.model, Z_null, Z_alt)
             self.backprop(loss, self.optimizer)
 
             losses.append(loss.item())
@@ -43,10 +43,10 @@ class MMD(BaseTrainer):
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
                                              leave=False)):
-            joint = batch.to(self.device)   # (N, 2D)
-            X,Y = marginals(joint)          # (N, D) and (N, D)
-            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
-            loss = self.criterion(self.model, Z_alt, Z_null)
+            X = batch[0].to(self.device)    # (N,Dx)
+            Y = batch[1].to(self.device)    # (N,Dy)
+            Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+            loss = self.criterion(self.model, Z_null, Z_alt)
 
             losses.append(loss.item())
             running_loss += loss.item()
@@ -59,20 +59,28 @@ class MMD(BaseTrainer):
 
     @torch.no_grad
     def inference(self,
+                  n_tests: int = 100,
                   n_permutations: int = 500,
                   significance: float = 0.05):
         self.model.eval()
-        n_tests = len(self.dataloader['test'])
         samples = list()
-        for i, batch in enumerate(pbar:=tqdm(self.dataloader['test'],
-                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                            dynamic_ncols=True,
-                                            leave=False)):
-            joint = batch.to(self.device)   # (N, 2D)
-            X,Y = marginals(joint)          # (N, D) and (N, D)
-            Z_alt, Z_null = compile_samples(X,Y, test='independence')   # (N, 2D) and (N, 2D)
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
+            X = batch[0].to(self.device)    # (N,Dx)
+            Y = batch[1].to(self.device)    # (N,Dy)
+            Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D)
+
             mmd2, var, p_value, r = metrics.mmd.permutation_test(self.model,
-                                                                 Z_alt, Z_null,
+                                                                 Z_null, Z_alt,
                                                                  compute_var=False,
                                                                  n_permutations=n_permutations)
             samples.append((mmd2, var, p_value, r))
@@ -97,15 +105,17 @@ class MMD(BaseTrainer):
         return stats
 
 
-    def eval(self):
+    def eval(self, n_samples=None):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
-        samples = self.inference(n_permutations=500)
+        if n_samples is not None:
+            self.dataloader['test'] = self.cfg['dataloader']['test'].build(
+                dataset=self.dataset['test'],
+                batch_size=n_samples)
+        samples = self.inference(n_tests=100, n_permutations=500)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
-
-
 
 
 
@@ -113,14 +123,6 @@ class MMD(BaseTrainer):
 # ==============================
 #       HELPER FUNCTIONS
 # ==============================
-
-def marginals(joint: torch.Tensor):
-    # split joint samples into marginals X,Y
-    dim = joint.shape[-1]
-    mask = torch.zeros(dim, dtype=torch.bool, device=joint.device)
-    mask[dim//2+1:] = True
-    mask[1] = True
-    return joint[:,~mask], joint[:,mask]
 
 def compile_samples(X, Y, test='two-sample'):
     # prepare the data samples based on the type of hypothesis test
@@ -138,7 +140,7 @@ def compile_samples(X, Y, test='two-sample'):
         Y_shuff = Y[torch.randperm(n, device=device)]
         Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
         Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
-        return Z_alt, Z_null
+        return Z_null, Z_alt
 
     else:
         raise NotImplementedError()
