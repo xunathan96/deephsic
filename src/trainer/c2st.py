@@ -64,7 +64,8 @@ class C2ST(BaseTrainer):
     def inference(self,
                   n_tests: int = 100,
                   n_permutations: int = 500,
-                  significance: float = 0.05):
+                  significance: float = 0.05,
+                  statistic: str = 'logit'):
         self.model.eval()
         samples = list()
         test_iter = iter(self.dataloader['test'])
@@ -82,6 +83,7 @@ class C2ST(BaseTrainer):
             Y = batch[1].to(self.device)    # (N, *, Dy)
             acc, p_value = metrics.c2st.permutation_test(self.model,
                                                          X, Y,
+                                                         statistic=statistic,
                                                          n_permutations=n_permutations)
             samples.append((acc, p_value))
             pbar.set_description(f"[{i+1}/{n_tests}] accuracy: {acc}, p-value: {p_value:.4f}")
@@ -95,13 +97,13 @@ class C2ST(BaseTrainer):
         accs = np.array(accs)
         p_values = np.array(p_values)
         stats = dict()
-        stats['acc'] = accs.mean()
+        stats['statistic'] = accs.mean()
         stats['p-value'] = p_values.mean()
         stats['power'] = (p_values<significance).mean()
         return stats
 
 
-    def eval(self, n_samples=None):
+    def eval(self, n_samples=None, statistic='logit'):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -109,8 +111,8 @@ class C2ST(BaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests=100, n_permutations=500)
-        stats = self.compute_metrics(samples, significance=0.05)
+        samples = self.inference(n_tests=100, n_permutations=500, statistic=statistic)
+        stats = self.compute_metrics(samples, significance=0.05, statistic=statistic)
         return stats
 
 

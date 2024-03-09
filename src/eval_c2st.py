@@ -29,6 +29,11 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of samples used to compute the test statistic (default 100).')
+    parser.add_argument('--statistic',
+                        type=str,
+                        choices=['accuracy', 'logit'],
+                        default='logit',
+                        help='test statistic to use.')
     return parser.parse_args()
 
 def default_save_dir():
@@ -45,7 +50,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     c2st = registry.get('C2ST').build(cfg)
     c2st.load(args.pretrained_path)
-    stats = c2st.eval(n_samples=args.n_samples)
+    stats = c2st.eval(n_samples=args.n_samples, statistic=args.statistic)
     print(stats)
 
     # save evaluation metrics
@@ -53,6 +58,7 @@ def main(args):
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'classifier': cfg['model']['name'],
+        'type': args.statistic,
         'n-samples': args.n_samples,
         **stats
     }

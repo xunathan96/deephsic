@@ -10,7 +10,6 @@ def accuracy(pred: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
     returns the scalar accuracy."""
     return (pred==t).float().mean()
 
-
 def accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
     # compute the accuracy given the logits (N,) and labels (N,)
     probs = torch.sigmoid(logits)
@@ -18,8 +17,72 @@ def accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
     preds[probs>=0.5] = 1
     return accuracy(preds, t)
 
+def soft_accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
+    # compute the soft accuracy based on logits (N,) and labels (N,)
+    # logits = z_0 - z_1
+    # logits > 0 --> P(y=1|x)>0.5
+    # logits < 0 --> P(y=1|x)<0.5
+    return logits[t==1].mean() - logits[t==0].mean()
+
+
 
 def permutation_test(classifier: nn.Module,
+                     X: torch.Tensor,
+                     Y: torch.Tensor,
+                     statistic: str = 'logit',
+                     n_permutations: int = 500):
+    r"""perform a permutation test to compute the test statistic and p-value.
+    classifier: Pytorch model with output as unnormalized logits
+    X: (N,*,Dx) samples from Pxy
+    Y: (N,*,Dy) samples from Pxy
+    statistic: 'accuracy' for c2st-s or 'logit' for c2st-l
+    returns the test statistic and its p-value under the null hypothesis
+    """
+    n = X.shape[0]
+    device = X.device
+    # C2ST test statistic is (soft) accuracy between samples Z=(X,Y) from null and alternate distributions
+    shuffle_idx = torch.randperm(n, device=device)
+    Y_null = Y[shuffle_idx]
+    Z_null = (X,Y_null)
+    Z_alt = (X,Y)
+    # get test samples
+    X_test, Y_test = catzip(Z_null, Z_alt, dim=0)   # (2N,*,Dx) and (2N,*,Dy)
+    # get test labels
+    t_null = torch.zeros(n, device=device)
+    t_alt = torch.ones(n, device=device)
+    t = torch.cat((t_null, t_alt))    # (2N,)
+    # compute test statistic (accuracy)
+    logits = classifier(X_test, Y_test).squeeze(-1) # (2N,)
+    if statistic == 'accuracy':
+        acc = accuracy_with_logits(logits, t)
+    elif statistic == 'logit':
+        acc = soft_accuracy_with_logits(logits, t)
+
+    count = 0
+    stats = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples in Y for null hypothesis (i.e. Px*Py)
+        shuffle_idx = torch.randperm(n, device=device)
+        Y_shuffled = Y[shuffle_idx]
+        Y_test = torch.cat((Y_null, Y_shuffled), dim=0) # (2N,*,Dy)
+        # compute test statistics under the null distribution
+        logits = classifier(X_test, Y_test).squeeze(-1)
+        if statistic == 'accuracy':
+            acc_null = accuracy_with_logits(logits, t)
+        elif statistic == 'logit':
+            acc_null = soft_accuracy_with_logits(logits, t)
+        stats.append(acc_null.item())
+        if acc_null > acc:
+            count += 1
+
+    p_value = count/n_permutations
+    return acc.item(), p_value
+
+
+def permutation_test_depreciated(classifier: nn.Module,
                      X: torch.Tensor,
                      Y: torch.Tensor,
                      n_permutations: int = 500):
@@ -56,40 +119,15 @@ def permutation_test(classifier: nn.Module,
     return acc.item(), p_value
 
 
-def permutation_test_depreciated(classifier: nn.Module,
-                     X: torch.Tensor,
-                     Y: torch.Tensor,
-                     n_permutations: int = 500):
-    r"""perform a permutation test to compute the accuracy and p-value of the test statistic.
-    classifier: Pytorch model with output as unnormalized logits
-    X: (N,D) samples from Px*Py
-    Y: (N,D) samples from Px*Py
-    returns the test statistic (accuracy) and its p-value under the null hypothesis
-    """
-    n = X.shape[0]
-    device = X.device
-    t_alt = torch.ones(2*n, device=device)
 
-    Z_alt = torch.cat((X,Y), dim=-1)    # (N,2D)
-    logits = classifier(Z_alt)
-    acc = accuracy_with_logits(logits, t_alt)   # C2ST test statistic is accuracy given all labels are 1 (alternate samples)
+# ==============================
+#       HELPER FUNCTIONS
+# ==============================
 
-    count = 0
-    stats = []
-    for i in tqdm(range(n_permutations),
-                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                  dynamic_ncols=True,
-                  leave=False):
-        # permute samples in Y for null hypothesis (i.e. Pxy = Px*Py)
-        shuffle_idx = torch.randperm(n, device=device)
-        Y_shuffled = Y[shuffle_idx]
-        # compute test statistics under the null distribution
-        Z_null = torch.cat((X,Y_shuffled), dim=-1)  # (N,2D)
-        logits = classifier(Z_null)
-        acc_null = accuracy_with_logits(logits, t_alt)
-        stats.append(acc_null.item())
-        if acc_null > acc:
-            count += 1
+def catzip(*iters, dim=0):
+    # zips the given iterators and then applies torch.cat on each zipped tuple
+    return (torch.cat(tensors, dim=dim) for tensors in zip(*iters))
 
-    p_value = count/n_permutations
-    return acc.item(), p_value  # return stats?
+
+
+
