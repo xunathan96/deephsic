@@ -77,12 +77,20 @@ class MMD(BaseTrainer):
 
             X = batch[0].to(self.device)    # (N,Dx)
             Y = batch[1].to(self.device)    # (N,Dy)
-            Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D)
-
             mmd2, var, p_value, r = metrics.mmd.permutation_test(self.model,
-                                                                 Z_null, Z_alt,
+                                                                 X, Y,
                                                                  compute_var=False,
-                                                                 n_permutations=n_permutations)
+                                                                 n_permutations=n_permutations,
+                                                                 test='independence')
+
+            # NOTE: treating it like a two-sample test causes issues
+            # Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D)
+            # mmd2, var, p_value, r = metrics.mmd.permutation_test(self.model,
+            #                                                      Z_null, Z_alt,
+            #                                                      compute_var=False,
+            #                                                      n_permutations=n_permutations,
+            #                                                      test='two-sample')
+
             samples.append((mmd2, var, p_value, r))
             pbar.set_description(f"[{i+1}/{n_tests}] mmd2: {mmd2}, p-value: {p_value:.4f}")
         return samples

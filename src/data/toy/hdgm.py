@@ -1,12 +1,10 @@
 import numpy as np
-from numpy import ndarray
 import torch
 from .base import ToyDataset
 __all__ = ['GaussianMixture', 'HDGM']
 
 
 class GaussianMixture(ToyDataset):
-
     def __init__(self,
                  n_samples: int,
                  means: list[np.ndarray],
@@ -39,15 +37,12 @@ class GaussianMixture(ToyDataset):
         return data
 
 
-
 class HDGM(GaussianMixture):
-
     def __init__(self,
                  size: int,
                  dim: int,):
         weights = [1., 1.]
         means = [np.zeros(dim), np.zeros(dim)]
-
         cov1 = np.eye(dim)
         cov2 = np.eye(dim)
         cov1[0,3] = cov1[3,0] = 0.5

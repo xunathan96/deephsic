@@ -46,8 +46,7 @@ yamlRegistry = YamlRegistry()
 yamlRegistry.register(yaml_tag=u'!torch.DataLoader',    nodetype=YamlNodeType.MAPPING).map_to(data.dataloader.DataLoader)
 yamlRegistry.register(yaml_tag=u'!dataset.MNIST',       nodetype=YamlNodeType.MAPPING).map_to(torchvision.datasets.MNIST) # TODO: use custom datasets
 yamlRegistry.register(yaml_tag=u'!dataset.Gaussian2D',  nodetype=YamlNodeType.MAPPING).map_to(data.toy.Gaussian2D)
-yamlRegistry.register(yaml_tag=u'!dataset.BlobHD',      nodetype=YamlNodeType.MAPPING).map_to(data.toy.BlobHD)
-yamlRegistry.register(yaml_tag=u'!dataset.Blob2D',      nodetype=YamlNodeType.MAPPING).map_to(data.toy.Blob2D)
+yamlRegistry.register(yaml_tag=u'!dataset.Blob2ST',     nodetype=YamlNodeType.MAPPING).map_to(data.toy.Blob2ST)
 yamlRegistry.register(yaml_tag=u'!dataset.HDGM',        nodetype=YamlNodeType.MAPPING).map_to(data.toy.HDGM)
 yamlRegistry.register(yaml_tag=u'!dataset.CIFAR10H',    nodetype=YamlNodeType.MAPPING).map_to(data.cifar10h.CIFAR10H)
 

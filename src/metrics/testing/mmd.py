@@ -80,9 +80,9 @@ def mmd2(k: Kernel,
     X: (M, Dx) torch.Tensor
     Y: (N, Dy) torch.Tensor
     returns the scalar MMD^2 estimator and variance."""
-    Kxx: torch.Tensor = k(X,X)    # (M,M) gram matrix
-    Kyy: torch.Tensor = k(Y,Y)    # (N,N) gram matrix
-    Kxy: torch.Tensor = k(X,Y)    # (M,N) gram matrix
+    Kxx = k(X,X)    # (M,M) gram matrix
+    Kyy = k(Y,Y)    # (N,N) gram matrix
+    Kxy = k(X,Y)    # (M,N) gram matrix
     return mmd2_fast(Kxx,
                      Kyy,
                      Kxy,
@@ -126,13 +126,11 @@ def mmd2_fast(Kxx: torch.Tensor,
     var_est = None
     if compute_var:
         # compute variance estimator for unbiased one-sample MMD^2
-        if Hzz is None:
-            Hzz = Kxx + Kyy - Kxy - Kxy.T
+        Hzz = Kxx + Kyy - Kxy - Kxy.T
         var_est = (4/(n**3))*(Hzz.sum(dim=-1)**2).sum() - (4/(n**4))*(Hzz.sum()**2)
         var_est = torch.clamp(var_est, min=0)
 
     return mmd2_est, var_est
-
 
 
 def permutation_test(k: Kernel,
@@ -140,7 +138,21 @@ def permutation_test(k: Kernel,
                      Y: torch.Tensor,
                      compute_var: bool = False,
                      n_permutations: int = 500,
-                     significance: float = 0.05,):
+                     significance: float = 0.05,
+                     test: str = 'two-sample'):
+    if test == 'two-sample':
+        return permutation_test_twosample(k, X, Y, compute_var, n_permutations, significance)
+    elif test == 'independence':
+        return permutation_test_independence(k, X, Y, compute_var, n_permutations, significance)
+    else:
+        raise NotImplementedError()
+
+def permutation_test_twosample(k: Kernel,
+                               X: torch.Tensor,
+                               Y: torch.Tensor,
+                               compute_var: bool = False,
+                               n_permutations: int = 500,
+                               significance: float = 0.05,):
     n = X.shape[0]
     device = X.device
     Kxx: torch.Tensor = k(X,X)    # (N,N) gram matrix
@@ -181,6 +193,43 @@ def permutation_test(k: Kernel,
             thresh)
 
 
+def permutation_test_independence(k: Kernel,
+                                  X: torch.Tensor,
+                                  Y: torch.Tensor,
+                                  compute_var: bool = False,
+                                  n_permutations: int = 500,
+                                  significance: float = 0.05,):
+    n = X.shape[0]
+    device = X.device
+    # compile samples Z=(X,Y) for the independence testing problem
+    Y_shuff = Y[torch.randperm(n, device=device)]
+    Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
+    Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
+    mmd2_est, var_est = mmd2(k, Z_null, Z_alt, compute_var=compute_var)
+
+    count = 0
+    stats = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples Y for null hypothesis (i.e. Pxy=Px*Py)
+        Y_shuff = Y[torch.randperm(n, device=device)]
+        Z_alt = torch.cat((X,Y_shuff), dim=-1)
+        mmd2_null,_ = mmd2(k, Z_null, Z_alt, compute_var=False)
+        stats.append(mmd2_null.item())
+        if mmd2_null > mmd2_est:
+            count += 1
+
+    # compute p-value (prob of hsic, assuming the null hypothesis is true)
+    p_value = count/n_permutations
+    # compute rejection threshold r
+    stats.sort()
+    thresh = n*stats[int(n_permutations*(1-significance)//1)]   # NOTE: multiply by n since r is scaled by n
+    return (mmd2_est.item(),
+            var_est.item() if var_est is not None else None,
+            p_value,
+            thresh)
 
 
 
