@@ -112,7 +112,7 @@ class C2ST(BaseTrainer):
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
         samples = self.inference(n_tests=100, n_permutations=500, statistic=statistic)
-        stats = self.compute_metrics(samples, significance=0.05, statistic=statistic)
+        stats = self.compute_metrics(samples, significance=0.05)
         return stats
 
 

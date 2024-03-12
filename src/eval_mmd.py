@@ -49,7 +49,7 @@ def main(args):
     print(stats)
 
     # save evaluation metrics
-    table = utils.Tabular(f"{args.save_dir}/stats.csv")
+    table = utils.Tabular(f"{args.save_dir}/stats-mmd.csv")
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'kernel': cfg['model']['name'],

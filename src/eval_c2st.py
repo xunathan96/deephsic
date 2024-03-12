@@ -54,7 +54,7 @@ def main(args):
     print(stats)
 
     # save evaluation metrics
-    table = utils.Tabular(f"{args.save_dir}/stats.csv")
+    table = utils.Tabular(f"{args.save_dir}/stats-c2st.csv")
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'classifier': cfg['model']['name'],
