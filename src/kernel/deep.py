@@ -29,7 +29,7 @@ class DeepKernel(BaseKernel):
     def eps(self):
         return torch.sigmoid(self.raw_eps)
 
-    def gram(self, X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
+    def gram_depreciated(self, X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
         r"""compute the kernel gram matrix between samples X and Y of the same shape
         X: (Nx, *) torch.Tensor
         Y: (Ny, *) torch.Tensor
@@ -42,3 +42,36 @@ class DeepKernel(BaseKernel):
         Qxy = self.smoothing_kernel(X, Y)       # (Nx, Ny)
         return (1-self.eps)*Kxy + self.eps*Qxy
 
+    def gram(self, X, Y) -> torch.Tensor:
+        if isinstance(X, torch.Tensor) and isinstance(Y, torch.Tensor):
+            return self.gram_tensor(X, Y)
+        elif isinstance(X, tuple) and isinstance(Y, tuple):
+            return self.gram_tuple(X, Y)
+        else:
+            raise Exception(f"Error: expected X and Y to be torch.Tensor or tuple but got {type(X)} and {type(Y)}.")
+
+    def gram_tensor(self, X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
+        r"""compute the kernel gram matrix between samples X and Y of the same shape
+        X: (Nx, *) torch.Tensor
+        Y: (Ny, *) torch.Tensor
+        returns the gram matrix of size (Nx, Ny) with elements k(x_i, y_j)"""
+        phi_X = self.featurizer(X)  # (Nx, D)
+        phi_Y = self.featurizer(Y)  # (Ny, D)
+        if X.dim() > 2: X = torch.flatten(X, start_dim=1)   # (Nx, d)
+        if Y.dim() > 2: Y = torch.flatten(Y, start_dim=1)   # (Ny, d)
+        Kxy = self.feature_kernel(phi_X, phi_Y) # (Nx, Ny)
+        Qxy = self.smoothing_kernel(X, Y)       # (Nx, Ny)
+        return (1-self.eps)*Kxy + self.eps*Qxy
+
+    def gram_tuple(self, X: tuple[torch.Tensor], Y: tuple[torch.Tensor]) -> torch.Tensor:
+        r"""compute the kernel gram matrix between samples X=(X0,X1) and Y=(Y0,Y1)
+        X: tuple of (Nx, *) torch.Tensors
+        Y: tuple of (Ny, *) torch.Tensor
+        returns the gram matrix of size (Nx, Ny) with elements k(x_i, y_j)"""
+        phi_X = self.featurizer(*X)  # (Nx, D)
+        phi_Y = self.featurizer(*Y)  # (Ny, D)
+        X_flat = torch.cat([x.flatten(start_dim=1) for x in X], dim=-1)   # (Nx, d)
+        Y_flat = torch.cat([y.flatten(start_dim=1) for y in Y], dim=-1)   # (Ny, d)
+        Kxy = self.feature_kernel(phi_X, phi_Y)     # (Nx, Ny)
+        Qxy = self.smoothing_kernel(X_flat, Y_flat) # (Nx, Ny)
+        return (1-self.eps)*Kxy + self.eps*Qxy

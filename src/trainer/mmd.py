@@ -146,6 +146,13 @@ def compile_samples(X, Y, test='two-sample'):
     elif test=='independence':
         # compile samples from null and alternate hypotheses
         Y_shuff = Y[torch.randperm(n, device=device)]
+        Z_alt = (X,Y)           # alternate: Pxy
+        Z_null = (X,Y_shuff)    # null: Px*Py
+        return Z_null, Z_alt
+
+    elif test=='independence_depreciated':
+        # compile samples from null and alternate hypotheses
+        Y_shuff = Y[torch.randperm(n, device=device)]
         Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
         Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
         return Z_null, Z_alt

@@ -203,8 +203,8 @@ def permutation_test_independence(k: Kernel,
     device = X.device
     # compile samples Z=(X,Y) for the independence testing problem
     Y_shuff = Y[torch.randperm(n, device=device)]
-    Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
-    Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
+    Z_alt = (X, Y)           # alternate: Pxy
+    Z_null = (X, Y_shuff)    # null: Px*Py
     mmd2_est, var_est = mmd2(k, Z_null, Z_alt, compute_var=compute_var)
 
     count = 0
@@ -215,7 +215,7 @@ def permutation_test_independence(k: Kernel,
                   leave=False):
         # permute samples Y for null hypothesis (i.e. Pxy=Px*Py)
         Y_shuff = Y[torch.randperm(n, device=device)]
-        Z_alt = torch.cat((X,Y_shuff), dim=-1)
+        Z_alt = (X, Y_shuff)
         mmd2_null,_ = mmd2(k, Z_null, Z_alt, compute_var=False)
         stats.append(mmd2_null.item())
         if mmd2_null > mmd2_est:
