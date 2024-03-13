@@ -1,9 +1,9 @@
 # -----------------------
-#         CNN-A
+#         CNN-B
 # -----------------------
 
 !kernel.DeepKernel
-name: cnnA
+name: cnnC
 featurizer: !model.CNN
   channels:     [3,8,16,32,64,32,16]
   kernel_size:  [4,4,4,4,1,1]

@@ -1,11 +1,11 @@
 # -----------------------
-#         CNN-B
+#         CNN-C
 # -----------------------
 
 !kernel.DeepKernel
-name: cnnB
+name: cnnC
 featurizer: !model.CNN
-  channels:     [3,8,16,32,64,32,16]
+  channels:     [3,8,16,32,32,16,8]
   kernel_size:  [4,4,4,4,1,1]
   stride:       [2,2,2,1,1,1]
   padding:      [1,1,1,0,0,0]
@@ -29,6 +29,6 @@ trainable: True
 # 8x16x16
 # 16x8x8
 # 32x4x4
-# 64x1x1
 # 32x1x1
-# 16x1x1    (Output)
+# 16x1x1
+# 8x1x1     (Output)

@@ -1,5 +1,5 @@
 # -----------------------
-#      MLP KERNEL
+#      CNN KERNEL
 # -----------------------
 
 !kernel.DeepKernel
@@ -7,18 +7,18 @@ name: cnnA-id@mlpA
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.CNN
-      channels:     [3,8,16,32,64,10]
-      kernel_size:  [4,4,4,4,1]
-      stride:       [2,2,2,1,1]
-      padding:      [1,1,1,0,0]
-      dilation:     [1,1,1,1,1]
+      channels:     [3,8,16,32,64]
+      kernel_size:  [4,4,4,4]
+      stride:       [2,2,2,1]
+      padding:      [1,1,1,0]
+      dilation:     [1,1,1,1]
       activation:   ELU
       batch_norm:   False
       flatten:      True
     - !model.Identity
   heads: !nn.ModuleList
     - !model.MLP
-      features: [11, 11, 10]
+      features: [65, 32, 16]
       activations: ELU
       batch_norm: False
   connection: cat
@@ -33,3 +33,11 @@ smoothing_kernel: !kernel.Gaussian
   trainable: True
 eps: 0.01
 trainable: True
+
+
+# 3x32x32   (Input)
+# 8x16x16
+# 16x8x8
+# 32x4x4
+# 64x1x1
+# 65 > 32 > 16  (Output)

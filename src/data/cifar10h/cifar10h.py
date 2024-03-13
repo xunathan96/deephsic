@@ -4,9 +4,9 @@ from torchvision.datasets import CIFAR10
 from PIL import Image
 from typing import Any, Callable, Tuple
 
-TRAIN_SPLIT = 8/10
+TRAIN_SPLIT = 7/10
 VAL_SPLIT = 1/10
-TEST_SPLIT = 1/10
+TEST_SPLIT = 2/10
 
 class CIFAR10H(CIFAR10):
     

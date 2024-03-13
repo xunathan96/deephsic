@@ -3,7 +3,7 @@
 # -----------------------
 
 !kernel.DeepKernel
-name: cnnC-id@mlpC
+name: cnnD-id@mlpD
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.CNN
@@ -18,7 +18,7 @@ featurizer: !model.Neck
     - !model.Identity
   heads: !nn.ModuleList
     - !model.MLP
-      features: [33, 16, 8]
+      features: [33, 16]
       activations: ELU
       batch_norm: False
   connection: cat
@@ -40,4 +40,4 @@ trainable: True
 # 16x8x8
 # 32x4x4
 # 32x1x1
-# 33 > 16 > 8   (Output)
+# 33 > 16   (Output)
