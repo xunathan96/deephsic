@@ -13,7 +13,7 @@ from .base import BaseTrainer
 from kernel import BaseKernel, Kernel, Gaussian
 
 EARLY_STOP = 400        # interval after which apply early stopping
-SAVE_INTERVAL = 10      # interval after which the model is saved
+SAVE_INTERVAL = 100     # interval after which the model is saved
 RUNNING_PER_EPOCH = 1   # number of running statistics computed per epoch
 
 
