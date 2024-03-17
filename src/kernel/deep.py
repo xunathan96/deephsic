@@ -10,7 +10,7 @@ class DeepKernel(BaseKernel):
                  featurizer: nn.Module,
                  feature_kernel: Kernel,
                  smoothing_kernel: Kernel,
-                 eps: float = 0.1,
+                 eps: float = 0.01,
                  trainable: bool = False):
         super().__init__()
         if not 0<=eps<=1:
@@ -20,7 +20,7 @@ class DeepKernel(BaseKernel):
         self.smoothing_kernel = smoothing_kernel
         raw_eps = torch.empty(1)
         if trainable:
-            nn.init.normal_(raw_eps, mean=-math.log((1-eps)/eps), std=1)
+            nn.init.normal_(raw_eps, mean=-math.log((1-eps)/eps), std=0.5)
         else:
             nn.init.constant_(raw_eps, val=-math.log((1-eps)/eps))
         self.raw_eps = nn.Parameter(raw_eps, requires_grad=trainable)
