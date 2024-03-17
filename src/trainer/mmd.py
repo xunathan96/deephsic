@@ -157,6 +157,8 @@ def compile_samples(X, Y, test='two-sample'):
         Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
         return Z_null, Z_alt
 
+    # TODO: need to try split data test
+
     else:
         raise NotImplementedError()
 
