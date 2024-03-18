@@ -3,7 +3,7 @@
 # -----------------------
 
 !kernel.DeepKernel
-name: cnnD-id@mlpD
+name: cnnD-id@mlpDx1
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.CNN
