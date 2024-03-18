@@ -144,6 +144,8 @@ def permutation_test(k: Kernel,
         return permutation_test_twosample(k, X, Y, compute_var, n_permutations, significance)
     elif test == 'independence':
         return permutation_test_independence(k, X, Y, compute_var, n_permutations, significance)
+    elif test == 'split-independence':
+        return permutation_test_split_independece(k, X, Y, compute_var, n_permutations, significance)
     else:
         raise NotImplementedError()
 
@@ -203,8 +205,8 @@ def permutation_test_independence(k: Kernel,
     device = X.device
     # compile samples Z=(X,Y) for the independence testing problem
     Y_shuff = Y[torch.randperm(n, device=device)]
-    Z_alt = (X, Y)           # alternate: Pxy
     Z_null = (X, Y_shuff)    # null: Px*Py
+    Z_alt = (X, Y)           # alternate: Pxy
     mmd2_est, var_est = mmd2(k, Z_null, Z_alt, compute_var=compute_var)
 
     count = 0
@@ -217,6 +219,70 @@ def permutation_test_independence(k: Kernel,
         Y_shuff = Y[torch.randperm(n, device=device)]
         Z_alt = (X, Y_shuff)
         mmd2_null,_ = mmd2(k, Z_null, Z_alt, compute_var=False)
+        stats.append(mmd2_null.item())
+        if mmd2_null > mmd2_est:
+            count += 1
+
+    # compute p-value (prob of hsic, assuming the null hypothesis is true)
+    p_value = count/n_permutations
+    # compute rejection threshold r
+    stats.sort()
+    thresh = n*stats[int(n_permutations*(1-significance)//1)]   # NOTE: multiply by n since r is scaled by n
+    return (mmd2_est.item(),
+            var_est.item() if var_est is not None else None,
+            p_value,
+            thresh)
+
+
+def permutation_test_split_independece(k: Kernel,
+                                       X: torch.Tensor,
+                                       Y: torch.Tensor,
+                                       compute_var: bool = False,
+                                       n_permutations: int = 500,
+                                       significance: float = 0.05,):
+    n = X.shape[0]
+    device = X.device
+    # split joint samples X,Y ~ Pxy equally into Z_null and Z_alt
+    null_idx = slice(n//2)      # :n//2
+    alt_idx = slice(n//2, n)    # n//2:
+    Y_split = Y[null_idx]
+    Y_null = Y_split[torch.randperm(n//2, device=device)]
+    Z_null = (X[null_idx], Y_null)      # null: Px*Py
+    Z_alt = (X[alt_idx], Y[alt_idx])    # alternate: Pxy
+    return permutation_test_twosample_multimodal(k, Z_null, Z_alt, compute_var, n_permutations, significance)
+
+
+def permutation_test_twosample_multimodal(k: Kernel,
+                                          X: tuple[torch.Tensor],
+                                          Y: tuple[torch.Tensor],
+                                          compute_var: bool = False,
+                                          n_permutations: int = 500,
+                                          significance: float = 0.05,):
+    n = X[0].shape[0]
+    device = X[0].device
+    Kxx: torch.Tensor = k(X,X)    # (N,N) gram matrix
+    Kyy: torch.Tensor = k(Y,Y)    # (N,N) gram matrix
+    Kxy: torch.Tensor = k(X,Y)    # (N,N) gram matrix
+    # compute the gram matrix Kzz for Z=(X,Y)
+    Kxxy = torch.cat((Kxx, Kxy), dim=-1)    # (N,2N)
+    Kyxy = torch.cat((Kxy.T, Kyy), dim=-1)  # (N,2N)
+    Kxyxy = torch.cat((Kxxy, Kyxy), dim=0)  # (2N,2N)
+    mmd2_est, var_est = mmd2_fast(Kxx, Kyy, Kxy, compute_var=compute_var)
+
+    count = 0
+    stats = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples Z=(X,Y) for null hypothesis (i.e. P=Q)
+        shuffle_idx = torch.randperm(2*n, device=device)
+        idx_x = shuffle_idx[:n]
+        idx_y = shuffle_idx[n:]
+        Kxx = Kxyxy[torch.meshgrid(idx_x, idx_x, indexing='ij')]
+        Kyy = Kxyxy[torch.meshgrid(idx_y, idx_y, indexing='ij')]
+        Kxy = Kxyxy[torch.meshgrid(idx_x, idx_y, indexing='ij')]
+        mmd2_null,_ = mmd2_fast(Kxx, Kyy, Kxy, compute_var=False)
         stats.append(mmd2_null.item())
         if mmd2_null > mmd2_est:
             count += 1

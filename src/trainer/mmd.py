@@ -61,7 +61,8 @@ class MMD(BaseTrainer):
     def inference(self,
                   n_tests: int = 100,
                   n_permutations: int = 500,
-                  significance: float = 0.05):
+                  significance: float = 0.05,
+                  permutation_test: str = 'independence'):
         self.model.eval()
         samples = list()
         test_iter = iter(self.dataloader['test'])
@@ -81,7 +82,7 @@ class MMD(BaseTrainer):
                                                                  X, Y,
                                                                  compute_var=False,
                                                                  n_permutations=n_permutations,
-                                                                 test='independence')
+                                                                 test=permutation_test)
 
             # NOTE: treating it like a two-sample test causes issues
             # Z_null, Z_alt = compile_samples(X,Y, test='independence')   # (N, 2D)
@@ -113,7 +114,7 @@ class MMD(BaseTrainer):
         return stats
 
 
-    def eval(self, n_samples=None):
+    def eval(self, n_samples=None, permutation_test='independence'):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -121,7 +122,7 @@ class MMD(BaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests=100, n_permutations=500)
+        samples = self.inference(n_tests=100, n_permutations=500, permutation_test=permutation_test)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

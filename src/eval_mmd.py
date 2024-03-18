@@ -29,6 +29,11 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of samples used to compute the test statistic (default 100).')
+    parser.add_argument('--permutation-test',
+                        type=str,
+                        choices=['two-sample', 'independence', 'split-independence'],
+                        default='independence',
+                        help='the type of permutation test to use.')
     return parser.parse_args()
 
 def default_save_dir():
@@ -45,7 +50,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     deepMMD = registry.get('MMD').build(cfg)
     deepMMD.load(args.pretrained_path)
-    stats = deepMMD.eval(n_samples=args.n_samples)
+    stats = deepMMD.eval(n_samples=args.n_samples, permutation_test=args.permutation_test)
     print(stats)
 
     # save evaluation metrics
@@ -53,6 +58,7 @@ def main(args):
     row = {
         'dataset': cfg['dataset']['test']['name'],
         'kernel': cfg['model']['name'],
+        'permutation_test': args.permutation_test,
         'n-samples': args.n_samples,
         **stats
     }
