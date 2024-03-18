@@ -1,0 +1,42 @@
+# -----------------------
+#      MLP KERNEL
+# -----------------------
+
+!kernel.DeepKernel
+name: cnnC-id@mlpC
+featurizer: !model.Neck
+  backbones: !nn.ModuleList
+    - !model.CNN
+      channels:     [3,8,16,32,32]
+      kernel_size:  [4,4,4,4]
+      stride:       [2,2,2,1]
+      padding:      [1,1,1,0]
+      dilation:     [1,1,1,1]
+      activation:   ELU
+      batch_norm:   False
+      flatten:      True
+    - !model.Identity
+  heads: !nn.ModuleList
+    - !model.MLP
+      features: [33, 16, 8, 1]
+      activations: ELU
+      batch_norm: False
+  connection: cat
+  squeeze_single_head: True
+feature_kernel: !kernel.Linear
+  shift: 0
+  trainable: False
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+eps: 0.01
+trainable: True
+
+
+# 3x32x32   (Input)
+# 8x16x16
+# 16x8x8
+# 32x4x4
+# 32x1x1
+# 33 > 16 > 8   (Output)
