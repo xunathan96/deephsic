@@ -45,9 +45,9 @@ def main(args):
     sf = Path(cfg['save_dir'])/Path(args.config).name
     cfg.save(sf)
 
-    deepMMD = registry.get('MMD').build(cfg)
-    deepMMD.train(epochs=args.n_epochs)
-    stats = deepMMD.eval()
+    pipeline = registry.get('MMD').build(cfg)
+    pipeline.train(epochs=args.n_epochs)
+    stats = pipeline.eval()
     print(stats)
 
     # save evaluation results

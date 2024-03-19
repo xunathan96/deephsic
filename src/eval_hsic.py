@@ -45,13 +45,13 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(file=args.config,
+    cfg = Config(yaml_path=args.config,
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir)
     utils.seed_all(cfg['seed'])
-    dHsic = registry.get('HSIC').build(cfg)
-    dHsic.load(args.pretrained_path)
-    stats = dHsic.eval(n_samples=args.n_samples)
+    pipeline = registry.get('HSIC').build(cfg)
+    pipeline.load_checkpoint(args.pretrained_path)
+    stats = pipeline.eval(n_samples=args.n_samples)
     print(stats)
 
     # save evaluation metrics

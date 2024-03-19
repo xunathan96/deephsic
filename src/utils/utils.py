@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import argparse
 import random
 import pandas as pd
 from pathlib import Path
@@ -34,10 +35,10 @@ def activation_registry(activation, *args, **kwds):
 
 def save_checkpoint(filepath: str,
                     epoch: int,
+                    loss: float,
                     model: nn.Module,
                     optimizer: torch.optim.Optimizer,
-                    scheduler: torch.optim.lr_scheduler.LRScheduler,
-                    loss: float):
+                    scheduler: torch.optim.lr_scheduler.LRScheduler):
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -155,4 +156,43 @@ class Tabular:
         self.df = pd.concat([self.df if not self.df.empty else None,    # to prevent warning
                              row])
 
+
+
+class NestArgs(argparse._SubParsersAction):
+    def __call__(self,
+                 parser: argparse.ArgumentParser,
+                 namespace: argparse.Namespace,
+                 values: str | list[str] | None,
+                 option_string: str | None = None) -> None:
+        parser_name = values[0]
+        arg_strings = values[1:]
+
+        # set the parser name if requested
+        if self.dest is not argparse.SUPPRESS:
+            setattr(namespace, self.dest, parser_name)
+
+        # select the parser
+        try:
+            parser = self._name_parser_map[parser_name]
+        except KeyError:
+            args = {'parser_name': parser_name,
+                    'choices': ', '.join(self._name_parser_map)}
+            msg = argparse._('unknown parser %(parser_name)r (choices: %(choices)s)') % args
+            raise argparse.ArgumentError(self, msg)
+
+        # parse all the remaining options into the namespace
+        # store any unrecognized options on the object, so that the top
+        # level parser can decide what to do with them
+
+        # In case this subparser defines new defaults, we parse them
+        # in a new namespace object and then update the original
+        # namespace for the relevant parts.
+        subnamespace, arg_strings = parser.parse_known_args(arg_strings, None)
+        setattr(namespace, parser_name, subnamespace)   # NOTE: nest subnamespace
+        # for key, value in vars(subnamespace).items():
+        #     setattr(namespace, key, value)
+
+        if arg_strings:
+            vars(namespace[parser_name]).setdefault(argparse._UNRECOGNIZED_ARGS_ATTR, [])
+            getattr(namespace[parser_name], argparse._UNRECOGNIZED_ARGS_ATTR).extend(arg_strings)
 

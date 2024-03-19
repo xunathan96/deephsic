@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import wandb
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from tqdm import tqdm
@@ -10,7 +11,7 @@ from pathlib import Path
 import metrics
 import utils.utils as utils
 from .base import BaseTrainer
-from kernel import BaseKernel, Kernel, Gaussian
+from kernel import BaseKernel
 
 EARLY_STOP = 400        # interval after which apply early stopping
 SAVE_INTERVAL = 100     # interval after which the model is saved
@@ -29,6 +30,8 @@ class HSICBaseTrainer(BaseTrainer):
             self.model['l'] = self.cfg['model']['l'].build()
         self.model['k'].to(self.device)
         self.model['l'].to(self.device)
+        if self.wandb:
+            wandb.watch((self.model['k'], self.model['l']))
 
     def _setup_optimizers(self):
         self.optimizer = self.scheduler = self.criterion = None
@@ -41,61 +44,23 @@ class HSICBaseTrainer(BaseTrainer):
             self.criterion: nn.Module = self.cfg['criterion'].build()
             self.criterion = self.criterion.to(self.device)
 
-    def load(self, filepath: str):
+    def save_checkpoint(self, filepath: str | Path, epoch: int, loss: float):
+        return utils.save_checkpoint_multi(filepath,
+                                           epoch,
+                                           loss,
+                                           modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
+                                           optimizerList=[self.optimizer],
+                                           schedulerList=[self.scheduler])
+
+    def load_checkpoint(self, filepath: str | Path):
         return utils.load_checkpoint_multi(filepath,
                                            modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
                                            optimizerList=[self.optimizer],
                                            schedulerList=[self.scheduler],
                                            device=self.device)
 
-    def train(self, epochs=0, *args, **kwds):
-        if not self.is_train:
-            raise Exception(f"Training error: no train data specified.")
-        self.best_loss = np.inf
-        self.best_epoch = -1
-        stop = False
-        for epoch in (pbar:=tqdm(range(epochs),
-                                 bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                 dynamic_ncols=True,
-                                 position=0)):
-
-            pbar.set_description(f"Training: [best-epoch: {self.best_epoch+1}, best-loss: {self.best_loss:.3e}]")
-            loss = self.train_one_epoch(epoch, *args, **kwds)
-            if self.is_validate:
-                loss = self.validation(epoch, *args, **kwds)
-                stop = self._early_stopping(epoch, loss)
-                if stop: break
-            if (epoch+1) % SAVE_INTERVAL == 0:
-                fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
-                utils.save_checkpoint_multi(fp,
-                                            epoch,
-                                            loss,
-                                            modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
-                                            optimizerList=[self.optimizer],
-                                            schedulerList=[self.scheduler])
-            if self.scheduler is not None:
-                self.scheduler.step()
-        if stop:
-            print(f"Early Stopping: no improvement in validation error over the last {EARLY_STOP} epochs.")
-            return False
-        return True
-
-    def _early_stopping(self, epoch, loss):
-        stop = False
-        if loss < self.best_loss:
-            self.best_loss = loss
-            self.best_epoch = epoch
-            fp = Path(self.cfg['save_dir'])/'best.pt'
-            utils.save_checkpoint_multi(fp,
-                                        epoch,
-                                        loss,
-                                        modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
-                                        optimizerList=[self.optimizer],
-                                        schedulerList=[self.scheduler])
-        elif epoch - self.best_epoch > EARLY_STOP:
-            stop = True
-        return stop
-
+    def _wandb_config(self):
+        return None
 
 
 class HSIC(HSICBaseTrainer):
@@ -152,8 +117,7 @@ class HSIC(HSICBaseTrainer):
     @torch.no_grad
     def inference(self,
                   n_tests: int = 100,
-                  n_permutations: int = 500,
-                  significance: float = 0.05):
+                  n_permutations: int = 500):
         self.model['k'].eval()
         self.model['l'].eval()
         samples = list()
@@ -209,64 +173,10 @@ class HSIC(HSICBaseTrainer):
         return stats
 
 
-    def eval_typeI_error(self,
-                         n_permutations: int = 500,
-                         significance: float = 0.05):
-        self.model['k'].eval()
-        self.model['l'].eval()
-        n_tests = len(self.dataloader['test'])
-        count = 0
-        for i, batch in enumerate(pbar:=tqdm(self.dataloader['test'],
-                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                            dynamic_ncols=True,
-                                            leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
-            # shuffle Y
-            Y = Y[torch.randperm(Y.shape[0], device=Y.device)]
-            hsic, var, p_value, r = metrics.hsic.permutation_test(self.model['k'], self.model['l'],
-                                                                  X, Y,
-                                                                  compute_var=False,
-                                                                  n_permutations=n_permutations)
-            
-            pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
-            if p_value < significance:
-                count += 1
-        return count/n_tests
-
 
     # ==============================
     #         DEBUGGING
     # ==============================
-
-    @torch.no_grad
-    def empirical_power(self,
-                        k: Kernel,
-                        l: Kernel,
-                        n_tests: int = 100,
-                        n_permutations: int = 500,
-                        significance: float = 0.05):
-        if n_tests > (n_batches:=len(self.dataloader['test'])):
-            raise Exception(f'Error: the number of test batches ({n_batches}) is less than n_tests ({n_tests}).')
-        n_reject = 0
-        data_iter = iter(self.dataloader['test'])
-        for i in (pbar:=tqdm(range(n_tests),
-                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                             dynamic_ncols=True,
-                             leave=False)):
-            batch = next(data_iter)
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
-            hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
-                                                                  X, Y,
-                                                                  compute_var=False,
-                                                                  n_permutations=n_permutations,
-                                                                  significance=significance)
-            if p_value < significance:
-                n_reject += 1   # reject null hypothesis
-            pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
-        return n_reject/n_tests
-
 
     def weighted_power_grid(self):
         import numpy as np

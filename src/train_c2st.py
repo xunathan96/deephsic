@@ -45,9 +45,9 @@ def main(args):
     sf = Path(cfg['save_dir'])/Path(args.config).name
     cfg.save(sf)
 
-    c2st = registry.get('C2ST').build(cfg)
-    c2st.train(epochs=args.n_epochs)
-    stats = c2st.eval()
+    pipeline = registry.get('C2ST').build(cfg)
+    pipeline.train(epochs=args.n_epochs)
+    stats = pipeline.eval()
     print(stats)
 
     # save evaluation results

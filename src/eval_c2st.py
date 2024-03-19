@@ -48,9 +48,9 @@ def main(args):
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir)
     utils.seed_all(cfg['seed'])
-    c2st = registry.get('C2ST').build(cfg)
-    c2st.load(args.pretrained_path)
-    stats = c2st.eval(n_samples=args.n_samples, statistic=args.statistic)
+    pipeline = registry.get('C2ST').build(cfg)
+    pipeline.load_checkpoint(args.pretrained_path)
+    stats = pipeline.eval(n_samples=args.n_samples, statistic=args.statistic)
     print(stats)
 
     # save evaluation metrics

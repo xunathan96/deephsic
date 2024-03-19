@@ -5,6 +5,7 @@ from pathlib import Path
 from config.config import Config
 from trainer import registry
 from utils import utils
+from utils.wandb import add_wandb_args
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -26,6 +27,10 @@ def parse_args():
                         type=str,
                         default=default_save_dir(),
                         help='directory to save experiment results/logs.')
+    # add wandb subparser
+    subparsers = parser.add_subparsers(action=utils.NestArgs)
+    parser_wandb = subparsers.add_parser('wandb')
+    add_wandb_args(parser_wandb)
     return parser.parse_args()
 
 def default_save_dir():
@@ -36,18 +41,20 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(file=args.config,
+    cfg = Config(yaml_path=args.config,
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir)
+                 save_dir=args.save_dir,
+                 n_epochs=args.n_epochs,
+                 wandb=vars(args.wandb) if 'wandb' in args else False,)
     utils.seed_all(cfg['seed'])
 
     # save config
     sf = Path(cfg['save_dir'])/Path(args.config).name
     cfg.save(sf)
 
-    dHsic = registry.get('HSIC').build(cfg)
-    dHsic.train(epochs=args.n_epochs)
-    stats = dHsic.eval()
+    pipeline = registry.get('HSIC').build(cfg)
+    pipeline.train(epochs=args.n_epochs)
+    stats = pipeline.eval()
     print(stats)
 
     # save evaluation results

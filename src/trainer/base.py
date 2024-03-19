@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import wandb
+import inspect
 from torch.utils.data import Dataset, DataLoader
 from torch.optim.lr_scheduler import LRScheduler
 from torch.optim import Optimizer
@@ -22,12 +23,13 @@ class BaseTrainer(ABC):
     def __init__(self, config: Config):
         self.cfg = config
         self.device = torch.device(config['device'])
+        self.wandb = ('wandb' in self.cfg)
 
         # TODO: handle loading pretrained/checkpoint
+        self._setup_wandb()
         self._setup_model()
         self._setup_dataloaders()
         self._setup_optimizers()
-        # self._setup_wandb()
 
         self.is_train = ('train' in self.dataset) and ('train' in self.dataloader)
         self.is_validate = ('val' in self.dataset) and ('val' in self.dataloader)
@@ -37,16 +39,11 @@ class BaseTrainer(ABC):
     def build(cls, config: Config):
         return cls(config)
 
-    def load(self, filepath: str):
-        return utils.load_checkpoint(filepath,
-                                     self.model,
-                                     self.optimizer,
-                                     self.scheduler,
-                                     self.device)
-
     def _setup_model(self):
         self.model: nn.Module = self.cfg['model'].build()
         self.model.to(self.device)
+        if self.wandb:
+            wandb.watch(self.model)
 
     def _setup_dataloaders_depreciated(self):
         self.dataset = {'train': None, 'val': None, 'test': None}
@@ -99,14 +96,20 @@ class BaseTrainer(ABC):
 
 
     def _setup_wandb(self):
-        wandb.init(project=self.__class__.__name__,
-                   config=self.cfg.yaml_cfg)
-        # wandb.init(project=self.__class__.__name__,
-        #            config={'architecture': self.cfg['model']['name'],
-        #                    'dataset': self.cfg['dataset']['name'],
-        #                    'batch-size': self.cfg['dataloader']['train']['batch_size'],
-        #                    'learning-rate': self.cfg['optimizer']['lr'],
-        #                    })
+        if self.wandb:
+            sig = list(inspect.signature(wandb.init).parameters)
+            kwds = {k:v for k,v in self.cfg['wandb'].items() if k in sig}   # filter out extraneous args
+            kwds['config'] = self._wandb_config()
+            wandb.init(**kwds)
+
+    def _wandb_config(self):
+        return {
+            'n-epochs': self.cfg['n_epochs'],
+            'batch-size': self.cfg['dataloader']['train']['batch_size'],
+            'lr': self.cfg['optimizer']['lr'],
+            'architecture': self.cfg['model']['name'],
+            'dataset': self.cfg['dataset']['name'],
+        }
 
 
     def backprop(self, loss: torch.Tensor, optimizer: Optimizer):
@@ -155,25 +158,21 @@ class BaseTrainer(ABC):
                 if stop: break
             if (epoch+1) % SAVE_INTERVAL == 0:
                 fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
-                utils.save_checkpoint(fp,
-                                      epoch,
-                                      self.model,
-                                      self.optimizer,
-                                      self.scheduler,
-                                      loss_train)
+                self.save_checkpoint(fp, epoch, loss_train)
             if self.scheduler is not None:
                 self.scheduler.step()
-            
-            # wandb.log({
-            #     'epoch': epoch+1,
-            #     'train_loss': loss_train,
-            #     'val_loss': loss_val,
-            # })
+            if self.wandb:  # TODO: set a log interval
+                wandb.log({
+                    'epoch': epoch+1,
+                    'loss_train': loss_train,
+                    'loss_val': loss_val,
+                }, step=epoch+1)
 
         if stop:
             print(f"Early Stopping: no improvement in validation error over the last {EARLY_STOP} epochs.")
             return False
         return True
+
 
     def eval(self, *args, **kwds):
         # run inference on the test set and return the computed metrics dictionary
@@ -190,24 +189,32 @@ class BaseTrainer(ABC):
         ...
 
 
-    def log(self):
-        ...
-
     def _early_stopping(self, epoch, loss):
         stop = False
         if loss < self.best_loss:
             self.best_loss = loss
             self.best_epoch = epoch
             fp = Path(self.cfg['save_dir'])/'best.pt'
-            utils.save_checkpoint(fp,
-                                  epoch,
-                                  self.model,
-                                  self.optimizer,
-                                  self.scheduler,
-                                  loss)
+            self.save_checkpoint(fp, epoch, loss)
         elif epoch - self.best_epoch > EARLY_STOP:
             stop = True
         return stop
+
+
+    def save_checkpoint(self, filepath: str | Path, epoch: int, loss: float):
+        return utils.save_checkpoint(filepath,
+                                     epoch,
+                                     loss,
+                                     self.model,
+                                     self.optimizer,
+                                     self.scheduler)
+
+    def load_checkpoint(self, filepath: str | Path):
+        return utils.load_checkpoint(filepath,
+                                     self.model,
+                                     self.optimizer,
+                                     self.scheduler,
+                                     self.device)
 
 
     def tsne(self):
