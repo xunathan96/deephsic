@@ -33,6 +33,8 @@ def activation_registry(activation, *args, **kwds):
     }[activation](*args, **kwds)
 
 
+# TODO: combine save and save_multi
+
 def save_checkpoint(filepath: str,
                     epoch: int,
                     loss: float,
