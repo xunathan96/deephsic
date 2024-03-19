@@ -5,6 +5,7 @@ from typing import TypedDict
 import numpy as np
 import torch
 import torch.nn as nn
+import wandb
 from torch.utils.data import Dataset, DataLoader
 from torch.optim.lr_scheduler import LRScheduler
 from torch.optim import Optimizer
@@ -26,6 +27,7 @@ class BaseTrainer(ABC):
         self._setup_model()
         self._setup_dataloaders()
         self._setup_optimizers()
+        # self._setup_wandb()
 
         self.is_train = ('train' in self.dataset) and ('train' in self.dataloader)
         self.is_validate = ('val' in self.dataset) and ('val' in self.dataloader)
@@ -96,6 +98,17 @@ class BaseTrainer(ABC):
             self.criterion = self.criterion.to(self.device)
 
 
+    def _setup_wandb(self):
+        wandb.init(project=self.__class__.__name__,
+                   config=self.cfg.yaml_cfg)
+        # wandb.init(project=self.__class__.__name__,
+        #            config={'architecture': self.cfg['model']['name'],
+        #                    'dataset': self.cfg['dataset']['name'],
+        #                    'batch-size': self.cfg['dataloader']['train']['batch_size'],
+        #                    'learning-rate': self.cfg['optimizer']['lr'],
+        #                    })
+
+
     def backprop(self, loss: torch.Tensor, optimizer: Optimizer):
         optimizer.zero_grad()
         loss.backward()
@@ -135,10 +148,10 @@ class BaseTrainer(ABC):
                                  position=0)):
 
             pbar.set_description(f"Training: [best-epoch: {self.best_epoch+1}, best-loss: {self.best_loss:.3e}]")
-            loss = self.train_one_epoch(epoch, *args, **kwds)
+            loss_train = self.train_one_epoch(epoch, *args, **kwds)
             if self.is_validate:
-                loss = self.validation(epoch, *args, **kwds)
-                stop = self._early_stopping(epoch, loss)
+                loss_val = self.validation(epoch, *args, **kwds)
+                stop = self._early_stopping(epoch, loss_val)
                 if stop: break
             if (epoch+1) % SAVE_INTERVAL == 0:
                 fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
@@ -147,9 +160,16 @@ class BaseTrainer(ABC):
                                       self.model,
                                       self.optimizer,
                                       self.scheduler,
-                                      loss)
+                                      loss_train)
             if self.scheduler is not None:
                 self.scheduler.step()
+            
+            # wandb.log({
+            #     'epoch': epoch+1,
+            #     'train_loss': loss_train,
+            #     'val_loss': loss_val,
+            # })
+
         if stop:
             print(f"Early Stopping: no improvement in validation error over the last {EARLY_STOP} epochs.")
             return False

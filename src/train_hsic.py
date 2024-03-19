@@ -58,45 +58,9 @@ def main(args):
 
 
 
-def bandwidth(args):
-    cfg = Config(file=args.config,
-                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir)
-    utils.seed_all(cfg['seed'])
-    dHsic = registry.get('HSIC').build(cfg)
-
-    import torch
-    from kernel import Gaussian
-    k = Gaussian()
-    l = Gaussian(trainable=False)
-    k = k.to(cfg['device'])
-    l = l.to(cfg['device'])
-
-    X = torch.tensor([
-        [1.,1.],
-        [2.,0.],
-        [3.,-1.]
-    ]).to(cfg['device'])
-    Y = torch.tensor([
-        [-1.,1.],
-        [-2.,0.],
-        [-3.,-1.]
-    ]).to(cfg['device'])
-
-    Kxy = k(X,Y)
-    Lxy = l(X,Y)
-    print(Kxy)
-    print(Lxy)
-
-    # save config
-    sf = Path(cfg['save_dir'])/Path(args.config).name
-    cfg.save(sf)
-
-
 
 if __name__=='__main__':
     main(parse_args())
-    #bandwidth(parse_args())
 
 
 
