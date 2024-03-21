@@ -4,6 +4,7 @@
 
 seed: 0
 model:
+  name: cnnA-mlp.1x3x3x3
   tied: False
   k: !include config/model/deepkernel/cnn/cnnA.yml
   l: !include config/model/deepkernel/mlp/mlp.1x3x3x3.yml

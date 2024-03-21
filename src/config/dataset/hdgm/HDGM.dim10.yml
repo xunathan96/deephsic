@@ -1,19 +1,17 @@
 # -----------------------
 #    DATASET SETTINGS
 # -----------------------
+name: HDGM-10
 
 train: !dataset.HDGM
-  name: HDGM-10
   size: 10000
   dim: 10
 
 val: &data !dataset.HDGM
-  name: HDGM-10
   size: 4000
   dim: 10
 
 test: !dataset.HDGM
-  name: HDGM-10
   size: 400000
   dim: 10
 

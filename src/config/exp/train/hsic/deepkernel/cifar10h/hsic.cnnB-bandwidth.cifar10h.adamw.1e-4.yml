@@ -4,6 +4,7 @@
 
 seed: 0
 model:
+  name: cnnB-bandwidth
   tied: False
   k: !include config/model/deepkernel/cnn/cnnB.yml
   l: !kernel.Gaussian

@@ -4,6 +4,7 @@
 
 seed: 0
 model:
+  name: cnnA-linear
   tied: False
   k: !include config/model/deepkernel/cnn/cnnA.yml
   l: !kernel.Linear

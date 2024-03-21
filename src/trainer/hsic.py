@@ -59,9 +59,6 @@ class HSICBaseTrainer(BaseTrainer):
                                      scheduler=self.scheduler,
                                      device=self.device)
 
-    def _wandb_config(self):
-        return None
-
 
 class HSICTrainer(HSICBaseTrainer):
 

@@ -57,7 +57,7 @@ def main(args):
     # save evaluation metrics
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")
     row = {
-        'dataset': cfg['dataset']['test']['name'],
+        'dataset': cfg['dataset']['name'],
         'kernel': kernel_name(cfg),
         'n-samples': args.n_samples,
         **stats
@@ -114,31 +114,6 @@ def eval_test_power(dataloader: DataLoader,
     stats['power'] = n_reject/n_tests
     return stats
 
-
-def type1_err(args):
-    cfg = Config(file=args.config,
-                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir)
-    utils.seed_all(cfg['seed'])
-    dHsic = registry.get('HSIC').build(cfg)
-    dHsic.load(args.pretrained_path)
-    type1 = dHsic.eval_typeI_error()
-    print(type1)
-
-    # save evaluation metrics
-    table = utils.Tabular(f"{args.save_dir}/stats.csv")
-    row = {
-        'dataset': f"HDGM-{cfg['dataset']['test']['dim']}",
-        'kernel': kernel_name(cfg),
-        'n-samples': cfg['dataloader']['test']['batch_size'],
-        'type1_err':type1,
-    }
-    table.append(row)
-    table.to_csv()
-
-    # save config
-    sf = Path(cfg['save_dir'])/"settings"/Path(args.config).name
-    cfg.save(sf)
 
 
 

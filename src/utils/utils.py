@@ -40,21 +40,27 @@ def save_checkpoint(filepath: str,
                     epoch: int,
                     loss: float,
                     model: nn.Module | Sequence[nn.Module],
-                    optimizer: Optimizer | Sequence[Optimizer],
-                    scheduler: LRScheduler | Sequence[LRScheduler]):
+                    optimizer: Optimizer | Sequence[Optimizer] | None,
+                    scheduler: LRScheduler | Sequence[LRScheduler] | None):
     checkpoint = {
         'epoch': epoch,
         'loss': loss,
-        'model_state_dict': model,
-        'optimizer_state_dict': optimizer,
-        'scheduler_state_dict': scheduler,
+        'model_state_dict': None,
+        'optimizer_state_dict': None,
+        'scheduler_state_dict': None,
     }
     if isinstance(model, collections.abc.Sequence):
         checkpoint['model_state_dict'] = [net.state_dict() for net in model]
+    else:
+        checkpoint['model_state_dict'] = model.state_dict()
     if isinstance(optimizer, collections.abc.Sequence):
         checkpoint['optimizer_state_dict'] = [opt.state_dict() for opt in optimizer]
+    elif optimizer is not None:
+        checkpoint['optimizer_state_dict'] = optimizer.state_dict()
     if isinstance(scheduler, collections.abc.Sequence):
         checkpoint['scheduler_state_dict'] = [schdr.state_dict() for schdr in scheduler]
+    elif scheduler is not None:
+        checkpoint['scheduler_state_dict'] = scheduler.state_dict()
     fp = Path(filepath).with_suffix('.pt')
     fp.parent.mkdir(parents=True, exist_ok=True)
     torch.save(checkpoint, fp)

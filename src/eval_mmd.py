@@ -44,7 +44,7 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(file=args.config,
+    cfg = Config(yaml_path=args.config,
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir)
     utils.seed_all(cfg['seed'])
@@ -56,7 +56,7 @@ def main(args):
     # save evaluation metrics
     table = utils.Tabular(f"{args.save_dir}/stats-mmd.csv")
     row = {
-        'dataset': cfg['dataset']['test']['name'],
+        'dataset': cfg['dataset']['name'],
         'kernel': cfg['model']['name'],
         'permutation_test': args.permutation_test,
         'n-samples': args.n_samples,

@@ -1,6 +1,7 @@
 # -----------------------
 #    DATASET SETTINGS
 # -----------------------
+name: MNIST
 
 train: !dataset.MNIST
   root: 'data/mnist'
