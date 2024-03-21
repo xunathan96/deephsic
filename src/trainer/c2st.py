@@ -6,7 +6,7 @@ import metrics
 
 RUNNING_INTERVAL = 24
 
-class C2ST(BaseTrainer):
+class C2STrainer(BaseTrainer):
 
     def train_one_epoch(self, epoch: int):
         self.model.train()
@@ -181,30 +181,3 @@ def compile_samples(X, Y, test='independence'):
 
     return X, Y, t
 
-
-"""
-def train_one_epoch_depreciated(self, epoch: int):
-    self.model.train()
-    losses = list()
-    running_loss = 0
-    for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
-                                            bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
-                                            dynamic_ncols=True,
-                                            leave=False)):
-        X = batch[0].to(self.device)    # (N,Dx)
-        Y = batch[1].to(self.device)    # (N,Dy)
-        Z,t = compile_samples(X,Y)      # (2N 2D) and (2N)
-
-        logits = self.model(Z)          # (2N, 1)
-        logits = torch.flatten(logits, start_dim=-2)
-        loss = self.criterion(logits, t)
-        self.backprop(loss, self.optimizer)
-
-        losses.append(loss.item())
-        running_loss += loss.item()
-        if (i+1)%RUNNING_INTERVAL==0:
-            pbar.set_description(f"[{epoch+1}, {i+1:4d}]    loss: {running_loss/RUNNING_INTERVAL:.4f}")
-            running_loss = 0
-
-    return sum(losses)/len(losses)
-"""

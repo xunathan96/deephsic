@@ -63,7 +63,7 @@ class HSICBaseTrainer(BaseTrainer):
         return None
 
 
-class HSIC(HSICBaseTrainer):
+class HSICTrainer(HSICBaseTrainer):
 
     def train_one_epoch(self, epoch: int):
         self.model['k'].train()

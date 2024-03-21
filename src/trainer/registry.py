@@ -1,9 +1,9 @@
 from .base import BaseTrainer
 from .classifier import Classifier
-from .hsic import HSIC
+from .hsic import HSICTrainer
 from .pathwise import Pathwise
-from .c2st import C2ST
-from .mmd import MMD
+from .c2st import C2STTrainer
+from .mmd import MMDTrainer
 
 
 class TrainerRegistry:
@@ -26,10 +26,10 @@ class TrainerRegistry:
 
 trainerRegistry = TrainerRegistry()
 trainerRegistry.register('Classifier', Classifier)
-trainerRegistry.register('HSIC', HSIC)
+trainerRegistry.register('HSIC', HSICTrainer)
 trainerRegistry.register('Pathwise', Pathwise)
-trainerRegistry.register('C2ST', C2ST)
-trainerRegistry.register('MMD', MMD)
+trainerRegistry.register('C2ST', C2STTrainer)
+trainerRegistry.register('MMD', MMDTrainer)
 
 
 

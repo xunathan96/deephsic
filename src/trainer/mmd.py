@@ -6,7 +6,7 @@ import metrics
 
 RUNNING_PER_EPOCH = 1   # number of running statistics computed per epoch
 
-class MMD(BaseTrainer):
+class MMDTrainer(BaseTrainer):
 
     def train_one_epoch(self, epoch: int):
         self.model.train()
