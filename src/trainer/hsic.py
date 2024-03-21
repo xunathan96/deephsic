@@ -45,19 +45,19 @@ class HSICBaseTrainer(BaseTrainer):
             self.criterion = self.criterion.to(self.device)
 
     def save_checkpoint(self, filepath: str | Path, epoch: int, loss: float):
-        return utils.save_checkpoint_multi(filepath,
-                                           epoch,
-                                           loss,
-                                           modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
-                                           optimizerList=[self.optimizer],
-                                           schedulerList=[self.scheduler])
+        return utils.save_checkpoint(filepath,
+                                     epoch,
+                                     loss,
+                                     model=self.model['k'] if self.tied else (self.model['k'], self.model['l']),
+                                     optimizer=self.optimizer,
+                                     scheduler=self.scheduler)
 
     def load_checkpoint(self, filepath: str | Path):
-        return utils.load_checkpoint_multi(filepath,
-                                           modelList=[self.model['k']] if self.tied else [self.model['k'], self.model['l']],
-                                           optimizerList=[self.optimizer],
-                                           schedulerList=[self.scheduler],
-                                           device=self.device)
+        return utils.load_checkpoint(filepath,
+                                     model=self.model['k'] if self.tied else (self.model['k'], self.model['l']),
+                                     optimizer=self.optimizer,
+                                     scheduler=self.scheduler,
+                                     device=self.device)
 
     def _wandb_config(self):
         return None

@@ -59,5 +59,11 @@ class Config:
         else:
             return False
 
+    def set(self, key, value):
+        return setattr(self, key, value)
+
+    def update(self, **kwds):
+        raise NotImplementedError()
+
     def save(self, filepath: str):
         return dump_yaml(self.__dict__, file=Path(filepath))

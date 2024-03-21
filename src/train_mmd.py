@@ -44,8 +44,8 @@ def main(args):
     cfg = Config(yaml_path=args.config,
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir,
-                 n_epochs=args.n_epochs,
-                 wandb=vars(args.wandb) if 'wandb' in args else False,)
+                 n_epochs=args.n_epochs,)
+    if 'wandb' in args: cfg.set('wandb', vars(args.wandb))
     utils.seed_all(cfg['seed'])
 
     # save config

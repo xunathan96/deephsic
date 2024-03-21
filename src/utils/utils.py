@@ -3,9 +3,12 @@ import torch
 import torch.nn as nn
 import argparse
 import random
+import collections.abc
 import pandas as pd
 from pathlib import Path
-
+from typing import Sequence
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
 
 def seed_all(seed=None, harsh=False):
     if not seed:
@@ -33,9 +36,57 @@ def activation_registry(activation, *args, **kwds):
     }[activation](*args, **kwds)
 
 
-# TODO: combine save and save_multi
-
 def save_checkpoint(filepath: str,
+                    epoch: int,
+                    loss: float,
+                    model: nn.Module | Sequence[nn.Module],
+                    optimizer: Optimizer | Sequence[Optimizer],
+                    scheduler: LRScheduler | Sequence[LRScheduler]):
+    checkpoint = {
+        'epoch': epoch,
+        'loss': loss,
+        'model_state_dict': model,
+        'optimizer_state_dict': optimizer,
+        'scheduler_state_dict': scheduler,
+    }
+    if isinstance(model, collections.abc.Sequence):
+        checkpoint['model_state_dict'] = [net.state_dict() for net in model]
+    if isinstance(optimizer, collections.abc.Sequence):
+        checkpoint['optimizer_state_dict'] = [opt.state_dict() for opt in optimizer]
+    if isinstance(scheduler, collections.abc.Sequence):
+        checkpoint['scheduler_state_dict'] = [schdr.state_dict() for schdr in scheduler]
+    fp = Path(filepath).with_suffix('.pt')
+    fp.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(checkpoint, fp)
+
+
+def load_checkpoint(filepath: str,
+                    model: nn.Module | Sequence[nn.Module],
+                    optimizer: Optimizer | Sequence[Optimizer] | None,
+                    scheduler: LRScheduler | Sequence[LRScheduler] | None,
+                    device: torch.device):
+    checkpoint = torch.load(Path(filepath), map_location=device)
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+    if isinstance(model, collections.abc.Sequence):
+        for net, state_dict in zip(model, checkpoint['model_state_dict']):
+            net.load_state_dict(state_dict)
+    else:
+        model.load_state_dict(checkpoint['model_state_dict'])
+    if isinstance(optimizer, collections.abc.Sequence):
+        for opt, state_dict in zip(optimizer, checkpoint['optimizer_state_dict']):
+            opt.load_state_dict(state_dict)
+    elif optimizer is not None:
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    if isinstance(scheduler, collections.abc.Sequence):
+        for schdr, state_dict in zip(scheduler, checkpoint['scheduler_state_dict']):
+            schdr.load_state_dict(state_dict)
+    elif scheduler is not None:
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+    return epoch, loss
+
+
+def save_checkpoint_depreciated(filepath: str,
                     epoch: int,
                     loss: float,
                     model: nn.Module,
@@ -53,7 +104,7 @@ def save_checkpoint(filepath: str,
     torch.save(checkpoint, fp)
 
 
-def load_checkpoint(filepath: str,
+def load_checkpoint_depreciated(filepath: str,
                     model: nn.Module,
                     optimizer: torch.optim.Optimizer = None,
                     scheduler: torch.optim.lr_scheduler.LRScheduler = None,
