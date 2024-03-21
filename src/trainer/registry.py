@@ -27,9 +27,9 @@ class TrainerRegistry:
 trainerRegistry = TrainerRegistry()
 trainerRegistry.register('Classifier', Classifier)
 trainerRegistry.register('HSIC', HSICTrainer)
-trainerRegistry.register('Pathwise', Pathwise)
 trainerRegistry.register('C2ST', C2STTrainer)
 trainerRegistry.register('MMD', MMDTrainer)
+trainerRegistry.register('Pathwise', Pathwise)
 
 
 

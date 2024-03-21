@@ -6,7 +6,7 @@ import metrics
 
 RUNNING_INTERVAL = 24
 
-class C2STrainer(BaseTrainer):
+class C2STTrainer(BaseTrainer):
 
     def train_one_epoch(self, epoch: int):
         self.model.train()
