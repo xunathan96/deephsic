@@ -1,20 +1,20 @@
 import torch
 import torch.nn as nn
-from .base import Identity
+from .base import Identity, activation_registry
 
 
 class Basic(nn.Module):
 
     expansion = 1
     
-    def __init__(self, in_channels, inter_channels, stride=1):
+    def __init__(self, in_channels, inter_channels, stride=1, activation='ReLU'):
         super().__init__()
         out_channels = self.expansion * inter_channels
         self.conv1 = nn.Conv2d(in_channels, inter_channels, kernel_size=3, stride=stride, padding=1, bias=False) # bias term accounted for in batch norm
         self.bn1 = nn.BatchNorm2d(inter_channels)
         self.conv2 = nn.Conv2d(inter_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)                 # TODO: try layernorm instead?
-        self.act = nn.ELU()                                     # TODO: make this argument?
+        self.act = activation_registry(activation)
         self.projection = projected_downsample(in_channels, out_channels, stride)
 
     def forward(self, input):
@@ -28,7 +28,7 @@ class Bottleneck(nn.Module):
 
     expansion = 4
 
-    def __init__(self, in_channels, inter_channels, stride=1):
+    def __init__(self, in_channels, inter_channels, stride=1, activation='ReLU'):
         super().__init__()
         out_channels = self.expansion * inter_channels
         self.conv1 = nn.Conv2d(in_channels, inter_channels, kernel_size=1, stride=1, padding=0, bias=False)
@@ -37,7 +37,7 @@ class Bottleneck(nn.Module):
         self.bn2 = nn.BatchNorm2d(inter_channels)
         self.conv3 = nn.Conv2d(inter_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channels)
-        self.act = nn.ELU()
+        self.act = activation_registry(activation)
         self.projection = projected_downsample(in_channels, out_channels, stride)
 
     def forward(self, input):
@@ -57,8 +57,8 @@ class ResNet(nn.Module):
                  n_blocks: list[int],
                  in_channels: int = 3,
                  out_features: int = 1000,
-                 block_type: str = 'basic',
-                 ):
+                 activation: str = 'ReLU',
+                 block_type: str = 'basic',):
         r"""ResNet architecture.
         inter_channels: list of number of (intermediate) channels for each layer.
         n_blocks:       list of number of residual blocks for each layer.
@@ -74,13 +74,13 @@ class ResNet(nn.Module):
 
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
-        self.act = nn.ELU() # TODO: make argument
+        self.act = activation_registry(activation)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        self.layer1 = self._make_layer(64, self.inter_channels[0], self.n_blocks[0], stride=1)
-        self.layer2 = self._make_layer(expansion * self.inter_channels[0], self.inter_channels[1], self.n_blocks[1], stride=2)
-        self.layer3 = self._make_layer(expansion * self.inter_channels[1], self.inter_channels[2], self.n_blocks[2], stride=2)
-        self.layer4 = self._make_layer(expansion * self.inter_channels[2], self.inter_channels[3], self.n_blocks[3], stride=2)
+        self.layer1 = self._make_layer(64, self.inter_channels[0], self.n_blocks[0], activation=activation, stride=1)
+        self.layer2 = self._make_layer(expansion * self.inter_channels[0], self.inter_channels[1], self.n_blocks[1], activation=activation, stride=2)
+        self.layer3 = self._make_layer(expansion * self.inter_channels[1], self.inter_channels[2], self.n_blocks[2], activation=activation, stride=2)
+        self.layer4 = self._make_layer(expansion * self.inter_channels[2], self.inter_channels[3], self.n_blocks[3], activation=activation, stride=2)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(output_size=1)
         self.fc1 = nn.Linear(expansion * self.inter_channels[3], out_features)
@@ -96,20 +96,21 @@ class ResNet(nn.Module):
         x = self.fc1(x.flatten(start_dim=-3))       # (N, out_features)
         return x
 
-    def _make_layer(self, in_channels, inter_channels, n_blocks, stride):
+    def _make_layer(self, in_channels, inter_channels, n_blocks, stride, activation):
         r"""builds a sequence of residual blocks.
         in_channels:    number of input channels.
         inter_channels: number of channels in each residual block input.
         n_blocks:       number of residual blocks in the layer.
         stride:         stride used in the first residual block.
+        activation:     activation to use in each residual block.
         """
         Residual = ResNet.block_factory[self.block_type]
         out_channels = Residual.expansion * inter_channels
-        
+
         blocks = []
-        blocks.append(Residual(in_channels, inter_channels, stride=stride))
+        blocks.append(Residual(in_channels, inter_channels, activation=activation, stride=stride))
         for i in range(n_blocks-1):
-            blocks.append(Residual(out_channels, inter_channels, stride=1))
+            blocks.append(Residual(out_channels, inter_channels, activation=activation, stride=1))
 
         return nn.Sequential(*blocks)
 

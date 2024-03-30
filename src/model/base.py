@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-__all__ = ['Identity', 'Neck']
+__all__ = ['Identity', 'Neck', 'activation_registry']
 
 class Identity(nn.Module):
     def forward(self, input):
@@ -50,6 +50,18 @@ class ModelFactory:
     ...
 
 
+
+def activation_registry(activation, *args, **kwds) -> nn.Module:
+    return {
+        None: nn.Identity,
+        'ReLU': nn.ReLU,
+        'LeakyReLU': nn.LeakyReLU,
+        'Tanh': nn.Tanh,
+        'GLU': nn.GLU,
+        'ELU': nn.ELU,
+        'Sigmoid': nn.Sigmoid,
+        'Softmax': nn.Softmax,
+    }[activation](*args, **kwds)
 
 
 

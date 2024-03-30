@@ -162,4 +162,5 @@ cython_debug/
 *.npz
 *.npy
 *.tar.gz
+*.tar
 src/wandb

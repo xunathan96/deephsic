@@ -1,0 +1,31 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: 'ImageNet-C'
+
+train: !dataset.ImageNetSplit
+  root: 'data/imagenet/data/cls-loc/val'
+  split: 'train'
+  transform: !transform.Compose
+    - !transform.Resize     {size: 256}
+    - !transform.CenterCrop {size: 224}
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
+
+val: !dataset.ImageNetSplit
+  root: 'data/imagenet/data/cls-loc/val'
+  split: 'val'
+  transform: !transform.Compose
+    - !transform.Resize     {size: 256}
+    - !transform.CenterCrop {size: 224}
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
+
+test: !dataset.ImageNetSplit
+  root: 'data/imagenet/data/cls-loc/val'
+  split: 'test'
+  transform: !transform.Compose
+    - !transform.Resize     {size: 256}
+    - !transform.CenterCrop {size: 224}
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
