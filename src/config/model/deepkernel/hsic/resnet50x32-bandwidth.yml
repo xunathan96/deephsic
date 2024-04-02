@@ -1,5 +1,5 @@
 # -----------------------
-#      ResNet50x32
+#     ResNet-Gaussian
 # -----------------------
 
 name: resnet50x32-bandwidth

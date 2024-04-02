@@ -1,22 +1,16 @@
 # -----------------------
-#     ResNet-ID > MLP
+#       ID-ID > MLP
 # -----------------------
 
 !kernel.DeepKernel
-name: resnet50x32-id@mlp
+name: id-id@mlp8x16x32x16
 featurizer: !model.Neck
   backbones: !nn.ModuleList
-    - !model.ResNet
-      inter_channels: [64, 128, 256, 512]
-      n_blocks: [3, 4, 6, 3]
-      in_channels: 3
-      out_features: 32
-      activation: ELU
-      block_type: bottleneck
+    - !model.Identity
     - !model.Identity
   heads: !nn.ModuleList
     - !model.MLP
-      features: [33, 16]
+      features: [8, 16, 32, 16]
       activations: ELU
       batch_norm: False
   connection: cat
@@ -31,4 +25,3 @@ smoothing_kernel: !kernel.Gaussian
   trainable: True
 eps: 0.01
 trainable: True
-

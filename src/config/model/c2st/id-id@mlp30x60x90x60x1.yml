@@ -1,0 +1,16 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!model.Neck
+name: id-id@mlp30x60x90x60x1
+backbones: !nn.ModuleList
+  - !model.Identity
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.MLP
+    features: [30, 60, 90, 60, 1]
+    activations: ELU
+    batch_norm: False
+connection: cat
+squeeze_single_head: True

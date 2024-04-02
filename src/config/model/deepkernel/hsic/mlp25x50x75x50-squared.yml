@@ -1,0 +1,22 @@
+# -----------------------
+#        MLP-MLP
+# -----------------------
+
+name: mlp25x50x75x50-squared
+tied: False
+k: &deepkernel !kernel.DeepKernel
+  featurizer: !model.MLP
+    features: [25, 50, 75, 50]
+    activations: ELU
+    batch_norm: False
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  eps: 0.01
+  trainable: True
+l: *deepkernel
