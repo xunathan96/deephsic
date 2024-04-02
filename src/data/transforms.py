@@ -1,7 +1,7 @@
 from torchvision.transforms import *
 
 
-from imagenet_c import corrupt
+# from imagenet_c import corrupt
 
 
 

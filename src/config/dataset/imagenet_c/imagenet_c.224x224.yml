@@ -3,29 +3,23 @@
 # -----------------------
 name: 'ImageNet-C'
 
-train: !dataset.ImageNetSplit
-  root: 'data/imagenet/data/cls-loc/val'
+train: !dataset.ImageNetC
+  root: 'data/imagenet_c'
   split: 'train'
   transform: !transform.Compose
-    - !transform.Resize     {size: 256}
-    - !transform.CenterCrop {size: 224}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
-val: !dataset.ImageNetSplit
-  root: 'data/imagenet/data/cls-loc/val'
+val: !dataset.ImageNetC
+  root: 'data/imagenet_c'
   split: 'val'
   transform: !transform.Compose
-    - !transform.Resize     {size: 256}
-    - !transform.CenterCrop {size: 224}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
-test: !dataset.ImageNetSplit
-  root: 'data/imagenet/data/cls-loc/val'
+test: !dataset.ImageNetC
+  root: 'data/imagenet_c'
   split: 'test'
   transform: !transform.Compose
-    - !transform.Resize     {size: 256}
-    - !transform.CenterCrop {size: 224}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}

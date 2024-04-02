@@ -3,15 +3,15 @@
 # -----------------------
 
 seed: 0
-# model:
-#   name: resnet50A-bandwidth
-#   tied: False
-#   k: !include config/model/deepkernel/cnn/cnnB.yml
-#   l: !kernel.Gaussian
-#     scale: 1
-#     bandwidth: 1
-#     trainable: True
-dataset: !include config/dataset/imagenet-c/imagenet-c.224x224.yml
+model:
+  name: resnet18x32-bandwidth
+  tied: False
+  k: !include config/model/deepkernel/resnet/resnet18x32.yml
+  l: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+dataset: !include config/dataset/imagenet_c/imagenet_c.224x224.yml
 
 dataloader:
   train: &loader !torch.DataLoader

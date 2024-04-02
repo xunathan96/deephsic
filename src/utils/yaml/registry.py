@@ -49,8 +49,7 @@ yamlRegistry.register(yaml_tag=u'!dataset.Gaussian2D',      nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!dataset.Blob2ST',         nodetype=YamlNodeType.MAPPING).map_to(data.toy.Blob2ST)
 yamlRegistry.register(yaml_tag=u'!dataset.HDGM',            nodetype=YamlNodeType.MAPPING).map_to(data.toy.HDGM)
 yamlRegistry.register(yaml_tag=u'!dataset.CIFAR10H',        nodetype=YamlNodeType.MAPPING).map_to(data.cifar10h.CIFAR10H)
-yamlRegistry.register(yaml_tag=u'!dataset.ImageNet',        nodetype=YamlNodeType.MAPPING).map_to(data.imagenet.ImageNet)
-yamlRegistry.register(yaml_tag=u'!dataset.ImageNetSplit',   nodetype=YamlNodeType.MAPPING).map_to(data.imagenet.ImageNetSplit)
+yamlRegistry.register(yaml_tag=u'!dataset.ImageNetC',       nodetype=YamlNodeType.MAPPING).map_to(data.imagenet_c.ImageNetC)
 
 # transforms
 yamlRegistry.register(yaml_tag=u'!transform.CenterCrop',    nodetype=YamlNodeType.MAPPING).map_to(data.transforms.CenterCrop)

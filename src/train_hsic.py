@@ -53,6 +53,11 @@ def main(args):
     cfg.save(sf)
 
     pipeline = registry.get('HSIC').build(cfg)
+
+    
+
+    return 1
+
     pipeline.train(epochs=args.n_epochs)
     stats = pipeline.eval()
     print(stats)
