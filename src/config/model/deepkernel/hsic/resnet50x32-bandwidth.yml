@@ -1,0 +1,28 @@
+# -----------------------
+#      ResNet50x32
+# -----------------------
+
+name: resnet50x32-bandwidth
+tied: False
+k: !kernel.DeepKernel
+  featurizer: !model.ResNet
+    inter_channels: [64, 128, 256, 512]
+    n_blocks: [3, 4, 6, 3]
+    in_channels: 3
+    out_features: 32
+    activation: ELU
+    block_type: bottleneck
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  eps: 0.01
+  trainable: True
+l: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True

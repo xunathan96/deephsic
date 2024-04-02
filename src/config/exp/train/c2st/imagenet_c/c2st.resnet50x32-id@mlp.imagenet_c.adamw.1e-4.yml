@@ -3,29 +3,22 @@
 # -----------------------
 
 seed: 0
-model:
-  name: resnet18x32-bandwidth
-  tied: False
-  k: !include config/model/deepkernel/resnet/resnet18x32.yml
-  l: !kernel.Gaussian
-    scale: 1
-    bandwidth: 1
-    trainable: True
+model: !include config/model/c2st/resnet-id@mlp/resnet50x32-id@mlp.yml
 dataset: !include config/dataset/imagenet_c/imagenet_c.224x224.yml
 
 dataloader:
   train: &loader !torch.DataLoader
-    batch_size: 512
+    batch_size: 256
     shuffle: True
     drop_last: False
-    num_workers: 0
+    num_workers: 4
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
     batch_size: 128
     shuffle: True
     drop_last: True
-    num_workers: 0
+    num_workers: 4
     pin_memory: True
 
 optimizer: !optim.AdamW
@@ -34,5 +27,5 @@ optimizer: !optim.AdamW
   eps: 1.0e-8
   weight_decay: 0.005
 
-criterion: !criterion.HSICTestPower
-  reg: 1.e-8
+criterion: !criterion.BCEWithLogitsLoss
+  reduction: mean

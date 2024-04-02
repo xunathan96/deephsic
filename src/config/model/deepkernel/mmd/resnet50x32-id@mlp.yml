@@ -1,0 +1,34 @@
+# -----------------------
+#      ResNet50x32
+# -----------------------
+
+!kernel.DeepKernel
+name: resnet50x32-id@mlp
+featurizer: !model.Neck
+  backbones: !nn.ModuleList
+    - !model.ResNet
+      inter_channels: [64, 128, 256, 512]
+      n_blocks: [3, 4, 6, 3]
+      in_channels: 3
+      out_features: 32
+      activation: ELU
+      block_type: bottleneck
+    - !model.Identity
+  heads: !nn.ModuleList
+    - !model.MLP
+      features: [33, 16]
+      activations: ELU
+      batch_norm: False
+  connection: cat
+  squeeze_single_head: True
+feature_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+eps: 0.01
+trainable: True
+
