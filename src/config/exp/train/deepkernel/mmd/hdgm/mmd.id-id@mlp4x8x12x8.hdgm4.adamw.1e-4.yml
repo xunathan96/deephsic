@@ -3,22 +3,22 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/c2st/resnet50x32-id@mlp33x16x1.yml
-dataset: !include config/dataset/imagenet_c/imagenet_c.224x224.yml
+model: !include config/model/deepkernel/mmd/id-id@mlp4x8x12x8.yml
+dataset: !include config/dataset/hdgm/hdgm4.yml
 
 dataloader:
   train: &loader !torch.DataLoader
-    batch_size: 256
+    batch_size: 512
     shuffle: True
     drop_last: False
-    num_workers: 4
+    num_workers: 0
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
-    batch_size: 128
+    batch_size: 2000
     shuffle: True
     drop_last: True
-    num_workers: 4
+    num_workers: 0
     pin_memory: True
 
 optimizer: !optim.AdamW
@@ -27,5 +27,5 @@ optimizer: !optim.AdamW
   eps: 1.0e-8
   weight_decay: 0.0001
 
-criterion: !criterion.BCEWithLogitsLoss
-  reduction: mean
+criterion: !criterion.MMDTestPower
+  reg: 1.e-8

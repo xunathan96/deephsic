@@ -3,8 +3,8 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/deepkernel/mmd/cnn3x8x16x32x32-id@mlp33x16x8.yml
-dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
+model: !include config/model/deepkernel/hsic/mlp25x50x75x50-squared.yml
+dataset: !include config/dataset/hdgm/hdgm50.yml
 
 dataloader:
   train: &loader !torch.DataLoader
@@ -15,7 +15,7 @@ dataloader:
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
-    batch_size: 128
+    batch_size: 2000
     shuffle: True
     drop_last: True
     num_workers: 0
@@ -27,5 +27,11 @@ optimizer: !optim.AdamW
   eps: 1.0e-8
   weight_decay: 0.0001
 
-criterion: !criterion.MMDTestPower
+#scheduler: !scheduler.SequentialLR
+#  schedulers:
+#    - !scheduler.LinearLR                       {start_factor: 0.25, total_iters: 10000}
+#    - !scheduler.CosineAnnealingWarmRestarts    {T_0: 5000}
+#  milestones: [10000]
+
+criterion: !criterion.HSICTestPower
   reg: 1.e-8
