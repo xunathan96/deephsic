@@ -1,0 +1,15 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/deepkernel/hsic/mlp20x40x60x40-tied.yml
+dataset: !include config/dataset/hdgm/hdgm40.yml
+dataloader:
+  test: !torch.DataLoader
+    #batch_size: 100
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

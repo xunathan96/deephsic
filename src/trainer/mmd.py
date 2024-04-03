@@ -4,7 +4,7 @@ from tqdm import tqdm
 from .base import BaseTrainer
 import metrics
 
-RUNNING_PER_EPOCH = 1   # number of running statistics computed per epoch
+RUNNING_PER_EPOCH = 5   # number of running statistics computed per epoch
 
 class MMDTrainer(BaseTrainer):
 
@@ -12,7 +12,7 @@ class MMDTrainer(BaseTrainer):
         self.model.train()
         losses = list()
         running_loss = 0
-        RUNNING_INTERVAL = len(self.dataloader['train'])//RUNNING_PER_EPOCH
+        RUNNING_INTERVAL = max(len(self.dataloader['train'])//RUNNING_PER_EPOCH, 1)
         for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
@@ -38,7 +38,7 @@ class MMDTrainer(BaseTrainer):
         self.model.eval()
         losses = list()
         running_loss = 0
-        RUNNING_INTERVAL = len(self.dataloader['val'])//RUNNING_PER_EPOCH
+        RUNNING_INTERVAL = max(len(self.dataloader['val'])//RUNNING_PER_EPOCH, 1)
         for i, batch in enumerate(pbar:=tqdm(self.dataloader['val'],
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,

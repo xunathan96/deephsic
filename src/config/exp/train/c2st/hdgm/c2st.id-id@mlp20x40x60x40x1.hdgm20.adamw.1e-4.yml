@@ -15,7 +15,7 @@ dataloader:
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
-    batch_size: 2000
+    batch_size: 512
     shuffle: True
     drop_last: True
     num_workers: 0

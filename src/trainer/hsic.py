@@ -15,7 +15,7 @@ from kernel import BaseKernel
 
 EARLY_STOP = 400        # interval after which apply early stopping
 SAVE_INTERVAL = 100     # interval after which the model is saved
-RUNNING_PER_EPOCH = 1   # number of running statistics computed per epoch
+RUNNING_PER_EPOCH = 5   # number of running statistics computed per epoch
 
 
 class HSICBaseTrainer(BaseTrainer):
@@ -67,7 +67,7 @@ class HSICTrainer(HSICBaseTrainer):
         self.model['l'].train()
         losses = list()
         running_loss = 0
-        RUNNING_INTERVAL = len(self.dataloader['train'])//RUNNING_PER_EPOCH
+        RUNNING_INTERVAL = max(len(self.dataloader['train'])//RUNNING_PER_EPOCH, 1)
         for i, batch in enumerate(pbar:=tqdm(self.dataloader['train'],
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
@@ -93,7 +93,7 @@ class HSICTrainer(HSICBaseTrainer):
         self.model['l'].eval()
         losses = list()
         running_loss = 0
-        RUNNING_INTERVAL = len(self.dataloader['val'])//RUNNING_PER_EPOCH
+        RUNNING_INTERVAL = max(len(self.dataloader['val'])//RUNNING_PER_EPOCH, 1)
         for i, batch in enumerate(pbar:=tqdm(self.dataloader['val'],
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,

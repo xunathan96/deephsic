@@ -58,7 +58,7 @@ def main(args):
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")
     row = {
         'dataset': cfg['dataset']['name'],
-        'kernel': kernel_name(cfg),
+        'kernel': cfg['model']['name'],
         'n-samples': args.n_samples,
         **stats
     }
@@ -128,16 +128,6 @@ def marginals(joint: torch.Tensor):
     mask[dim//2+1:] = True
     mask[1] = True
     return joint[:,~mask], joint[:,mask]
-
-
-def kernel_name(cfg):
-    k_name = cfg['model']['k']['name']
-    l_name = cfg['model']['l']['name']
-    if cfg['model']['tied']:
-        return f"{k_name}-tied"
-    else:
-        return f"{k_name}:{l_name}"
-
 
 def print_params(model):
     print('feature_kernel_bandwidth:', model.feature_kernel.bandwidth)
