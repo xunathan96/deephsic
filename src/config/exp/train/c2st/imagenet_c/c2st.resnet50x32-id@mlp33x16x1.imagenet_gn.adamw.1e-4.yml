@@ -11,14 +11,14 @@ dataloader:
     batch_size: 256
     shuffle: True
     drop_last: False
-    num_workers: 0
+    num_workers: 6
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
     batch_size: 256
     shuffle: True
     drop_last: True
-    num_workers: 0
+    num_workers: 6
     pin_memory: True
 
 optimizer: !optim.AdamW

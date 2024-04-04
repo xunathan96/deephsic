@@ -9,6 +9,6 @@ dataloader:
   test: !torch.DataLoader
     shuffle: True
     drop_last: True
-    num_workers: 0
+    num_workers: 6
     pin_memory: True
 
