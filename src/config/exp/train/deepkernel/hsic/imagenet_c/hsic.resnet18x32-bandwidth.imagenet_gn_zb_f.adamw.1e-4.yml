@@ -1,0 +1,31 @@
+# -----------------------
+#    TRAINING SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/deepkernel/hsic/resnet18x32-bandwidth.yml
+dataset: !include config/dataset/imagenet_c/imagenet_gn_zb_f.224x224.yml
+
+dataloader:
+  train: &loader !torch.DataLoader
+    batch_size: 256
+    shuffle: True
+    drop_last: False
+    num_workers: 4
+    pin_memory: True
+  val: *loader
+  test: !torch.DataLoader
+    batch_size: 256
+    shuffle: True
+    drop_last: True
+    num_workers: 4
+    pin_memory: True
+
+optimizer: !optim.AdamW
+  lr: 1.0e-4
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  weight_decay: 0.0001
+
+criterion: !criterion.HSICTestPower
+  reg: 1.e-8

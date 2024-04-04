@@ -1,24 +1,24 @@
 # -----------------------
 #    DATASET SETTINGS
 # -----------------------
-name: 'ImageNet-C'
+name: 'ImageNet-GN'
 
 train: !dataset.ImageNetC
-  root: 'data/imagenet_c'
+  root: 'data/imagenet_c/gn'
   split: 'train'
   transform: !transform.Compose
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
 val: !dataset.ImageNetC
-  root: 'data/imagenet_c'
+  root: 'data/imagenet_c/gn'
   split: 'val'
   transform: !transform.Compose
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
 test: !dataset.ImageNetC
-  root: 'data/imagenet_c'
+  root: 'data/imagenet_c/gn'
   split: 'test'
   transform: !transform.Compose
     - !transform.ToTensor

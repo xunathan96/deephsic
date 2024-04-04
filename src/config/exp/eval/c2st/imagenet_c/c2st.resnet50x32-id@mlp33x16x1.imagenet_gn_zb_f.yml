@@ -3,8 +3,8 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/deepkernel/hsic/resnet50x32-bandwidth.yml
-dataset: !include config/dataset/imagenet_c/imagenet_c.224x224.yml
+model: !include config/model/c2st/resnet50x32-id@mlp33x16x1.yml
+dataset: !include config/dataset/imagenet_c/imagenet_gn_zb_f.224x224.yml
 dataloader:
   test: !torch.DataLoader
     shuffle: True

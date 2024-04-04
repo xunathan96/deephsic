@@ -11,7 +11,7 @@ class ImageNetC(ImageFolder):
                  split: str = 'train',
                  transform: Callable[..., Any] | None = None,
                  target_transform: Callable[..., Any] | None = None):
-        super().__init__(Path(root)/'data'/split, transform, target_transform)
+        super().__init__(Path(root)/split, transform, target_transform)
 
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
