@@ -3,7 +3,7 @@
 # -----------------------
 
 !kernel.DeepKernel
-name: id-id@mlp8x16x32x16
+name: id-id@mlp8x16x24x16
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.Identity
