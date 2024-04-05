@@ -12,6 +12,6 @@ val: &data !dataset.HDGM
   dim: 10
 
 test: !dataset.HDGM
-  size: 400000
+  size: 10000
   dim: 10
 
