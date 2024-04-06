@@ -125,10 +125,8 @@ def median_heuristic(*batches):
     between samples from each given batch of size (Ni,D)"""
     Z = torch.cat(batches, dim=0)
     Dzz = pDist2(Z,Z)
-    upper_idx = torch.triu_indices(*Dzz.shape, offset=1)
-    row_ids, col_ids = zip(*upper_idx)
-    dist2 = Dzz[list(zip(*upper_idx))]
-    # dist2 = Dzz[*upper_idx]   # NOTE: Unpack operator in subscript requires Python 3.11 or newer
+    upper_idx = torch.triu_indices(*Dzz.shape, offset=1)    # (2, N)
+    dist2 = Dzz[upper_idx[0], upper_idx[1]]
     return torch.sqrt(dist2.median()/2).item()
 
 
