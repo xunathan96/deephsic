@@ -4,9 +4,11 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 from tqdm import tqdm
 import torch
+from torchvision import transforms
 
 from utils import utils
 from data.toy import HDGM
+from data.cifar10h import CIFAR10H
 from kernel import Gaussian, median_heuristic
 import metrics
 
@@ -62,6 +64,7 @@ def eval_hsic_median(dataloader: DataLoader,
 
         X = batch[0].to(device)
         Y = batch[1].to(device)
+        X = torch.flatten(X, start_dim=1)
         k.bandwidth = median_heuristic(X)
         l.bandwidth = median_heuristic(Y)
         hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
@@ -101,7 +104,10 @@ def dataset(name):
     elif name == 'HDGM-50':
         return HDGM(dim=50, size=10000)
     elif name == 'Cifar10h':
-        ...
+        return CIFAR10H(root='data/cifar10h/raw',
+                        split='test',
+                        download=True,
+                        transform=transforms.Compose([transforms.ToTensor()]))
     elif name == 'ImageNet-GN-ZB-F':
         ...
 

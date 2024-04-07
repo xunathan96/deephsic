@@ -62,8 +62,8 @@ def eval_hsic_agg(dataloader: DataLoader,
         # plt.axis('equal')
         # plt.show()
         # return 1/0
-
-        reject = agginc("hsic", X, Y)
+        R = min(X.shape[0], Y.shape[0]) - 1     # use full U-statistics
+        reject = agginc("hsic", X, Y, R=R)
         n_reject += reject
         pbar.set_description(f"[{i+1}/{n_tests}] n_reject: {n_reject}")
 
