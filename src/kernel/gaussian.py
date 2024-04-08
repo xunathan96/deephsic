@@ -15,7 +15,7 @@ class Gaussian(BaseKernel):
         self.flatten_input = flatten_input
         log_sigma = torch.empty(1)
         if trainable:
-            nn.init.normal_(log_sigma, mean=math.log(bandwidth), std=1)
+            nn.init.normal_(log_sigma, mean=math.log(bandwidth), std=0.25)  # 95% of samples in [μ-2*σ, μ+2*σ]
         else:
             nn.init.constant_(log_sigma, val=math.log(bandwidth))
         self.log_bandwidth = nn.Parameter(log_sigma, requires_grad=trainable)
