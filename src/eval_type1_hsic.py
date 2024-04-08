@@ -55,7 +55,7 @@ def main(args):
     print(stats)
 
     # save evaluation metrics
-    table = utils.Tabular(f"{args.save_dir}/stats-type1.csv")
+    table = utils.Tabular(f"{args.save_dir}/stats-hsic-type1.csv")
     row = {
         'dataset': cfg['dataset']['name'],
         'kernel': cfg['model']['name'],
