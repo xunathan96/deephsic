@@ -48,9 +48,9 @@ def main(args):
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir)
     utils.seed_all(cfg['seed'])
-    pipline = registry.get('MMD').build(cfg)
-    pipline.load_checkpoint(args.pretrained_path)
-    stats = pipline.eval(n_samples=args.n_samples, permutation_test=args.permutation_test)
+    pipeline = registry.get('MMD').build(cfg)
+    pipeline.load_checkpoint(args.pretrained_path)
+    stats = pipeline.eval(n_samples=args.n_samples, permutation_test=args.permutation_test)
     print(stats)
 
     # save evaluation metrics

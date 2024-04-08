@@ -127,6 +127,45 @@ class MMDTrainer(BaseTrainer):
         return stats
 
 
+    def type1_error(self,
+                    n_samples = None,
+                    permutation_test: str = 'independence',
+                    n_tests: int = 100,
+                    n_permutations: int = 500,
+                    significance: float = 0.05):
+        if not self.is_test:
+            raise Exception(f"Evaluation error: no test data specified.")
+        if n_samples is not None:
+            self.dataloader['test'] = self.cfg['dataloader']['test'].build(
+                dataset=self.dataset['test'],
+                batch_size=n_samples)
+
+        self.model.eval()
+        n_reject = 0
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
+            Y_shuffle = Y[torch.randperm(Y.shape[0], device=self.device)]   # null distribution
+            mmd2, var, p_value, r = metrics.mmd.permutation_test(self.model,
+                                                                 X, Y_shuffle,
+                                                                 compute_var=False,
+                                                                 n_permutations=n_permutations,
+                                                                 test=permutation_test)
+            if p_value < significance:
+                n_reject += 1
+            pbar.set_description(f"[{i+1}/{n_tests}] mmd2: {mmd2}, p-value: {p_value:.4f}")
+        return {'type1-error': n_reject / n_tests}
+
 
 
 # ==============================

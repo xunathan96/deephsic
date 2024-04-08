@@ -50,7 +50,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     pipeline = registry.get('C2ST').build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
-    stats = pipeline.type1_error(n_samples=args.n_samples, statistic=args.statistic)
+    stats = pipeline.type1_error(n_samples=args.n_samples, statistic=args.statistic, n_tests=400)
     print(stats)
 
     # save evaluation metrics

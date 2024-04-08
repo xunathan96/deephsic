@@ -51,7 +51,7 @@ def main(args):
     utils.seed_all(cfg['seed'])
     pipeline = registry.get('HSIC').build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
-    stats = pipeline.type1_error(n_samples=args.n_samples)
+    stats = pipeline.type1_error(n_samples=args.n_samples, n_tests=400)
     print(stats)
 
     # save evaluation metrics
