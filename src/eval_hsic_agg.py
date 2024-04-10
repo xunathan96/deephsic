@@ -6,9 +6,11 @@ from pathlib import Path
 from agginc import agginc, human_readable_dict  # jax version
 import jax
 import matplotlib.pyplot as plt
+from torchvision import transforms
 
 from utils import utils
 from data.toy import HDGM
+from data.cifar10h import CIFAR10H
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -57,13 +59,14 @@ def eval_hsic_agg(dataloader: DataLoader,
 
         X = batch[0].numpy()
         Y = batch[1].numpy()
+        X = X.reshape((X.shape[0], -1))
 
         # plt.scatter(X[:,0], Y[:,1], s=2)
         # plt.axis('equal')
         # plt.show()
         # return 1/0
-        R = min(X.shape[0], Y.shape[0]) - 1     # use full U-statistics
-        reject = agginc("hsic", X, Y, R=R)
+        # R = min(X.shape[0], Y.shape[0]) - 1     # use full U-statistics
+        reject = agginc("hsic", X, Y)
         n_reject += reject
         pbar.set_description(f"[{i+1}/{n_tests}] n_reject: {n_reject}")
 
@@ -92,7 +95,10 @@ def dataset(name):
     elif name == 'HDGM-50':
         return HDGM(dim=50, size=10000)
     elif name == 'Cifar10h':
-        ...
+        return CIFAR10H(root='data/cifar10h/raw',
+                        split='test',
+                        download=True,
+                        transform=transforms.Compose([transforms.ToTensor()]))
     elif name == 'ImageNet-GN-ZB-F':
         ...
 
@@ -114,7 +120,7 @@ def main(args):
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")
     row = {
         'dataset': args.dataset,
-        'kernel': 'HSIC-Agg',
+        'kernel': 'HSIC-agg',
         'n-samples': args.n_samples,
         **stats
     }
