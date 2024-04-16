@@ -107,7 +107,10 @@ def dataset(name):
         return CIFAR10H(root='data/cifar10h/raw',
                         split='test',
                         download=True,
-                        transform=transforms.Compose([transforms.ToTensor()]))
+                        transform=transforms.Compose([
+                            transforms.ToTensor(),
+                            transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261])
+                        ]))
     elif name == 'ImageNet-GN-ZB-F':
         ...
 
@@ -122,7 +125,7 @@ def main(args):
                             drop_last=True)
 
     stats = eval_hsic_median(dataloader=testloader, n_tests=100)
-    print(stats)
+    print(dict(stats))
 
     # save evaluation metrics
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")

@@ -9,6 +9,7 @@ train: !dataset.CIFAR10H
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
 
 val: !dataset.CIFAR10H
   root: 'data/cifar10h/raw'
@@ -16,6 +17,7 @@ val: !dataset.CIFAR10H
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
 
 test: !dataset.CIFAR10H
   root: 'data/cifar10h/raw'
@@ -23,3 +25,5 @@ test: !dataset.CIFAR10H
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
+

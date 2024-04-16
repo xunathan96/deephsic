@@ -25,10 +25,11 @@ class Gaussian(BaseKernel):
         return torch.exp(self.log_bandwidth)
 
     @bandwidth.setter
-    def bandwidth(self, value: torch.Tensor):
+    def bandwidth(self, value: float):
         if value <= 0:
-            raise Exception(f'concentration must be positive, but got {value}.')
-        self._bandwidth = value
+            raise Exception(f'bandwidth must be positive, but got {value}.')
+        device = self.log_bandwidth.device
+        self.log_bandwidth.data = torch.tensor([math.log(value)], device=device)
 
     def forward(self, X: torch.Tensor, Y: torch.Tensor):
         if self.flatten_input:
