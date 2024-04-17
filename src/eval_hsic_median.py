@@ -9,6 +9,7 @@ from torchvision import transforms
 from utils import utils
 from data.toy import HDGM
 from data.cifar10h import CIFAR10H
+from data.imagenet_c import ImageNetC
 from kernel import Gaussian, median_heuristic
 import metrics
 
@@ -23,7 +24,7 @@ def parse_args():
                         help='the gpu core to use during experiment.')
     parser.add_argument('--dataset',
                         type=str,
-                        choices=['HDGM-4', 'HDGM-8', 'HDGM-10', 'HDGM-20', 'HDGM-30', 'HDGM-40', 'HDGM-50', 'Cifar10h'],
+                        choices=['HDGM-4', 'HDGM-8', 'HDGM-10', 'HDGM-20', 'HDGM-30', 'HDGM-40', 'HDGM-50', 'Cifar10h', 'ImageNet-GN-ZB-F'],
                         help='dataset to run tests on.')
     parser.add_argument('--save-dir',
                         type=str,
@@ -112,7 +113,12 @@ def dataset(name):
                             transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261])
                         ]))
     elif name == 'ImageNet-GN-ZB-F':
-        ...
+        return ImageNetC(root='data/imagenet_c/gn_zb_f',
+                         split='test',
+                         transform=transforms.Compose([
+                             transforms.ToTensor(),
+                             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                         ]))
 
 
 
