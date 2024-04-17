@@ -6,7 +6,7 @@ name: bandwidth-tied
 tied: True
 k: &kernel !kernel.Gaussian
   scale: 1
-  bandwidth: 1
+  bandwidth: 400
   flatten_input: True
   trainable: True
 l: *kernel
