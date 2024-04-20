@@ -1,0 +1,33 @@
+# -----------------------
+#      CNN-ID > MLP
+# -----------------------
+
+!model.Neck
+name: cnn3x64x256x512x256x128x64-id@mlp65x32x1
+backbones: !nn.ModuleList
+  - !model.CNN
+    channels:     [3,64,256,512,256,128,64]
+    kernel_size:  [4,4,4,4,4,7]
+    stride:       [2,2,2,2,2,1]
+    padding:      [1,1,1,1,1,0]
+    dilation:     [1,1,1,1,1,1]
+    activation:   ELU
+    batch_norm:   False
+    flatten:      True
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.MLP
+    features: [65, 32, 1]
+    activations: ELU
+    batch_norm: False
+connection: cat
+squeeze_single_head: True
+
+# 3x224x224   (input)
+# 64x112x112
+# 256x56x56
+# 512x28x28
+# 256x14x14
+# 128x7x7
+# 64x1x1
+# 65 > 32 > 1 (output)

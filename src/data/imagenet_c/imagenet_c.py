@@ -8,10 +8,11 @@ __all__=['ImageNetC']
 class ImageNetC(ImageFolder):
     def __init__(self,
                  root: str,
+                 corruption: str,
                  split: str = 'train',
                  transform: Callable[..., Any] | None = None,
                  target_transform: Callable[..., Any] | None = None):
-        super().__init__(Path(root)/split, transform, target_transform)
+        super().__init__(Path(root)/corruption/split, transform, target_transform)
 
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
