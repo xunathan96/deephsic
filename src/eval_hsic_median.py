@@ -68,6 +68,24 @@ def eval_hsic_median(dataloader: DataLoader,
         X = torch.flatten(X, start_dim=1)
         k.bandwidth = median_heuristic(X)
         l.bandwidth = median_heuristic(Y)
+
+        # Dxx = pDist2(X, X)    # (Nx, Ny)
+        # mahalanobis = -0.5*Dxx/(k.bandwidth**2)
+        # kxx = k(X,X)
+        # lyy = l(Y,Y)
+
+        # print('k.bandwidth:', k.bandwidth)
+        # print('l.bandwidth:', l.bandwidth)
+        # print('Dxx:', Dxx)
+        # print('Dxx.max():', Dxx.max())  # for image x this max is 1730 !!
+        # print('Dxx.min():', Dxx.min())  # 0
+        # print('mahalanobis.max():', mahalanobis.max())
+        # print('mahalanobis.min():', mahalanobis.min())
+        # print('kxx.max():', kxx.max())
+        # print('kxx.min():', kxx.min())
+
+        # return 1/0
+
         hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
                                                               X, Y,
                                                               compute_var=False,
@@ -113,13 +131,28 @@ def dataset(name):
                             transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261])
                         ]))
     elif name == 'ImageNet-GN-ZB-F':
-        return ImageNetC(root='data/imagenet_c/gn_zb_f',
+        return ImageNetC(root='data/imagenet_c',
+                         corruption='gn_zb_f',
                          split='test',
                          transform=transforms.Compose([
                              transforms.ToTensor(),
                              transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                          ]))
 
+
+
+def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
+    r"""compute all paired (squared) distances between samples of X and Y
+    X: (Nx, D) torch.Tensor
+    Y: (Ny: D) torch.Tensor
+    returns matrix of paired distances of size (Nx, Ny)"""
+    xyT = X @ Y.T                       # (Nx, Ny) pairwise inner products <x_i, y_j>
+    x_norm2 = torch.sum(X**2, dim=-1)   # (Nx,)
+    y_norm2 = torch.sum(Y**2, dim=-1)   # (Ny,)
+    x_norm2 = x_norm2.unsqueeze(-1)     # (Nx, 1)
+    Dxy = x_norm2 - 2*xyT + y_norm2     # (Nx, Ny) pairwise distances |x_i - y_j|^2
+    Dxy[Dxy<0] = 0                      # TODO: clamp to stable values
+    return Dxy
 
 
 def main(args):

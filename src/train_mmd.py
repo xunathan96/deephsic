@@ -19,6 +19,10 @@ def parse_args():
                         type=int,
                         default=0,
                         help='the gpu core to use during experiment.')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='number of workers for the dataloader.')
     parser.add_argument('--n-epochs',
                         type=int,
                         default=100,
@@ -46,6 +50,8 @@ def main(args):
                  save_dir=args.save_dir,
                  n_epochs=args.n_epochs,)
     if 'wandb' in args: cfg.set('wandb', vars(args.wandb))
+    for split in ['train', 'val', 'test']:
+        cfg['dataloader'][split]['num_workers'] = args.num_workers
     utils.seed_all(cfg['seed'])
 
     # save config

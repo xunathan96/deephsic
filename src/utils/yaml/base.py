@@ -22,6 +22,9 @@ class BaseMappingObject:
     def __getitem__(self, key):
         return self.params[key]
 
+    def __setitem__(self, key, value):
+        self.params[key] = value
+
     def __contains__(self, key):
         if key in self.params:
             return True
@@ -68,6 +71,9 @@ class BaseSequenceObject:
 
     def __getitem__(self, idx):
         return self.seq[idx]
+
+    def __setitem__(self, idx, value):
+        self.seq[idx] = value
 
     def build(self, unpack=False, *args, **kwds):
         built_seq = build_recursive(self.seq, *args, **kwds)  # build paramater objects recursively

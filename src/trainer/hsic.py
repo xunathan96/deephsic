@@ -264,6 +264,19 @@ def marginals(joint: torch.Tensor):
     mask[1] = True
     return joint[:,~mask], joint[:,mask]
 
+def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
+    r"""compute all paired (squared) distances between samples of X and Y
+    X: (Nx, D) torch.Tensor
+    Y: (Ny: D) torch.Tensor
+    returns matrix of paired distances of size (Nx, Ny)"""
+    xyT = X @ Y.T                       # (Nx, Ny) pairwise inner products <x_i, y_j>
+    x_norm2 = torch.sum(X**2, dim=-1)   # (Nx,)
+    y_norm2 = torch.sum(Y**2, dim=-1)   # (Ny,)
+    x_norm2 = x_norm2.unsqueeze(-1)     # (Nx, 1)
+    Dxy = x_norm2 - 2*xyT + y_norm2     # (Nx, Ny) pairwise distances |x_i - y_j|^2
+    Dxy[Dxy<0] = 0                      # TODO: clamp to stable values
+    return Dxy
+
 class KernelDict(TypedDict):
     k: BaseKernel
     l: BaseKernel

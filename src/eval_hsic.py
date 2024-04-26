@@ -24,6 +24,10 @@ def parse_args():
                         type=int,
                         default=0,
                         help='the gpu core to use during experiment.')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='number of workers for the dataloader.')
     parser.add_argument('--save-dir',
                         type=str,
                         default=default_save_dir(),
@@ -48,6 +52,7 @@ def main(args):
     cfg = Config(yaml_path=args.config,
                  device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
                  save_dir=args.save_dir)
+    cfg['dataloader']['test']['num_workers'] = args.num_workers
     utils.seed_all(cfg['seed'])
     pipeline = registry.get('HSIC').build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
