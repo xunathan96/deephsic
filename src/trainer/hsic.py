@@ -14,7 +14,7 @@ from .base import BaseTrainer
 from kernel import BaseKernel
 
 EARLY_STOP = 400        # interval after which apply early stopping
-SAVE_INTERVAL = 100     # interval after which the model is saved
+SAVE_INTERVAL = 1000    # interval after which the model is saved
 RUNNING_PER_EPOCH = 5   # number of running statistics computed per epoch
 
 
@@ -157,7 +157,10 @@ class HSICTrainer(HSICBaseTrainer):
         return stats
 
 
-    def eval(self, n_samples=None):
+    def eval(self,
+             n_samples=None,
+             n_tests=100,
+             n_permutations=500):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -165,7 +168,7 @@ class HSICTrainer(HSICBaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests=100, n_permutations=500)
+        samples = self.inference(n_tests, n_permutations)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

@@ -34,6 +34,14 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of samples used to compute the test statistic (default 100).')
+    parser.add_argument('--n-tests',
+                        type=int,
+                        default=100,
+                        help='number of permutation tests used to calculate empirical power.')
+    parser.add_argument('--n-permutations',
+                        type=int,
+                        default=500,
+                        help='number of permutations per permutation test.')
     return parser.parse_args()
 
 def default_save_dir():

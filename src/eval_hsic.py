@@ -39,6 +39,14 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of samples used to compute the test statistic (default 100).')
+    parser.add_argument('--n-tests',
+                        type=int,
+                        default=100,
+                        help='number of permutation tests used to calculate empirical power.')
+    parser.add_argument('--n-permutations',
+                        type=int,
+                        default=500,
+                        help='number of permutations per permutation test.')
     return parser.parse_args()
 
 def default_save_dir():
@@ -56,7 +64,9 @@ def main(args):
     utils.seed_all(cfg['seed'])
     pipeline = registry.get('HSIC').build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
-    stats = pipeline.eval(n_samples=args.n_samples)
+    stats = pipeline.eval(n_samples=args.n_samples,
+                          n_tests=args.n_tests,
+                          n_permutations=args.n_permutations)
     print(stats)
 
     # save evaluation metrics

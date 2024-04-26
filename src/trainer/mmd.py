@@ -114,7 +114,11 @@ class MMDTrainer(BaseTrainer):
         return stats
 
 
-    def eval(self, n_samples=None, permutation_test='independence'):
+    def eval(self,
+             n_samples=None,
+             n_tests=100,
+             n_permutations=500,
+             permutation_test='independence'):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -122,7 +126,7 @@ class MMDTrainer(BaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests=100, n_permutations=500, permutation_test=permutation_test)
+        samples = self.inference(n_tests, n_permutations, permutation_test=permutation_test)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

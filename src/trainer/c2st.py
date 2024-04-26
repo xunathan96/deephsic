@@ -103,7 +103,11 @@ class C2STTrainer(BaseTrainer):
         return stats
 
 
-    def eval(self, n_samples=None, statistic='logit'):
+    def eval(self,
+             n_samples=None,
+             n_tests=100,
+             n_permutations=500,
+             statistic='logit'):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -111,7 +115,7 @@ class C2STTrainer(BaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests=100, n_permutations=500, statistic=statistic)
+        samples = self.inference(n_tests, n_permutations, statistic=statistic)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

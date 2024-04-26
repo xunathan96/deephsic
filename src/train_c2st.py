@@ -27,6 +27,14 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of epochs to use during training')
+    parser.add_argument('--n-tests',
+                        type=int,
+                        default=100,
+                        help='number of permutation tests used to calculate empirical power.')
+    parser.add_argument('--n-permutations',
+                        type=int,
+                        default=500,
+                        help='number of permutations per permutation test.')
     parser.add_argument('--save-dir',
                         type=str,
                         default=default_save_dir(),
@@ -60,7 +68,9 @@ def main(args):
 
     pipeline = registry.get('C2ST').build(cfg)
     pipeline.train(epochs=args.n_epochs)
-    stats = pipeline.eval()
+    return 1
+
+    stats = pipeline.eval(n_tests=args.n_tests, n_permutations=args.n_permutations)
     print(stats)
 
     # save evaluation results
