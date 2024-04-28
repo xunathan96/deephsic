@@ -3,8 +3,8 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/deepkernel/hsic/resnet50x32-bandwidth.yml
-dataset: !include config/dataset/imagenet_c/imagenet_gn.224x224.yml
+model: !include config/model/deepkernel/mmd/cnn3x64x128x256x256x128-id@mlp129x64.yml
+dataset: !include config/dataset/imagenet_c/imagenet_gn_zb_f.112x112.yml
 
 dataloader:
   train: &loader !torch.DataLoader
@@ -27,5 +27,5 @@ optimizer: !optim.AdamW
   eps: 1.0e-8
   weight_decay: 0.0001
 
-criterion: !criterion.HSICTestPower
+criterion: !criterion.MMDTestPower
   reg: 1.e-8

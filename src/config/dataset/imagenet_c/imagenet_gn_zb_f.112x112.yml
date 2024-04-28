@@ -4,25 +4,28 @@
 name: ImageNet-GN-ZB-F
 
 train: !dataset.ImageNetC
-  root: data/imagenet_c/224x224/
+  root: data/imagenet_c/112x112/
   corruption: gn_zb_f
   split: train
   transform: !transform.Compose
+    # - !transform.Resize     {size: 112}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
 val: !dataset.ImageNetC
-  root: data/imagenet_c/224x224/
+  root: data/imagenet_c/112x112/
   corruption: gn_zb_f
   split: val
   transform: !transform.Compose
+    # - !transform.Resize     {size: 112}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
 
 test: !dataset.ImageNetC
-  root: data/imagenet_c/224x224/
+  root: data/imagenet_c/112x112/
   corruption: gn_zb_f
   split: test
   transform: !transform.Compose
+    # - !transform.Resize     {size: 112}
     - !transform.ToTensor
     - !transform.Normalize  {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225]}
