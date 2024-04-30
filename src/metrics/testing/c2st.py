@@ -13,9 +13,7 @@ def accuracy(pred: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
 def accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
     # compute the accuracy given the logits (N,) and labels (N,)
     probs = torch.sigmoid(logits)
-    preds = torch.zeros_like(probs)
-    preds[probs>=0.5] = 1
-    return accuracy(preds, t)
+    return accuracy((probs>=0.5).float(), t)
 
 def soft_accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
     # compute the soft accuracy based on logits (N,) and labels (N,)
@@ -48,15 +46,17 @@ def permutation_test(classifier: nn.Module,
     # get test samples
     X_test, Y_test = catzip(Z_null, Z_alt, dim=0)   # (2N,*,Dx) and (2N,*,Dy)
     # get test labels
-    t_null = torch.zeros(n, device=device)
-    t_alt = torch.ones(n, device=device)
-    t = torch.cat((t_null, t_alt))    # (2N,)
+    t_null = torch.zeros(2*n, device=device)    # (2N,)
+    t_alt = torch.cat((
+        torch.zeros(n, device=device),
+        torch.ones(n, device=device)))
+
     # compute test statistic (accuracy)
     logits = classifier(X_test, Y_test).squeeze(-1) # (2N,)
     if statistic == 'accuracy':
-        acc = accuracy_with_logits(logits, t)
+        acc = accuracy_with_logits(logits, t_alt)
     elif statistic == 'logit':
-        acc = soft_accuracy_with_logits(logits, t)
+        acc = soft_accuracy_with_logits(logits, t_alt)
 
     count = 0
     stats = []
@@ -71,9 +71,9 @@ def permutation_test(classifier: nn.Module,
         # compute test statistics under the null distribution
         logits = classifier(X_test, Y_test).squeeze(-1)
         if statistic == 'accuracy':
-            acc_null = accuracy_with_logits(logits, t)
+            acc_null = accuracy_with_logits(logits, t_null)
         elif statistic == 'logit':
-            acc_null = soft_accuracy_with_logits(logits, t)
+            acc_null = soft_accuracy_with_logits(logits, t_null)
         stats.append(acc_null.item())
         if acc_null > acc:
             count += 1

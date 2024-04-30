@@ -86,7 +86,7 @@ class C2STTrainer(BaseTrainer):
                                                          statistic=statistic,
                                                          n_permutations=n_permutations)
             samples.append((acc, p_value))
-            pbar.set_description(f"[{i+1}/{n_tests}] accuracy: {acc}, p-value: {p_value:.4f}")
+            pbar.set_description(f"[{i+1}/{n_tests}] {statistic}: {acc}, p-value: {p_value:.4f}")
         return samples
 
 
