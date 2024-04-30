@@ -20,7 +20,7 @@ def soft_accuracy_with_logits(logits: torch.Tensor, t: torch.Tensor) -> torch.Te
     # logits = z_0 - z_1
     # logits > 0 --> P(y=1|x)>0.5
     # logits < 0 --> P(y=1|x)<0.5
-    return logits[t==1].mean() - logits[t==0].mean()
+    return logits[t==1].mean().nan_to_num() - logits[t==0].mean().nan_to_num()
 
 
 
@@ -71,11 +71,11 @@ def permutation_test(classifier: nn.Module,
         # compute test statistics under the null distribution
         logits = classifier(X_test, Y_test).squeeze(-1)
         if statistic == 'accuracy':
-            acc_null = accuracy_with_logits(logits, t_null)
+            acc_null = accuracy_with_logits(logits, t_alt)
         elif statistic == 'logit':
-            acc_null = soft_accuracy_with_logits(logits, t_null)
+            acc_null = soft_accuracy_with_logits(logits, t_alt)
         stats.append(acc_null.item())
-        if acc_null > acc:
+        if acc_null >= acc: # NOTE: use >= to account for equal accuracy statistics
             count += 1
 
     p_value = count/n_permutations
