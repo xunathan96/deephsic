@@ -189,19 +189,20 @@ def compile_samples(X, Y, test='two-sample'):
 
     elif test=='independence':
         # compile samples from null and alternate hypotheses
-        Y_shuff = Y[torch.randperm(n, device=device)]
-        Z_alt = (X,Y)           # alternate: Pxy
-        Z_null = (X,Y_shuff)    # null: Px*Py
+        # need to split the data since if we don't then the samples Z_null and Z_alt aren't iid.
+        X_null, X_alt = X[:n//2], X[n//2:]
+        Y_null, Y_alt = Y[:n//2], Y[n//2:]
+        Y_null = Y_null[torch.randperm(n//2, device=device)]
+        Z_null = (X_null, Y_null)   # null: Px*Py
+        Z_alt = (X_alt, Y_alt)      # alternate: Pxy
         return Z_null, Z_alt
 
     elif test=='independence_depreciated':
         # compile samples from null and alternate hypotheses
         Y_shuff = Y[torch.randperm(n, device=device)]
-        Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
-        Z_null = torch.cat((X,Y_shuff), dim=-1)     # null: Px*Py
+        Z_alt = (X,Y)           # alternate: Pxy
+        Z_null = (X,Y_shuff)    # null: Px*Py
         return Z_null, Z_alt
-
-    # TODO: need to try split data test
 
     else:
         raise NotImplementedError()

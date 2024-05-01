@@ -205,6 +205,22 @@ def compile_samples(X, Y, test='independence'):
 
     if test=='independence':
         # compile samples from null (Px*Py) and alternate (Pxy) hypotheses
+        # need to split the data since if we don't then the samples X_null and X_alt aren't iid.
+        # X_null, X_alt = X[:n//2], X[n//2:]
+        Y_null, Y_alt = Y[:n//2], Y[n//2:]
+        Y_null = Y_null[torch.randperm(n//2, device=device)]
+        # X = torch.cat((X_null, X_alt), dim=0)   # (2N, *, Dx)
+        Y = torch.cat((Y_null, Y_alt), dim=0)   # (2N, *, Dy)
+        t = torch.zeros(n, device=device)
+        t[n//2:] = 1
+        # shuffle samples
+        shuffle_idx = torch.randperm(n, device=device)
+        X = X[shuffle_idx]
+        Y = Y[shuffle_idx]
+        t = t[shuffle_idx]
+
+    if test=='independence_depreciated':
+        # compile samples from null (Px*Py) and alternate (Pxy) hypotheses
         Y_prime = Y[torch.randperm(n, device=device)]
         X_null_alt = torch.cat((X, X), dim=0)        # (2N, *, Dx)
         Y_null_alt = torch.cat((Y_prime, Y), dim=0)  # (2N, *, Dy)
