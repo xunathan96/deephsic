@@ -72,8 +72,8 @@ class HSICTrainer(HSICBaseTrainer):
                                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
                                              dynamic_ncols=True,
                                              leave=False)):
-            X = batch[0].to(self.device)    # (B,Dx)
-            Y = batch[1].to(self.device)    # (B,Dy)
+            X = batch[0].to(self.device)    # (B,*,Dx)
+            Y = batch[1].to(self.device)    # (B,*,Dy)
 
             loss = self.criterion(self.model['k'], self.model['l'], X, Y)
             self.backprop(loss, self.optimizer)

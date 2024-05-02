@@ -171,32 +171,6 @@ def marginals(joint: torch.Tensor):
     mask[1] = True
     return joint[:,~mask], joint[:,mask]
 
-def compile_samples_depreciated(X, Y, test='independence'):
-    # prepare the data samples based on the type of hypothesis test
-    if (m:=X.shape[0]) != (n:=Y.shape[0]):
-        raise Exception(f"Error: expected X and Y to have equal number of samples but got {m} and {n} samples.")
-    device = X.device
-
-    if test=='independence':
-        # compile samples from null and alternate hypotheses
-        Y_prime = Y[torch.randperm(n, device=device)]
-        Z_alt = torch.cat((X,Y), dim=-1)            # alternate: Pxy
-        Z_null = torch.cat((X,Y_prime), dim=-1)     # null: Px*Py
-        Z = torch.cat((Z_null,Z_alt), dim=0)        # (2N, 2D)
-        # create label vector
-        t = torch.zeros(2*n, device=device)
-        t[n:] = 1
-        # shuffle samples
-        shuffle_idx = torch.randperm(2*n, device=device)
-        Z = Z[shuffle_idx]
-        t = t[shuffle_idx]
-
-    elif test=='two-sample':
-        raise NotImplementedError()
-
-    return Z, t
-
-
 def compile_samples(X, Y, test='independence'):
     # prepare the data samples based on the type of hypothesis test
     if (m:=X.shape[0]) != (n:=Y.shape[0]):

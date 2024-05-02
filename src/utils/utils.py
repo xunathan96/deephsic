@@ -5,10 +5,12 @@ import argparse
 import random
 import collections.abc
 import pandas as pd
+import dill
 from pathlib import Path
 from typing import Sequence
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
+__all__ = ['dump', 'load']
 
 def seed_all(seed=None, harsh=False):
     if not seed:
@@ -21,6 +23,15 @@ def seed_all(seed=None, harsh=False):
         torch.backends.cudnn.enabled = False
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
+
+def dump(obj, file):
+    with open(file, 'wb') as f:
+        dill.dump(obj, f, protocol=dill.HIGHEST_PROTOCOL)
+
+def load(file):
+    with open(file, 'rb') as f:
+        obj = dill.load(f)
+    return obj
 
 
 def activation_registry(activation, *args, **kwds):

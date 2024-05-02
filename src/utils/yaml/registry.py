@@ -50,6 +50,7 @@ yamlRegistry.register(yaml_tag=u'!dataset.Blob2ST',         nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!dataset.HDGM',            nodetype=YamlNodeType.MAPPING).map_to(data.toy.HDGM)
 yamlRegistry.register(yaml_tag=u'!dataset.CIFAR10H',        nodetype=YamlNodeType.MAPPING).map_to(data.cifar10h.CIFAR10H)
 yamlRegistry.register(yaml_tag=u'!dataset.ImageNetC',       nodetype=YamlNodeType.MAPPING).map_to(data.imagenet_c.ImageNetC)
+yamlRegistry.register(yaml_tag=u'!dataset.RatInABox',       nodetype=YamlNodeType.MAPPING).map_to(data.riab.RatInABox)
 
 # transforms
 yamlRegistry.register(yaml_tag=u'!transform.CenterCrop',    nodetype=YamlNodeType.MAPPING).map_to(data.transforms.CenterCrop)
@@ -57,6 +58,7 @@ yamlRegistry.register(yaml_tag=u'!transform.Resize',        nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!transform.Normalize',     nodetype=YamlNodeType.MAPPING).map_to(data.transforms.Normalize)
 yamlRegistry.register(yaml_tag=u'!transform.ToTensor',      nodetype=YamlNodeType.SCALAR).map_to(data.transforms.ToTensor)
 yamlRegistry.register(yaml_tag=u'!transform.Compose',       nodetype=YamlNodeType.SEQUENCE).map_to(data.transforms.Compose)
+yamlRegistry.register(yaml_tag=u'!transform.NumpyToTensor', nodetype=YamlNodeType.SCALAR).map_to(data.transforms.NumpyToTensor)
 
 # optimizers
 yamlRegistry.register(yaml_tag=u'!optim.Adam',      nodetype=YamlNodeType.MAPPING).map_to(optim.optimizer.Adam)

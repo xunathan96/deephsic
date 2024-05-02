@@ -1,0 +1,25 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: RatInABox
+
+train: !dataset.RatInABox
+  root: data/riab/raw/riab-5000.pkl
+  split: train
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
+
+val: !dataset.RatInABox
+  root: data/riab/raw/riab-5000.pkl
+  split: val
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
+
+test: !dataset.RatInABox
+  root: data/riab/raw/riab-5000.pkl
+  split: test
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
