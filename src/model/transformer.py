@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 from .attention import SelfAttention
@@ -17,7 +18,7 @@ class TransformerEncoder(nn.Module):
                  drop_ff = 0,):
         super().__init__()
 
-        layers = []
+        self.layers = nn.Sequential()
         for i in range(num_layers):
             block = TransformerBlock(embed_dim,
                                      num_heads,
@@ -25,13 +26,11 @@ class TransformerEncoder(nn.Module):
                                      activation,
                                      drop_attn,
                                      drop_ff,)
-
-            layers.append(block)
-        self.blocks = nn.Sequential(*layers)
+            self.layers.append(block)
         self.pos_encoder = PositionalEncoding(seq_len, embed_dim)
 
     def forward(self, input):
-        return self.blocks(self.pos_encoder(input))
+        return self.layers(self.pos_encoder(input))
 
 
 class TransformerBlock(nn.Module):
@@ -77,17 +76,16 @@ class PositionalEncoding(nn.Module):
                  embed_dim):
         super().__init__()
 
-        self.encoding = torch.zeros((seq_len, embed_dim))
+        encoding = torch.zeros((seq_len, embed_dim))
         pos = 1 + torch.arange(seq_len).unsqueeze(-1)   # (n, 1)
         dim = 1 + torch.arange(embed_dim)               # (d,)
 
         pi = (dim - dim%2)/embed_dim
-        self.encoding[:, 1::2] = torch.sin(pos/(10000**pi[1::2]))
-        self.encoding[:, 0::2] = torch.cos(pos/(10000**pi[0::2]))
+        encoding[:, 1::2] = torch.sin(pos/(10000**pi[1::2]))
+        encoding[:, 0::2] = torch.cos(pos/(10000**pi[0::2]))
 
         # register_buffer => Tensor which is not a parameter, but should be part of the modules state (device, etc...).
-        self.register_buffer('positional_encoding', self.encoding, persistent=False)
-
+        self.register_buffer('encoding', encoding, persistent=False)
 
     def forward(self, input):
         seq_len = input.size(-2)

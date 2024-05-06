@@ -103,13 +103,17 @@ class BaseSequenceObject:
 
 
 class BaseScalarObject:
-    r"""This abstract class is an interface between YAML sca;ar nodes and python objects.
+    r"""This abstract class is an interface between YAML scalar nodes and python objects.
     The node described by this scalar object has an associated yaml tag."""
     yaml_tag: str
     Blueprint: object
 
     def __init__(self, value):
         self.value = value
+        # NOTE: hardcoded solution to the auto string casting issue
+        if isinstance(value, str):
+            if value.lstrip("-+").isdigit():
+                self.value = int(value)
 
     def __len__(self):
         return 1
@@ -136,7 +140,7 @@ class BaseScalarObject:
     @classmethod
     def to_yaml(cls, dumper: yaml.dumper, self):
         r"""Maps the given object instance back to a yaml node."""
-        return dumper.represent_scalar(cls.yaml_tag, value=self.value)
+        return dumper.represent_scalar(cls.yaml_tag, value=str(self.value))
 
 
 

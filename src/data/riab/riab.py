@@ -17,12 +17,13 @@ class RatInABox(Dataset):
                  root: str,
                  split: str = 'train',
                  window: str = 'full',  # past, future, present, full
+                 transform: Callable[..., Any] | None = None,
                  transform_x: Callable[..., Any] | None = None,
                  transform_y: Callable[..., Any] | None = None,):
         super().__init__()
         self.window = window
-        self.transform_x = transform_x
-        self.transform_y = transform_y
+        self.transform_x = transform_x or transform
+        self.transform_y = transform_y or transform
         trajs = self.preprocess(load(root))
 
         # deterministic shuffle of trajectories

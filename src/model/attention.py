@@ -115,22 +115,18 @@ class SelfAttention(Attention):
 
 
 def main():
-
-    # attn = Attention(dim_k=8,
-    #                  dim_v=4,
-    #                  dim_o=6,
-    #                  in_q=12,
-    #                  in_k=12,
-    #                  in_v=15,
-    #                  num_heads=2)
-
-    # query = torch.rand((5,12,2))
-    # key = torch.rand((5,12,4))
-    # value = torch.rand((5,15,4))
-    # out = attn(query.mT, key.mT, value.mT)
-    # print(out.shape)   # (5, 2, 6)
-
-
+    attn = Attention(dim_k=8,
+                     dim_v=4,
+                     dim_o=6,
+                     in_q=12,
+                     in_k=12,
+                     in_v=15,
+                     num_heads=2)
+    query = torch.rand((5,12,2))
+    key = torch.rand((5,12,4))
+    value = torch.rand((5,15,4))
+    out = attn(query.mT, key.mT, value.mT)
+    print(out.shape)   # (5, 2, 6)
 
     selfattn = SelfAttention(input_dim=12,
                              embed_dim=50,
@@ -138,11 +134,9 @@ def main():
                              num_heads=5,
                              drop_score=0.1,
                              drop_proj=0.1)
-
     input = torch.rand((128, 12, 7))
     out = selfattn(input.mT)
     print(out.shape)    # (128, 7, 10)
-
 
 if __name__=='__main__':
     main()

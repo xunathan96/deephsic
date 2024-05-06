@@ -1,0 +1,14 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/c2st/transformer32#4-transformer4#4@24x32x1.yml
+dataset: !include config/dataset/riab/riab_past.yml
+dataloader:
+  test: !torch.DataLoader
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

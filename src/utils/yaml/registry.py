@@ -44,7 +44,7 @@ yamlRegistry = YamlRegistry()
 
 # data
 yamlRegistry.register(yaml_tag=u'!torch.DataLoader',        nodetype=YamlNodeType.MAPPING).map_to(data.dataloader.DataLoader)
-yamlRegistry.register(yaml_tag=u'!dataset.MNIST',           nodetype=YamlNodeType.MAPPING).map_to(torchvision.datasets.MNIST) # TODO: use custom datasets
+yamlRegistry.register(yaml_tag=u'!dataset.MNIST',           nodetype=YamlNodeType.MAPPING).map_to(torchvision.datasets.MNIST)
 yamlRegistry.register(yaml_tag=u'!dataset.Gaussian2D',      nodetype=YamlNodeType.MAPPING).map_to(data.toy.Gaussian2D)
 yamlRegistry.register(yaml_tag=u'!dataset.Blob2ST',         nodetype=YamlNodeType.MAPPING).map_to(data.toy.Blob2ST)
 yamlRegistry.register(yaml_tag=u'!dataset.HDGM',            nodetype=YamlNodeType.MAPPING).map_to(data.toy.HDGM)
@@ -80,15 +80,19 @@ yamlRegistry.register(yaml_tag=u'!criterion.MMDTestPower',          nodetype=Yam
 yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.HSICTestPower)
 
 # models
-yamlRegistry.register(yaml_tag=u'!nn.ModuleList',   nodetype=YamlNodeType.SEQUENCE).map_to(nn.ModuleList)
-yamlRegistry.register(yaml_tag=u'!model.Identity',  nodetype=YamlNodeType.SCALAR).map_to(model.base.Identity)
-yamlRegistry.register(yaml_tag=u'!model.Flatten',   nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
-yamlRegistry.register(yaml_tag=u'!model.Neck',      nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
-yamlRegistry.register(yaml_tag=u'!model.MLP',       nodetype=YamlNodeType.MAPPING).map_to(model.mlp.MLP)
-yamlRegistry.register(yaml_tag=u'!model.CNN',       nodetype=YamlNodeType.MAPPING).map_to(model.cnn.CNN)
-yamlRegistry.register(yaml_tag=u'!model.ResNet',    nodetype=YamlNodeType.MAPPING).map_to(model.resnet.ResNet)
-yamlRegistry.register(yaml_tag=u'!model.Gaussian',  nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Gaussian)
-yamlRegistry.register(yaml_tag=u'!model.Dirichlet', nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Dirichlet)
+yamlRegistry.register(yaml_tag=u'!nn.ModuleList',               nodetype=YamlNodeType.SEQUENCE).map_to(nn.ModuleList)
+yamlRegistry.register(yaml_tag=u'!nn.Sequential',               nodetype=YamlNodeType.SEQUENCE).map_to(model.base.Sequential)
+yamlRegistry.register(yaml_tag=u'!nn.Flatten',                  nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
+yamlRegistry.register(yaml_tag=u'!model.Identity',              nodetype=YamlNodeType.SCALAR).map_to(model.base.Identity)
+yamlRegistry.register(yaml_tag=u'!model.Flatten',               nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
+yamlRegistry.register(yaml_tag=u'!model.Neck',                  nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
+yamlRegistry.register(yaml_tag=u'!model.FeedForward',           nodetype=YamlNodeType.MAPPING).map_to(model.mlp.FeedForward)
+yamlRegistry.register(yaml_tag=u'!model.MLP',                   nodetype=YamlNodeType.MAPPING).map_to(model.mlp.MLP)
+yamlRegistry.register(yaml_tag=u'!model.CNN',                   nodetype=YamlNodeType.MAPPING).map_to(model.cnn.CNN)
+yamlRegistry.register(yaml_tag=u'!model.ResNet',                nodetype=YamlNodeType.MAPPING).map_to(model.resnet.ResNet)
+yamlRegistry.register(yaml_tag=u'!model.Gaussian',              nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Gaussian)
+yamlRegistry.register(yaml_tag=u'!model.Dirichlet',             nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Dirichlet)
+yamlRegistry.register(yaml_tag=u'!model.TransformerEncoder',    nodetype=YamlNodeType.MAPPING).map_to(model.transformer.TransformerEncoder)
 
 # kernels
 yamlRegistry.register(yaml_tag=u'!kernel.Gaussian',         nodetype=YamlNodeType.MAPPING).map_to(kernel.Gaussian)

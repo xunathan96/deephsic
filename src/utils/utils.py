@@ -42,6 +42,7 @@ def activation_registry(activation, *args, **kwds):
         'Tanh': nn.Tanh,
         'GLU': nn.GLU,
         'ELU': nn.ELU,
+        'GELU': nn.GELU,
         'Sigmoid': nn.Sigmoid,
         'Softmax': nn.Softmax,
     }[activation](*args, **kwds)

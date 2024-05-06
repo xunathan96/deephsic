@@ -1,0 +1,14 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/deepkernel/mmd/transformer32#4-mlp4x32_transformer32#4@24x32x32.yml
+dataset: !include config/dataset/riab/riab_past.yml
+dataloader:
+  test: !torch.DataLoader
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+

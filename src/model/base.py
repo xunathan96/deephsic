@@ -6,6 +6,10 @@ class Identity(nn.Module):
     def forward(self, input):
         return input
 
+class Sequential(nn.Sequential):
+    def __init__(self, modules: list[nn.Module]):
+        super().__init__(*modules)
+
 class Neck(nn.Module):
     def __init__(self,
                  backbones: nn.ModuleList,
@@ -59,6 +63,7 @@ def activation_registry(activation, *args, **kwds) -> nn.Module:
         'Tanh': nn.Tanh,
         'GLU': nn.GLU,
         'ELU': nn.ELU,
+        'GELU': nn.GELU,
         'Sigmoid': nn.Sigmoid,
         'Softmax': nn.Softmax,
     }[activation](*args, **kwds)

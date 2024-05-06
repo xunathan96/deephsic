@@ -26,15 +26,40 @@ class MLP(nn.Module):
 
 
 
+class FeedForward(nn.Module):
+    def __init__(self,
+                 features: list[int],
+                 activation = 'ReLU',
+                 batch_norm = False,
+                 layer_norm = False,
+                 dropout = 0.,
+                 last_nonlinear = False,):
+        super().__init__()
+
+        num_layers = len(features)
+        self.layers = nn.Sequential()
+        for i in range(LASTLAYER := num_layers-1):
+            block = LinearBlock(features[i],
+                                features[i+1],
+                                activation  if (i<LASTLAYER-1 or last_nonlinear) else None,
+                                batch_norm  if (i<LASTLAYER-1 or last_nonlinear) else False,
+                                layer_norm  if (i<LASTLAYER-1 or last_nonlinear) else False,
+                                dropout     if (i<LASTLAYER-1 or last_nonlinear) else 0.,)
+            self.layers.append(block)
+
+    def forward(self, input):
+        return self.layers(input)
+
+
 
 class LinearBlock(nn.Module):
     def __init__(self,
                  in_features,
                  out_features,
-                 activation='ReLU',
-                 batch_norm=False,
-                 layer_norm=False,
-                 dropout=0.):
+                 activation = 'ReLU',
+                 batch_norm = False,
+                 layer_norm = False,
+                 dropout = 0.):
         super().__init__()
         self.linear = nn.Linear(in_features, out_features)
         self.batch_norm = nn.BatchNorm1d(out_features) if batch_norm else None
