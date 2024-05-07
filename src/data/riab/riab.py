@@ -4,9 +4,9 @@ from torch.utils.data import Dataset
 from typing import Any, Callable
 from utils import dump, load
 
-TRAIN_SPLIT = 4/10
-VAL_SPLIT = 1/10
-TEST_SPLIT = 5/10
+TRAIN_SPLIT = 200/5000
+VAL_SPLIT = 200/5000
+TEST_SPLIT = 1 - TRAIN_SPLIT - VAL_SPLIT
 
 class RatInABox(Dataset):
 
