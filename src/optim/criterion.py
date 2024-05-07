@@ -38,7 +38,8 @@ class HSICTestPower(nn.Module):
         return -hsic/torch.sqrt(var + self.reg) # loss = negative power
 
 
-
+class MutualInformationLowerBound(nn.Module):
+    ...
 
 
 
