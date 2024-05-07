@@ -31,6 +31,15 @@ class Gaussian(BaseKernel):
         device = self.log_bandwidth.device
         self.log_bandwidth.data = torch.tensor([math.log(value)], device=device)
 
+    def set_median_bandwidth(self, X: torch.Tensor, Y: torch.Tensor = None):
+        if self.flatten_input:
+            X = X.flatten(start_dim=1)
+            if Y is not None:
+                Y = Y.flatten(start_dim=1)
+        median = median_heuristic(X, Y)
+        self.bandwidth = median
+        return median
+
     def forward(self, X: torch.Tensor, Y: torch.Tensor):
         if self.flatten_input:
             X = X.flatten(start_dim=1)
@@ -44,7 +53,7 @@ class Gaussian(BaseKernel):
         returns the gram matrix of size (Nx, Ny) with elements k(x_i, y_j)"""
         Dxy = pDist2(X, Y)    # (Nx, Ny)
         mahalanobis = -0.5*Dxy/(self.bandwidth**2)
-
+        return self.scale * torch.exp(mahalanobis)
         # print('Dxy:', Dxy)
         # print('Dxy.max():', Dxy.max())  # for image x this max is 1730 !!
         # print('Dxy.min():', Dxy.min())  # 0
@@ -52,7 +61,6 @@ class Gaussian(BaseKernel):
         # print('mahalanobis.min():', mahalanobis.min())
         # print('gram:', self.scale * torch.exp(mahalanobis))
 
-        return self.scale * torch.exp(mahalanobis)
 
 
 class WeightedGaussian(BaseKernel):
@@ -121,13 +129,22 @@ def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
 
 
 
-def median_heuristic(*batches):
+def median_heuristic_depreciated(*batches):
     r"""returns the median heuristic (√{D^2/2}) of all pairwise (squared) distances D^2
     between samples from each given batch of size (Ni,D)"""
     Z = torch.cat(batches, dim=0)
     Dzz = pDist2(Z,Z)
     upper_idx = torch.triu_indices(*Dzz.shape, offset=1)    # (2, N)
     dist2 = Dzz[upper_idx[0], upper_idx[1]]
+    return torch.sqrt(dist2.median()/2).item()
+
+
+def median_heuristic(X: torch.Tensor, Y: torch.Tensor = None):
+    r"""returns the median heuristic (√{D^2/2}) of all pairwise (squared) distances D^2
+    between samples from X to Y of size (Nx,D) and (Ny,D)."""
+    Dxy = pDist2(X,Y) if Y is not None else pDist2(X, X)
+    upper_idx = torch.triu_indices(*Dxy.shape, offset=1)    # (2, N)
+    dist2 = Dxy[upper_idx[0], upper_idx[1]]
     return torch.sqrt(dist2.median()/2).item()
 
 

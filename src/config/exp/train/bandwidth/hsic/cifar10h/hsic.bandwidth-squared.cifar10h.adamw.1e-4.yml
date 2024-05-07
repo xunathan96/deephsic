@@ -3,7 +3,7 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/bandwidth/hsic/bandwidth-squared.yml
+model: !include config/model/bandwidth/hsic/bandwidth50-bandwidth1.yml
 dataset: !include config/dataset/cifar10h/cifar10h.32x32.yml
 
 dataloader:

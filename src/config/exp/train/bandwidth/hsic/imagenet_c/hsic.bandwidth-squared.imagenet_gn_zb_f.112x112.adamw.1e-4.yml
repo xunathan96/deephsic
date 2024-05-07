@@ -3,7 +3,7 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/bandwidth/hsic/bandwidth-squared.yml
+model: !include config/model/bandwidth/hsic/bandwidth400-bandwidth1.yml
 dataset: !include config/dataset/imagenet_c/imagenet_gn_zb_f.112x112.yml
 
 dataloader:
