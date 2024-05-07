@@ -8,14 +8,14 @@ dataset: !include config/dataset/riab/riab_past.yml
 
 dataloader:
   train: &loader !torch.DataLoader
-    batch_size: 128
+    batch_size: 32
     shuffle: True
     drop_last: False
     num_workers: 0
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
-    batch_size: 128
+    batch_size: 32
     shuffle: True
     drop_last: True
     num_workers: 0
