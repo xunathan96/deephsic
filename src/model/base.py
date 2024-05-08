@@ -16,12 +16,14 @@ class Neck(nn.Module):
                  heads: nn.ModuleList,
                  connection: str = 'cat',
                  squeeze_single_head: bool = True,
+                 squeeze_scalar_output: bool = False,
                  ) -> list[torch.Tensor]:
         super().__init__()
         self.connection = connection
         self.backbones = backbones
         self.heads = heads
         self.squeeze_single_head = squeeze_single_head
+        self.squeeze_scalar_output = squeeze_scalar_output
         self.n_inputs = len(backbones)
         self.n_outputs = len(heads)
 
@@ -42,7 +44,10 @@ class Neck(nn.Module):
 
         outputs = list()
         for head in self.heads:
-            outputs.append(head(latent))
+            out = head(latent)
+            if self.squeeze_scalar_output:
+                out.squeeze_(-1)
+            outputs.append(out)
         
         if self.squeeze_single_head and self.n_outputs==1:
             return outputs[0]

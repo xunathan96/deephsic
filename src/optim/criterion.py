@@ -38,8 +38,22 @@ class HSICTestPower(nn.Module):
         return -hsic/torch.sqrt(var + self.reg) # loss = negative power
 
 
-class MutualInformationLowerBound(nn.Module):
-    ...
+class MutualInfoLowerBound(nn.Module):
+    def __init__(self,
+                 bound: str):
+        super().__init__()
+        self.metric = {
+            'donsker_varadhan': NotImplementedError(),
+            'mine': NotImplementedError(),
+            'tuba': NotImplementedError(),
+            'info_nce': metrics.infonce.infoNCE,
+        }[bound]
+
+    def forward(self,
+                f: nn.Module,
+                X: torch.Tensor,
+                Y: torch.Tensor,) -> torch.Tensor:
+        return -self.metric(f, X, Y)
 
 
 

@@ -78,6 +78,7 @@ yamlRegistry.register(yaml_tag=u'!criterion.BCEWithLogitsLoss',     nodetype=Yam
 yamlRegistry.register(yaml_tag=u'!criterion.MSELoss',               nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MSELoss)
 yamlRegistry.register(yaml_tag=u'!criterion.MMDTestPower',          nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MMDTestPower)
 yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.HSICTestPower)
+yamlRegistry.register(yaml_tag=u'!criterion.MutualInfoLowerBound',  nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MutualInfoLowerBound)
 
 # models
 yamlRegistry.register(yaml_tag=u'!nn.ModuleList',               nodetype=YamlNodeType.SEQUENCE).map_to(nn.ModuleList)

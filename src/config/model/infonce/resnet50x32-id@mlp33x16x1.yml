@@ -1,0 +1,23 @@
+# -----------------------
+#     ResNET-ID > MLP
+# -----------------------
+
+!model.Neck
+name: resnet50x32-id@mlp33x16x1
+backbones: !nn.ModuleList
+  - !model.ResNet
+    inter_channels: [64, 128, 256, 512]
+    n_blocks: [3, 4, 6, 3]
+    in_channels: 3
+    out_features: 32
+    activation: ELU
+    block_type: bottleneck
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.MLP
+    features: [33, 16, 1]
+    activations: ELU
+    batch_norm: False
+connection: cat
+squeeze_single_head: True
+squeeze_scalar_output: True
