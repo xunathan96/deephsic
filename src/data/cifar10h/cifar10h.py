@@ -39,13 +39,13 @@ class CIFAR10H(CIFAR10):
             self.targets = self.targets[:n_train]
             self.soft_labels = self.soft_labels[:n_train]
         elif split=='val':
-            self.data = self.data[n_train:n_val]
-            self.targets = self.targets[n_train:n_val]
-            self.soft_labels = self.soft_labels[n_train:n_val]
+            self.data = self.data[n_train:n_train + n_val]
+            self.targets = self.targets[n_train:n_train + n_val]
+            self.soft_labels = self.soft_labels[n_train:n_train + n_val]
         elif split=='test':
-            self.data = self.data[n_val:n_test]
-            self.targets = self.targets[n_val:n_test]
-            self.soft_labels = self.soft_labels[n_val:n_test]
+            self.data = self.data[n_train + n_val:]
+            self.targets = self.targets[n_train + n_val:]
+            self.soft_labels = self.soft_labels[n_train + n_val:]
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
