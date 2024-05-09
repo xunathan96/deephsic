@@ -1,0 +1,50 @@
+# -----------------------
+#   Transformer^2 > MLP
+# -----------------------
+
+!model.Neck
+name: transformer32#2-transformer4#2@24x1
+
+backbones: !nn.ModuleList
+  - !nn.Sequential
+    - !model.TransformerEncoder
+      seq_len: 12
+      embed_dim: 32
+      num_heads: 4
+      expansion_factor: 4
+      num_layers: 2
+      activation: GELU
+      drop_attn: 0
+      drop_ff: 0
+    - !model.FeedForward
+      features: [32, 1]
+      activation: GELU
+      last_nonlinear: True
+    - !nn.Flatten -2
+
+  - !nn.Sequential
+    - !model.TransformerEncoder
+      seq_len: 12
+      embed_dim: 4
+      num_heads: 4
+      expansion_factor: 4
+      num_layers: 2
+      activation: GELU
+      drop_attn: 0
+      drop_ff: 0
+    - !model.FeedForward
+      features: [4, 1]
+      activation: GELU
+      last_nonlinear: True
+    - !nn.Flatten -2
+
+connection: cat
+
+heads: !nn.ModuleList
+  - !model.FeedForward
+    features: [24, 1]
+    activation: GELU
+    last_nonlinear: False
+
+squeeze_single_head: True
+
