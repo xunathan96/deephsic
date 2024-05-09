@@ -5,7 +5,7 @@
 name: cnn3x8x16x32x64x32x16-bandwidth
 tied: False
 k: !kernel.DeepKernel
-  featurizer: !model.CNN
+  featurizer: !model.ConvNet
     channels:     [3,8,16,32,64,32,16]
     kernel_size:  [4,4,4,4,1,1]
     stride:       [2,2,2,1,1,1]

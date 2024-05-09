@@ -9,9 +9,9 @@ featurizer: !model.Neck
     - !model.Identity
     - !model.Identity
   heads: !nn.ModuleList
-    - !model.MLP
+    - !model.FeedForward
       features: [20, 40, 60, 40]
-      activations: ELU
+      activation: ELU
       batch_norm: False
   connection: cat
   squeeze_single_head: True

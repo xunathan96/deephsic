@@ -88,6 +88,7 @@ yamlRegistry.register(yaml_tag=u'!model.Identity',              nodetype=YamlNod
 yamlRegistry.register(yaml_tag=u'!model.Flatten',               nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
 yamlRegistry.register(yaml_tag=u'!model.Neck',                  nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
 yamlRegistry.register(yaml_tag=u'!model.FeedForward',           nodetype=YamlNodeType.MAPPING).map_to(model.mlp.FeedForward)
+yamlRegistry.register(yaml_tag=u'!model.ConvNet',               nodetype=YamlNodeType.MAPPING).map_to(model.cnn.ConvNet)
 yamlRegistry.register(yaml_tag=u'!model.MLP',                   nodetype=YamlNodeType.MAPPING).map_to(model.mlp.MLP)
 yamlRegistry.register(yaml_tag=u'!model.CNN',                   nodetype=YamlNodeType.MAPPING).map_to(model.cnn.CNN)
 yamlRegistry.register(yaml_tag=u'!model.ResNet',                nodetype=YamlNodeType.MAPPING).map_to(model.resnet.ResNet)

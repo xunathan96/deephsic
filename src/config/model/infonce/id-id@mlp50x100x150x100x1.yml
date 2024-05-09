@@ -8,9 +8,9 @@ backbones: !nn.ModuleList
   - !model.Identity
   - !model.Identity
 heads: !nn.ModuleList
-  - !model.MLP
+  - !model.FeedForward
     features: [50, 100, 150, 100, 1]
-    activations: ELU
+    activation: ELU
     batch_norm: False
 connection: cat
 squeeze_single_head: True

@@ -14,9 +14,9 @@ backbones: !nn.ModuleList
     block_type: basic
   - !model.Identity
 heads: !nn.ModuleList
-  - !model.MLP
+  - !model.FeedForward
     features: [33, 16, 1]
-    activations: ELU
+    activation: ELU
     batch_norm: False
 connection: cat
 squeeze_single_head: True

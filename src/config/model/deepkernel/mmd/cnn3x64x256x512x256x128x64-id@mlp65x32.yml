@@ -6,20 +6,21 @@
 name: cnn3x64x256x512x256x128x64-id@mlp65x32
 featurizer: !model.Neck
   backbones: !nn.ModuleList
-    - !model.CNN
-      channels:     [3,64,256,512,256,128,64]
-      kernel_size:  [4,4,4,4,4,7]
-      stride:       [2,2,2,2,2,1]
-      padding:      [1,1,1,1,1,0]
-      dilation:     [1,1,1,1,1,1]
-      activation:   ELU
-      batch_norm:   False
-      flatten:      True
+    - !model.ConvNet
+      channels:       [3,64,256,512,256,128,64]
+      kernel_size:    [4,4,4,4,4,7]
+      stride:         [2,2,2,2,2,1]
+      padding:        [1,1,1,1,1,0]
+      dilation:       [1,1,1,1,1,1]
+      activation:     ELU
+      batch_norm:     False
+      last_nonlinear: True
+      flatten:        True
     - !model.Identity
   heads: !nn.ModuleList
-    - !model.MLP
+    - !model.FeedForward
       features: [65, 32]
-      activations: ELU
+      activation: ELU
       batch_norm: False
   connection: cat
   squeeze_single_head: True

@@ -5,9 +5,9 @@
 name: mlp10x20x30x20-tied
 tied: True
 k: &deepkernel !kernel.DeepKernel
-  featurizer: !model.MLP
+  featurizer: !model.FeedForward
     features: [10, 20, 30, 20]
-    activations: ELU
+    activation: ELU
     batch_norm: False
   feature_kernel: !kernel.Gaussian
     scale: 1
