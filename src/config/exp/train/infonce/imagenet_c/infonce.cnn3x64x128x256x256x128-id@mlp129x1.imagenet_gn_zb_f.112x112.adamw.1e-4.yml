@@ -8,14 +8,14 @@ dataset: !include config/dataset/imagenet_c/imagenet_gn_zb_f.112x112.yml
 
 dataloader:
   train: &loader !torch.DataLoader
-    batch_size: 256
+    batch_size: 64
     shuffle: True
     drop_last: False
     num_workers: 6
     pin_memory: True
   val: *loader
   test: !torch.DataLoader
-    batch_size: 256
+    batch_size: 64
     shuffle: True
     drop_last: True
     num_workers: 6
