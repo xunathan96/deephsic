@@ -75,7 +75,7 @@ def main(args):
         'dataset': cfg['dataset']['name'],
         'classifier': cfg['model']['name'],
         'type': args.statistic,
-        'n-samples': args.n_samples,
+        'n_samples': args.n_samples,
         **stats
     }
     table.append(row)

@@ -121,7 +121,7 @@ def main(args):
     row = {
         'dataset': args.dataset,
         'kernel': 'HSIC-agg',
-        'n-samples': args.n_samples,
+        'n_samples': args.n_samples,
         **stats
     }
     table.append(row)

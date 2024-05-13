@@ -7,7 +7,7 @@ tied: True
 k: &deepkernel !kernel.DeepKernel
   featurizer: !model.FeedForward
     features: [20, 40, 60, 40]
-    activation: ELU
+    activation: ReLU
     batch_norm: False
   feature_kernel: !kernel.Gaussian
     scale: 1

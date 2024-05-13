@@ -53,7 +53,7 @@ def main(args):
     row = {
         'dataset': f"HDGM-{cfg['dataset']['test']['dim']}",
         'kernel': "median",
-        'n-samples': cfg['dataloader']['test']['batch_size'],
+        'n_samples': cfg['dataloader']['test']['batch_size'],
         **stats
     }
     table.append(row)

@@ -74,7 +74,7 @@ def main(args):
     row = {
         'dataset': cfg['dataset']['name'],
         'kernel': cfg['model']['name'],
-        'n-samples': args.n_samples,
+        'n_samples': args.n_samples,
         **stats
     }
     table.append(row)

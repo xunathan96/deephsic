@@ -75,7 +75,7 @@ def main(args):
         'dataset': cfg['dataset']['name'],
         'kernel': cfg['model']['name'],
         'permutation_test': args.permutation_test,
-        'n-samples': args.n_samples,
+        'n_samples': args.n_samples,
         **stats
     }
     table.append(row)

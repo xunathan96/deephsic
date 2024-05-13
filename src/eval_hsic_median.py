@@ -179,7 +179,7 @@ def main(args):
     row = {
         'dataset': args.dataset,
         'kernel': 'median',
-        'n-samples': args.n_samples,
+        'n_samples': args.n_samples,
         **stats
     }
     table.append(row)

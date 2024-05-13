@@ -11,7 +11,7 @@ backbones: !nn.ModuleList
     stride:         [2,2,2,2,1]
     padding:        [1,1,1,1,0]
     dilation:       [1,1,1,1,1]
-    activation:     ELU
+    activation:     ReLU
     batch_norm:     False
     last_nonlinear: True
     flatten:        True
@@ -19,7 +19,7 @@ backbones: !nn.ModuleList
 heads: !nn.ModuleList
   - !model.FeedForward
     features: [129, 1]
-    activation: ELU
+    activation: ReLU
     batch_norm: False
 connection: cat
 squeeze_single_head: True

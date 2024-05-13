@@ -12,7 +12,7 @@ featurizer: !model.Neck
       stride:         [2,2,2,2,1,1]
       padding:        [1,1,1,1,0,0]
       dilation:       [1,1,1,1,1,1]
-      activation:     ELU
+      activation:     ReLU
       batch_norm:     False
       last_nonlinear: False
       flatten:        True

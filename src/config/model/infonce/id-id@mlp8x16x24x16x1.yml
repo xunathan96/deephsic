@@ -10,7 +10,7 @@ backbones: !nn.ModuleList
 heads: !nn.ModuleList
   - !model.FeedForward
     features: [8, 16, 24, 16, 1]
-    activation: ELU
+    activation: ReLU
     batch_norm: False
 connection: cat
 squeeze_single_head: True
