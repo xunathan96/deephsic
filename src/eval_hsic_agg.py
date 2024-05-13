@@ -120,7 +120,7 @@ def main(args):
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")
     row = {
         'dataset': args.dataset,
-        'kernel': 'HSIC-agg',
+        'kernel': 'hsic-agg',
         'n_samples': args.n_samples,
         **stats
     }
