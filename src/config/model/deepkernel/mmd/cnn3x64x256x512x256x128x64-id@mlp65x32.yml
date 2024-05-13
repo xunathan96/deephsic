@@ -12,7 +12,7 @@ featurizer: !model.Neck
       stride:         [2,2,2,2,2,1]
       padding:        [1,1,1,1,1,0]
       dilation:       [1,1,1,1,1,1]
-      activation:     ReLU
+      activation:     ELU
       batch_norm:     False
       last_nonlinear: False
       flatten:        True
@@ -20,7 +20,7 @@ featurizer: !model.Neck
   heads: !nn.ModuleList
     - !model.FeedForward
       features: [65, 32]
-      activation: ReLU
+      activation: ELU
       batch_norm: False
   connection: cat
   squeeze_single_head: True

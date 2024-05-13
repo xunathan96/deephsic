@@ -11,7 +11,7 @@ k: !kernel.DeepKernel
     stride:       [2,2,2,2,1]
     padding:      [1,1,1,1,0]
     dilation:     [1,1,1,1,1]
-    activation:   ReLU
+    activation:   ELU
     batch_norm:   False
     flatten:      True
   feature_kernel: !kernel.Gaussian
