@@ -14,7 +14,7 @@ featurizer: !model.Neck
       dilation:       [1,1,1,1,1,1]
       activation:     ReLU
       batch_norm:     False
-      last_nonlinear: True
+      last_nonlinear: False
       flatten:        True
     - !model.Identity
   heads: !nn.ModuleList
