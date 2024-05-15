@@ -75,7 +75,7 @@ def dataset(name):
                             transforms.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.243, 0.261])
                         ]))
     elif name == 'ImageNet-GN-ZB-F':
-        return ImageNetC(root='data/imagenet_c',
+        return ImageNetC(root='data/imagenet_c/112x112/',
                          corruption='gn_zb_f',
                          split='test',
                          transform=transforms.Compose([
@@ -85,7 +85,7 @@ def dataset(name):
     elif name == 'RatInABox':
         return RatInABox(root='data/riab/raw/riab-5000.pkl',
                          split='test',
-                         window='past',
+                         window='present',
                          transform=NumpyToTensor())
 
 

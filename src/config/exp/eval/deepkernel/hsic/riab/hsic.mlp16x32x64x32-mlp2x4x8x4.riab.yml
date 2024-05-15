@@ -3,7 +3,7 @@
 # -----------------------
 
 seed: 0
-model: !include config/model/bandwidth/hsic/bandwidth-squared.yml
+model: !include config/model/deepkernel/hsic/mlp16x32x64x32-mlp2x4x8x4.yml
 dataset: !include config/dataset/riab/riab_present.yml
 dataloader:
   test: !torch.DataLoader
