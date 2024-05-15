@@ -1,0 +1,31 @@
+# -----------------------
+#    TRAINING SETTINGS
+# -----------------------
+
+seed: 0
+model: !include config/model/c2st/transformer16#2-transformer2#2@24x64x1.yml
+dataset: !include config/dataset/riab/riab_past.yml
+
+dataloader:
+  train: &loader !torch.DataLoader
+    batch_size: 32
+    shuffle: True
+    drop_last: False
+    num_workers: 0
+    pin_memory: True
+  val: *loader
+  test: !torch.DataLoader
+    batch_size: 32
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
+optimizer: !optim.AdamW
+  lr: 1.0e-4
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  weight_decay: 0.0001
+
+criterion: !criterion.BCEWithLogitsLoss
+  reduction: mean
