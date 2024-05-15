@@ -187,7 +187,7 @@ def compile_samples(X, Y, test='two-sample'):
     if test=='two-sample':
         return X, Y
 
-    elif test=='independence':
+    elif test=='independence_split':
         # compile samples from null and alternate hypotheses
         # need to split the data since if we don't then the samples Z_null and Z_alt aren't iid.
         X_null, X_alt = X[:n//2], X[n//2:]
@@ -197,7 +197,7 @@ def compile_samples(X, Y, test='two-sample'):
         Z_alt = (X_alt, Y_alt)      # alternate: Pxy
         return Z_null, Z_alt
 
-    elif test=='independence_depreciated':
+    elif test=='independence':
         # compile samples from null and alternate hypotheses
         Y_shuff = Y[torch.randperm(n, device=device)]
         Z_alt = (X,Y)           # alternate: Pxy
