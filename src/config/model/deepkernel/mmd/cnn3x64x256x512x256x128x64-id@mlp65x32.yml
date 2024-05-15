@@ -20,7 +20,7 @@ featurizer: !model.Neck
   heads: !nn.ModuleList
     - !model.FeedForward
       features: [65, 32]
-      activation: ELU
+      activation: ReLU
       batch_norm: False
   connection: cat
   squeeze_single_head: True
