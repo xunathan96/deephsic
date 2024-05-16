@@ -44,6 +44,10 @@ def parse_args():
                         type=int,
                         default=500,
                         help='number of permutations per permutation test.')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='number of dataloader workers.')
     return parser.parse_args()
 
 def default_save_dir():
@@ -94,11 +98,13 @@ def eval_hsic_median(dataset: Dataset,
                      n_tests: int = 100,
                      n_permutations: int = 500,
                      significance: float = 0.05,
+                     num_workers: int = 0,
                      device: torch.device = torch.device('cpu')):
     # compute median on entire dataset
     dataloader = DataLoader(dataset,
                             batch_size=n_samples,
                             shuffle=True,
+                            num_workers=num_workers,
                             drop_last=True)
     k = Gaussian(flatten_input=True).to(device)
     l = Gaussian(flatten_input=True).to(device)
@@ -174,7 +180,8 @@ def main(args):
     testset = dataset(args.dataset)
     stats = eval_hsic_median(dataset=testset,
                              n_samples=args.n_samples,
-                             n_tests=100)
+                             n_tests=100,
+                             num_workers=args.num_workers)
     print(dict(stats))
 
     # save evaluation metrics

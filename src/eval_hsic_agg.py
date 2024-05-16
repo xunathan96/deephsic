@@ -36,6 +36,10 @@ def parse_args():
                         type=int,
                         default=100,
                         help='number of samples used to compute the test statistic (default 100).')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='number of dataloader workers.')
     return parser.parse_args()
 
 def default_save_dir():
@@ -127,7 +131,8 @@ def main(args):
     testloader = DataLoader(testset,
                             batch_size=args.n_samples,
                             shuffle=True,
-                            drop_last=True)
+                            drop_last=True,
+                            num_workers=args.num_workers,)
 
     stats = eval_hsic_agg(dataloader=testloader,
                           n_tests=100)
