@@ -4,9 +4,9 @@ from torch.utils.data import Dataset
 from typing import Any, Callable
 from utils import dump, load
 
-TRAIN_SPLIT = 3000/10000
-VAL_SPLIT = 1000/10000
-TEST_SPLIT = 1 - TRAIN_SPLIT - VAL_SPLIT
+# TRAIN_SPLIT = 3000/10000
+# VAL_SPLIT = 1000/10000
+# TEST_SPLIT = 1 - TRAIN_SPLIT - VAL_SPLIT
 
 class RatInABox(Dataset):
 
@@ -16,6 +16,8 @@ class RatInABox(Dataset):
     def __init__(self,
                  root: str,
                  split: str = 'train',
+                 train_val_test_split: str = '7:1:2',
+                 size: int = None,
                  window: str = 'full',  # past, future, present, full
                  transform: Callable[..., Any] | None = None,
                  transform_x: Callable[..., Any] | None = None,
@@ -25,21 +27,27 @@ class RatInABox(Dataset):
         self.transform_x = transform_x or transform
         self.transform_y = transform_y or transform
         trajs = self.preprocess(load(root))
+        n = len(trajs)
+
+        # compute train-val-test splits
+        size = min(size, n) if size is not None else n
+        splits = list(map(int, train_val_test_split.split(':')))
+        TRAIN_SPLIT = splits[0]/sum(splits)
+        VAL_SPLIT = splits[1]/sum(splits)
+        TEST_SPLIT = splits[2]/sum(splits)
 
         # deterministic shuffle of trajectories
         rng = random.Random(2024)
         rng.shuffle(trajs)
 
         # data splits
-        n = len(trajs)
-        split_size = np.array([int(n*split) for split in (TRAIN_SPLIT, VAL_SPLIT, TEST_SPLIT)])
-        split_idx = np.cumsum(split_size)
+        split_idx = np.cumsum([int(split*size) for split in (TRAIN_SPLIT, VAL_SPLIT, TEST_SPLIT)])
         if split == 'train':
             self.samples = trajs[:split_idx[0]]
         elif split == 'val':
             self.samples = trajs[split_idx[0]:split_idx[1]]
         elif split == 'test':
-            self.samples = trajs[split_idx[1]:]
+            self.samples = trajs[split_idx[1]:split_idx[2]]
 
     def preprocess(self, data):
         samples = []
@@ -79,23 +87,16 @@ def window2slice(window):
 def main():
     from data.transforms import NumpyToTensor
 
-    riab = RatInABox(root='./raw/riab-5000.pkl',
-                     split='train',
+    riab = RatInABox(root='./raw/riab-10000.pkl',
+                     split='test',
+                     size=5000,
+                     train_val_test_split='7:1:2',
                      transform_x=NumpyToTensor,
                      transform_y=NumpyToTensor)
     print(len(riab))
-    x, y = riab[23]
-    print(x.shape)
-    print(y.shape)
-
-    riab = RatInABox(root='./raw/riab-5000.pkl',
-                     split='train',
-                     transform_x=NumpyToTensor,
-                     transform_y=NumpyToTensor)
-    # print(len(riab))
     # x, y = riab[23]
-    # print(x)
-    # print(y)
+    # print(x.shape)
+    # print(y.shape)
 
 
 if __name__=='__main__':

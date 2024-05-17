@@ -1,0 +1,17 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: HDGM-20
+
+train: !dataset.HDGM
+  size: 100000  # *sometimes* works with 10,000 samples
+  dim: 20
+
+val: &data !dataset.HDGM
+  size: 4000
+  dim: 20
+
+test: !dataset.HDGM
+  size: 10000
+  dim: 20
+

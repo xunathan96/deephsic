@@ -37,7 +37,7 @@ class GaussianMixture(ToyDataset):
         return data
 
 
-class HDGM(GaussianMixture):
+class HDGM_depreciated(GaussianMixture):
     def __init__(self,
                  size: int,
                  dim: int,):
@@ -49,6 +49,41 @@ class HDGM(GaussianMixture):
         cov2[0,3] = cov2[3,0] = -0.5
         covs = [cov1, cov2]
         super().__init__(size, means, covs, weights)
+
+    def __getitem__(self, idx) -> tuple[torch.Tensor, torch.Tensor]:
+        xy = torch.from_numpy(self.data[idx]).float()
+        return marginals(xy)
+
+
+class HDGM(GaussianMixture):
+    def __init__(self,
+                 size: int,
+                 dim: int,
+                 split: str = None,
+                 train_val_test_split: str = '7:1:2',):
+        weights = [1., 1.]
+        means = [np.zeros(dim), np.zeros(dim)]
+        cov1 = np.eye(dim)
+        cov2 = np.eye(dim)
+        cov1[0,3] = cov1[3,0] = 0.5
+        cov2[0,3] = cov2[3,0] = -0.5
+        covs = [cov1, cov2]
+        super().__init__(size, means, covs, weights)
+
+        # compute train-val-test splits
+        splits = list(map(int, train_val_test_split.split(':')))
+        TRAIN_SPLIT = splits[0]/sum(splits)
+        VAL_SPLIT = splits[1]/sum(splits)
+        TEST_SPLIT = splits[2]/sum(splits)
+
+        # data splits
+        split_idx = np.cumsum([int(split*size) for split in (TRAIN_SPLIT, VAL_SPLIT, TEST_SPLIT)])
+        if split == 'train':
+            self.data = self.data[:split_idx[0]]
+        elif split == 'val':
+            self.data = self.data[split_idx[0]:split_idx[1]]
+        elif split == 'test':
+            self.data = self.data[split_idx[1]:split_idx[2]]
 
     def __getitem__(self, idx) -> tuple[torch.Tensor, torch.Tensor]:
         xy = torch.from_numpy(self.data[idx]).float()
@@ -73,3 +108,13 @@ def marginals(joint: np.ndarray | torch.Tensor):
 
 
 
+def main():
+    hdgm = HDGM(size=10000,
+                    dim=4,
+                    split='test',
+                    train_val_test_split='7:1:2')
+    print(len(hdgm))
+
+
+if __name__=='__main__':
+    main()

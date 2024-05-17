@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 from utils.yaml.parser import parse_yaml, dump_yaml
 
@@ -30,6 +31,11 @@ class Config:
         return setattr(self, key, value)
 
     def update(self, **kwds):
+        if shared:=set(self.__dict__).intersection(kwds):
+            warnings.warn(f"The given keys {shared} are overridden.")
+        self.__dict__.update(kwds)
+
+    def merge(self, config: "Config"):
         raise NotImplementedError()
 
     def save(self, filepath: str):

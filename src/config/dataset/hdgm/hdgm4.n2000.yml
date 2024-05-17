@@ -1,0 +1,21 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: HDGM-4-n2000
+
+train: !dataset.HDGM &data
+  size: 2000
+  dim: 4
+  split: train
+  train_val_test_split: '7:1:2'
+
+val: !dataset.HDGM
+  <<: *data
+  split: val
+
+test: !dataset.HDGM
+  # <<: *data
+  # split: test
+  size: 10000   # 400
+  dim: 4
+

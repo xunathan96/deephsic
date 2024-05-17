@@ -4,15 +4,14 @@ from torchvision.datasets import CIFAR10
 from PIL import Image
 from typing import Any, Callable, Tuple
 
-TRAIN_SPLIT = 7/10
-VAL_SPLIT = 1/10
-TEST_SPLIT = 2/10
 
 class CIFAR10H(CIFAR10):
 
     def __init__(self,
                  root: str,
-                 split: float = 'train',
+                 split: str = 'train',
+                 train_val_test_split: str = '7:1:2',
+                 size: int = None,
                  transform: Callable[..., Any] | None = None,
                  target_transform: Callable[..., Any] | None = None,
                  download: bool = False) -> None:
@@ -22,9 +21,12 @@ class CIFAR10H(CIFAR10):
         self.targets = np.array(self.targets)
         n_samples = len(self.soft_labels)
 
-        n_train = int(TRAIN_SPLIT*n_samples)
-        n_val = int(VAL_SPLIT*n_samples)
-        n_test = n_samples - n_train - n_val
+        # compute train-val-test splits
+        size = min(size, n_samples) if size is not None else n_samples
+        splits = list(map(int, train_val_test_split.split(':')))
+        TRAIN_SPLIT = splits[0]/sum(splits)
+        VAL_SPLIT = splits[1]/sum(splits)
+        TEST_SPLIT = splits[2]/sum(splits)
 
         # use consistent shuffle for data
         idx = np.arange(n_samples)
@@ -34,18 +36,21 @@ class CIFAR10H(CIFAR10):
         self.targets = self.targets[idx]
         self.soft_labels = self.soft_labels[idx]
 
-        if split=='train':
-            self.data = self.data[:n_train]
-            self.targets = self.targets[:n_train]
-            self.soft_labels = self.soft_labels[:n_train]
-        elif split=='val':
-            self.data = self.data[n_train:n_train + n_val]
-            self.targets = self.targets[n_train:n_train + n_val]
-            self.soft_labels = self.soft_labels[n_train:n_train + n_val]
-        elif split=='test':
-            self.data = self.data[n_train + n_val:]
-            self.targets = self.targets[n_train + n_val:]
-            self.soft_labels = self.soft_labels[n_train + n_val:]
+        # split data
+        n_splits = np.cumsum([int(split*size) for split in (TRAIN_SPLIT, VAL_SPLIT, TEST_SPLIT)])
+        if split == 'train':
+            self.data = self.data[:n_splits[0]]
+            self.targets = self.targets[:n_splits[0]]
+            self.soft_labels = self.soft_labels[:n_splits[0]]
+        elif split == 'val':
+            self.data = self.data[n_splits[0]:n_splits[1]]
+            self.targets = self.targets[n_splits[0]:n_splits[1]]
+            self.soft_labels = self.soft_labels[n_splits[0]:n_splits[1]]
+        elif split == 'test':
+            self.data = self.data[n_splits[1]:n_splits[2]]
+            self.targets = self.targets[n_splits[1]:n_splits[2]]
+            self.soft_labels = self.soft_labels[n_splits[1]:n_splits[2]]
+
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
@@ -73,9 +78,13 @@ class CIFAR10H(CIFAR10):
 
 
 
-def main():
-    cifar10h = CIFAR10H(root='./raw', split='test', download=True)
 
+def main():
+    cifar10h = CIFAR10H(root='./raw',
+                        split='test',
+                        # size=5000,
+                        train_val_test_split='7:1:2',
+                        download=True)
 
 if __name__ == '__main__':
     main()

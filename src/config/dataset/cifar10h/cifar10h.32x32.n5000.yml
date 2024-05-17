@@ -1,0 +1,35 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: 'Cifar10h-n5000'
+
+train: !dataset.CIFAR10H
+  root: 'data/cifar10h/raw'
+  size: 5000
+  split: 'train'
+  train_val_test_split: 7:1:2
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
+
+val: !dataset.CIFAR10H
+  root: 'data/cifar10h/raw'
+  size: 5000
+  split: 'val'
+  train_val_test_split: 7:1:2
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
+
+test: !dataset.CIFAR10H
+  root: 'data/cifar10h/raw'
+  size: 5000
+  split: 'test'
+  train_val_test_split: 7:1:2
+  download: True
+  transform: !transform.Compose
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: [0.4914, 0.4822, 0.4465], std: [0.247, 0.243, 0.261]}
+
