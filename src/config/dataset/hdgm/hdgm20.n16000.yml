@@ -1,10 +1,10 @@
 # -----------------------
 #    DATASET SETTINGS
 # -----------------------
-name: HDGM-20-n4000
+name: HDGM-20-n16000
 
 train: !dataset.HDGM &data
-  size: 4000
+  size: 16000
   dim: 20
   split: train
   train_val_test_split: '7:1:2'
@@ -16,5 +16,5 @@ val: !dataset.HDGM
 test: !dataset.HDGM
   # <<: *data
   # split: test
-  size: 10000   # 800
+  size: 10000   # 3200
   dim: 20

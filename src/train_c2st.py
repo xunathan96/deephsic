@@ -6,12 +6,19 @@ from config.config import Config
 from trainer import registry
 from utils import utils
 from utils.wandb import add_wandb_args
+from utils.yaml import parse_yaml
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',
+    parser.add_argument('--train-config',
                         type=str,
                         help='path to the experiment config file.')
+    parser.add_argument('--data-config',
+                        type=str,
+                        help='path to the dataset config file.')
+    parser.add_argument('--model-config',
+                        type=str,
+                        help='path to the model config file.')
     parser.add_argument('--cpu',
                         action='store_true',
                         help='use cpu during experiement.')
@@ -53,17 +60,20 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(yaml_path=args.config,
-                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir,
-                 n_epochs=args.n_epochs,)
+    cfg = Config(yaml_path = args.train_config,
+                 device = f'cuda:{args.gpu}' if not args.cpu else 'cpu',
+                 save_dir = args.save_dir,
+                 n_epochs = args.n_epochs,)
+    cfg.update(dataset=parse_yaml(args.data_config)) if args.data_config else None
+    cfg.update(model=parse_yaml(args.model_config)) if args.model_config else None
     if 'wandb' in args: cfg.set('wandb', vars(args.wandb))
     for split in ['train', 'val', 'test']:
         cfg['dataloader'][split]['num_workers'] = args.num_workers
     utils.seed_all(cfg['seed'])
 
     # save config
-    sf = Path(cfg['save_dir'])/Path(args.config).name
+    save_config = '--'.join([Path(pth).stem for pth in (args.train_config, args.data_config, args.model_config) if pth is not None])
+    sf = Path(cfg['save_dir'])/Path(save_config).with_suffix('.yml')
     cfg.save(sf)
 
     pipeline = registry.get('C2ST').build(cfg)

@@ -5,12 +5,19 @@ from pathlib import Path
 from config.config import Config
 from trainer import registry
 from utils import utils
+from utils.yaml import parse_yaml
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',
+    parser.add_argument('--eval-config',
                         type=str,
                         help='path to the experiment config file.')
+    parser.add_argument('--data-config',
+                        type=str,
+                        help='path to the dataset config file.')
+    parser.add_argument('--model-config',
+                        type=str,
+                        help='path to the model config file.')
     parser.add_argument('--cpu',
                         action='store_true',
                         help='use cpu during experiement.')
@@ -56,9 +63,11 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(yaml_path=args.config,
-                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir)
+    cfg = Config(yaml_path = args.eval_config,
+                 device = f'cuda:{args.gpu}' if not args.cpu else 'cpu',
+                 save_dir = args.save_dir)
+    cfg.update(dataset=parse_yaml(args.data_config)) if args.data_config else None
+    cfg.update(model=parse_yaml(args.model_config)) if args.model_config else None
     cfg['dataloader']['test']['num_workers'] = args.num_workers
     utils.seed_all(cfg['seed'])
     pipeline = registry.get('MMD').build(cfg)
@@ -82,22 +91,9 @@ def main(args):
     table.to_csv()
 
     # save config
-    sf = Path(cfg['save_dir'])/"settings"/Path(args.config).name
+    save_config = '--'.join([Path(pth).stem for pth in (args.eval_config, args.data_config, args.model_config) if pth is not None])
+    sf = Path(cfg['save_dir'])/"settings"/Path(save_config).with_suffix('.yml')
     cfg.save(sf)
-
-
-
-# ==============================
-#       HELPER FUNCTIONS
-# ==============================
-
-def kernel_name(cfg):
-    k_name = cfg['model']['k']['name']
-    l_name = cfg['model']['l']['name']
-    if cfg['model']['tied']:
-        return f"{k_name}-tied"
-    else:
-        return f"{k_name}:{l_name}"
 
 
 
