@@ -1,0 +1,16 @@
+# -----------------------
+#   Bandwidth-Bandwidth
+# -----------------------
+
+name: bandwidth-squared
+tied: False
+k: !kernel.Gaussian
+  scale: 1
+  bandwidth: 50
+  flatten_input: True
+  trainable: True
+l: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  flatten_input: True
+  trainable: True
