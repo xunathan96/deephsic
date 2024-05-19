@@ -1,0 +1,31 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: RatInABox-n1000
+
+train: !dataset.RatInABox
+  root: data/riab/raw/riab-10000.pkl
+  size: 500
+  split: train
+  train_val_test_split: 7:1:2
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
+
+val: !dataset.RatInABox
+  root: data/riab/raw/riab-10000.pkl
+  size: 500
+  split: val
+  train_val_test_split: 7:1:2
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
+
+test: !dataset.RatInABox
+  root: data/riab/raw/riab-10000.pkl
+  size: 500
+  split: test
+  train_val_test_split: 7:1:2
+  window: present
+  transform: !transform.Compose
+    - !transform.NumpyToTensor
