@@ -1,0 +1,37 @@
+# -----------------------
+#      CNN-Gaussian
+# -----------------------
+
+name: cnn3x64x128x256x256x128-bandwidth
+tied: False
+k: !kernel.DeepKernel
+  featurizer: !model.ConvNet
+    channels:     [3,64,128,256,256,128]
+    kernel_size:  [4,4,4,4,7]
+    stride:       [2,2,2,2,1]
+    padding:      [1,1,1,1,0]
+    dilation:     [1,1,1,1,1]
+    activation:   ReLU
+    batch_norm:   False
+    flatten:      True
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 400
+    trainable: True
+  eps: 0.01
+  trainable: True
+l: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+
+# 3x112x112   (input)
+# 64x56x56
+# 128x28x28
+# 256x14x14
+# 256x7x7
+# 128x1x1     (output)

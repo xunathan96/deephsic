@@ -3,7 +3,7 @@
 # -----------------------
 
 !kernel.DeepKernel
-name: cnn3x64x128x256x256x128-id@mlp129x64x32
+name: cnn3x64x128x256x256x128-id@mlp129x64
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.ConvNet
@@ -19,7 +19,7 @@ featurizer: !model.Neck
     - !model.Identity
   heads: !nn.ModuleList
     - !model.FeedForward
-      features: [129, 64, 32]
+      features: [129, 64]
       activation: ReLU
       batch_norm: False
   connection: cat
@@ -36,10 +36,10 @@ eps: 0.01
 trainable: True
 
 
-# 3x112x112       (input)
+# 3x112x112   (input)
 # 64x56x56
 # 128x28x28
 # 256x14x14
 # 256x7x7
 # 128x1x1
-# 129 > 64 > 32   (output)
+# 129 > 64    (output)

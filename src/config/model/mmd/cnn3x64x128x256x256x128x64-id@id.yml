@@ -3,25 +3,22 @@
 # -----------------------
 
 !kernel.DeepKernel
-name: cnn3x64x128x256x256x128-id@mlp129x64x32
+name: cnn3x64x128x256x256x128x64-id@id
 featurizer: !model.Neck
   backbones: !nn.ModuleList
     - !model.ConvNet
-      channels:       [3,64,128,256,256,128]
-      kernel_size:    [4,4,4,4,7]
-      stride:         [2,2,2,2,1]
-      padding:        [1,1,1,1,0]
-      dilation:       [1,1,1,1,1]
+      channels:       [3,64,128,256,256,128,64]
+      kernel_size:    [4,4,4,4,7,1]
+      stride:         [2,2,2,2,1,1]
+      padding:        [1,1,1,1,0,0]
+      dilation:       [1,1,1,1,1,1]
       activation:     ReLU
       batch_norm:     False
-      last_nonlinear: True
+      last_nonlinear: False
       flatten:        True
     - !model.Identity
   heads: !nn.ModuleList
-    - !model.FeedForward
-      features: [129, 64, 32]
-      activation: ReLU
-      batch_norm: False
+    - !model.Identity
   connection: cat
   squeeze_single_head: True
 feature_kernel: !kernel.Gaussian
@@ -36,10 +33,11 @@ eps: 0.01
 trainable: True
 
 
-# 3x112x112       (input)
+# 3x112x112   (input)
 # 64x56x56
 # 128x28x28
 # 256x14x14
 # 256x7x7
 # 128x1x1
-# 129 > 64 > 32   (output)
+# 64x1x1
+# 65          (output)

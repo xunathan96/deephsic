@@ -1,0 +1,27 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!kernel.DeepKernel
+name: id-id@mlp30x60x90x60
+featurizer: !model.Neck
+  backbones: !nn.ModuleList
+    - !model.Identity
+    - !model.Identity
+  heads: !nn.ModuleList
+    - !model.FeedForward
+      features: [30, 60, 90, 60]
+      activation: ReLU
+      batch_norm: False
+  connection: cat
+  squeeze_single_head: True
+feature_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+eps: 0.01
+trainable: True
