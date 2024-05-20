@@ -87,7 +87,7 @@ def dataset(name):
                              transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                          ]))
     elif name == 'RatInABox':
-        return RatInABox(root='data/riab/raw/riab-5000.pkl',
+        return RatInABox(root='data/riab/raw/riab-10000.pkl',
                          split='test',
                          window='present',
                          transform=NumpyToTensor())
