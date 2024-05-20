@@ -58,9 +58,9 @@ def default_save_dir():
 
 
 def main(args):
-    cfg = Config(yaml_path=args.config,
-                 device=f'cuda:{args.gpu}' if not args.cpu else 'cpu',
-                 save_dir=args.save_dir)
+    cfg = Config(yaml_path = args.eval_config,
+                 device = f'cuda:{args.gpu}' if not args.cpu else 'cpu',
+                 save_dir = args.save_dir)
     cfg.update(dataset=parse_yaml(args.data_config)) if args.data_config else None
     cfg.update(model=parse_yaml(args.model_config)) if args.model_config else None
     cfg['dataloader']['test']['num_workers'] = args.num_workers

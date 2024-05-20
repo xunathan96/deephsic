@@ -7,7 +7,7 @@ train: !dataset.CIFAR10H
   root: 'data/cifar10h/raw'
   size: 5000
   split: 'train'
-  train_val_test_split: 7:1:2
+  train_val_test_split: '7:1:2'
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
@@ -17,7 +17,7 @@ val: !dataset.CIFAR10H
   root: 'data/cifar10h/raw'
   size: 5000
   split: 'val'
-  train_val_test_split: 7:1:2
+  train_val_test_split: '7:1:2'
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
@@ -27,7 +27,7 @@ test: !dataset.CIFAR10H
   root: 'data/cifar10h/raw'
   size: 5000
   split: 'test'
-  train_val_test_split: 7:1:2
+  train_val_test_split: '7:1:2'
   download: True
   transform: !transform.Compose
     - !transform.ToTensor
