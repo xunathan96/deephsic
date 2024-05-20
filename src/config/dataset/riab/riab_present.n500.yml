@@ -1,7 +1,7 @@
 # -----------------------
 #    DATASET SETTINGS
 # -----------------------
-name: RatInABox-n1000
+name: RatInABox-n500
 
 train: !dataset.RatInABox
   root: data/riab/raw/riab-10000.pkl
