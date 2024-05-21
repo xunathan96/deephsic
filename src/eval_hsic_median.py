@@ -73,6 +73,7 @@ def dataset(name):
     elif name == 'Cifar10h':
         return CIFAR10H(root='data/cifar10h/raw',
                         split='test',
+                        train_val_test_split='0:0:10',
                         download=True,
                         transform=transforms.Compose([
                             transforms.ToTensor(),
@@ -89,6 +90,7 @@ def dataset(name):
     elif name == 'RatInABox':
         return RatInABox(root='data/riab/raw/riab-10000.pkl',
                          split='test',
+                         train_val_test_split='0:0:10',
                          window='present',
                          transform=NumpyToTensor())
 
