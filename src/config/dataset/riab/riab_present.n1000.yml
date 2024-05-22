@@ -7,7 +7,7 @@ train: !dataset.RatInABox
   root: data/riab/raw/riab-10000.pkl
   size: 1000
   split: train
-  train_val_test_split: '7:1:2'
+  train_val_test_split: '2:1:1'
   window: present
   transform: !transform.Compose
     - !transform.NumpyToTensor
@@ -16,16 +16,16 @@ val: !dataset.RatInABox
   root: data/riab/raw/riab-10000.pkl
   size: 1000
   split: val
-  train_val_test_split: '7:1:2'
+  train_val_test_split: '2:1:1'
   window: present
   transform: !transform.Compose
     - !transform.NumpyToTensor
 
 test: !dataset.RatInABox
   root: data/riab/raw/riab-10000.pkl
-  size: 1000
+  # size: 1000
   split: test
-  train_val_test_split: '7:1:2'
+  train_val_test_split: '1:0:9'
   window: present
   transform: !transform.Compose
     - !transform.NumpyToTensor

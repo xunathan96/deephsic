@@ -55,16 +55,17 @@ def dataset(name):
     elif name == 'HDGM-10':
         return HDGM(dim=10, size=10000)
     elif name == 'HDGM-20':
-        return HDGM(dim=20, size=10000)
+        return HDGM(dim=20, size=100000)
     elif name == 'HDGM-30':
-        return HDGM(dim=30, size=10000)
+        return HDGM(dim=30, size=100000)
     elif name == 'HDGM-40':
-        return HDGM(dim=40, size=10000)
+        return HDGM(dim=40, size=100000)
     elif name == 'HDGM-50':
-        return HDGM(dim=50, size=10000)
+        return HDGM(dim=50, size=100000)
     elif name == 'Cifar10h':
         return CIFAR10H(root='data/cifar10h/raw',
                         split='test',
+                        train_val_test_split='0:0:10',
                         download=True,
                         transform=transforms.Compose([
                             transforms.ToTensor(),
@@ -79,8 +80,9 @@ def dataset(name):
                              transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                          ]))
     elif name == 'RatInABox':
-        return RatInABox(root='data/riab/raw/riab-5000.pkl',
+        return RatInABox(root='data/riab/raw/riab-10000.pkl',
                          split='test',
+                         train_val_test_split='0:0:10',
                          window='present',
                          transform=NumpyToTensor())
 

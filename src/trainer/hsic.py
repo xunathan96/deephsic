@@ -13,8 +13,6 @@ import utils.utils as utils
 from .base import BaseTrainer
 from kernel import BaseKernel
 
-EARLY_STOP = 400        # interval after which apply early stopping
-SAVE_INTERVAL = 500     # interval after which the model is saved
 RUNNING_PER_EPOCH = 5   # number of running statistics computed per epoch
 
 

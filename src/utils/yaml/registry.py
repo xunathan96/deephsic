@@ -59,6 +59,8 @@ yamlRegistry.register(yaml_tag=u'!transform.Normalize',     nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!transform.ToTensor',      nodetype=YamlNodeType.SCALAR).map_to(data.transforms.ToTensor)
 yamlRegistry.register(yaml_tag=u'!transform.Compose',       nodetype=YamlNodeType.SEQUENCE).map_to(data.transforms.Compose)
 yamlRegistry.register(yaml_tag=u'!transform.NumpyToTensor', nodetype=YamlNodeType.SCALAR).map_to(data.transforms.NumpyToTensor)
+yamlRegistry.register(yaml_tag=u'!transform.Grayscale',     nodetype=YamlNodeType.MAPPING).map_to(data.transforms.Grayscale)
+yamlRegistry.register(yaml_tag=u'!transform.GaussianBlur',  nodetype=YamlNodeType.MAPPING).map_to(data.transforms.GaussianBlur)
 
 # optimizers
 yamlRegistry.register(yaml_tag=u'!optim.Adam',      nodetype=YamlNodeType.MAPPING).map_to(optim.optimizer.Adam)

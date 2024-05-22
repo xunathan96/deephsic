@@ -15,7 +15,7 @@ from config.config import Config
 import utils.utils as utils
 
 EARLY_STOP = 400        # interval after which apply early stopping
-SAVE_INTERVAL = 500     # interval after which the model is saved
+SAVE_INTERVAL = 100     # interval after which the model is saved
 
 
 class BaseTrainer(ABC):
@@ -78,7 +78,7 @@ class BaseTrainer(ABC):
         if 'dataloader' not in self.cfg: return
         if ('train' in self.cfg['dataloader']) and ('train' in self.dataset):
             self.dataloader['train']: DataLoader = self.cfg['dataloader']['train'].build(dataset=self.dataset['train']) # type: ignore
-        if ('val' in self.cfg['dataloader']) and ('val' in self.dataset):
+        if ('val' in self.cfg['dataloader']) and ('val' in self.dataset) and len(self.dataset['val']) > 0:
             self.dataloader['val']: DataLoader = self.cfg['dataloader']['val'].build(dataset=self.dataset['val']) # type: ignore
         if ('test' in self.cfg['dataloader']) and ('test' in self.dataset):
             self.dataloader['test']: DataLoader = self.cfg['dataloader']['test'].build(dataset=self.dataset['test']) # type: ignore
@@ -156,9 +156,11 @@ class BaseTrainer(ABC):
                 loss_val = self.validation(epoch, *args, **kwds)
                 stop = self._early_stopping(epoch, loss_val)
                 if stop: break
-            if (epoch+1) % SAVE_INTERVAL == 0:
-                fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
+            elif (epoch+1) % SAVE_INTERVAL == 0:
+                fp = Path(self.cfg['save_dir'])/'best.pt'
                 self.save_checkpoint(fp, epoch, loss_train)
+                # fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
+                # self.save_checkpoint(fp, epoch, loss_train)
             if self.scheduler is not None:
                 self.scheduler.step()
             if self.wandb:  # TODO: set a log interval

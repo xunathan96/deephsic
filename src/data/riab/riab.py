@@ -10,8 +10,8 @@ from utils import dump, load
 
 class RatInABox(Dataset):
 
-    X_VAR = ['boundary-vector']     # ['grid', 'boundary-vector', 'head-direction', 'velocity']
-    Y_VAR = ['head_direction']      # ['pos', 'head_direction', 'vel', 'rot_vel']
+    X_VAR = ['grid']            # ['grid', 'boundary-vector', 'head-direction', 'velocity']
+    Y_VAR = ['head_direction']  # ['pos', 'head_direction', 'vel', 'rot_vel']
 
     def __init__(self,
                  root: str,

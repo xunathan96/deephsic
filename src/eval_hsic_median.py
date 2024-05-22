@@ -63,13 +63,13 @@ def dataset(name):
     elif name == 'HDGM-10':
         return HDGM(dim=10, size=10000)
     elif name == 'HDGM-20':
-        return HDGM(dim=20, size=10000)
+        return HDGM(dim=20, size=100000)
     elif name == 'HDGM-30':
-        return HDGM(dim=30, size=10000)
+        return HDGM(dim=30, size=100000)
     elif name == 'HDGM-40':
-        return HDGM(dim=40, size=10000)
+        return HDGM(dim=40, size=100000)
     elif name == 'HDGM-50':
-        return HDGM(dim=50, size=10000)
+        return HDGM(dim=50, size=100000)
     elif name == 'Cifar10h':
         return CIFAR10H(root='data/cifar10h/raw',
                         split='test',
@@ -110,9 +110,9 @@ def eval_hsic_median(dataset: Dataset,
                             drop_last=True)
     k = Gaussian(flatten_input=True).to(device)
     l = Gaussian(flatten_input=True).to(device)
-    median_x, median_y = compute_median(dataset)
-    k.bandwidth = median_x
-    l.bandwidth = median_y
+    # median_x, median_y = compute_median(dataset)
+    # k.bandwidth = median_x
+    # l.bandwidth = median_y
 
     stats = defaultdict(list)
     n_reject = 0
@@ -129,6 +129,9 @@ def eval_hsic_median(dataset: Dataset,
 
         X = batch[0].to(device)
         Y = batch[1].to(device)
+        median_x, median_y = compute_median_batch((X,Y))
+        k.bandwidth = median_x
+        l.bandwidth = median_y
         hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
                                                               X, Y,
                                                               compute_var=False,
@@ -161,6 +164,15 @@ def compute_median(dataset: Dataset):
     return median_x, median_y
 
 
+def compute_median_batch(batch: tuple[torch.Tensor]):
+    X = batch[0]
+    Y = batch[1]
+    median_x = median_heuristic(torch.flatten(X, start_dim=1))
+    median_y = median_heuristic(torch.flatten(Y, start_dim=1))
+    return median_x, median_y
+
+
+
 def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
     r"""compute all paired (squared) distances between samples of X and Y
     X: (Nx, D) torch.Tensor
@@ -183,6 +195,7 @@ def main(args):
     stats = eval_hsic_median(dataset=testset,
                              n_samples=args.n_samples,
                              n_tests=100,
+                             n_permutations=100,
                              num_workers=args.num_workers)
     print(dict(stats))
 
