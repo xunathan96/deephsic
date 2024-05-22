@@ -47,7 +47,8 @@ class RatInABox(Dataset):
         elif split == 'val':
             self.samples = trajs[split_idx[0]:split_idx[1]]
         elif split == 'test':
-            self.samples = trajs[split_idx[1]:split_idx[2]]
+            # self.samples = trajs[split_idx[1]:split_idx[2]]   # TODO: fix this later
+            self.samples = trajs[split_idx[1]:]
 
     def preprocess(self, data):
         samples = []
