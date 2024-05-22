@@ -11,7 +11,7 @@ from utils import dump, load
 class RatInABox(Dataset):
 
     X_VAR = ['grid']            # ['grid', 'boundary-vector', 'head-direction', 'velocity']
-    Y_VAR = ['head_direction']  # ['pos', 'head_direction', 'vel', 'rot_vel']
+    Y_VAR = ['head_direction']  # ['pos', 'head_direction', 'vel', 'rot_vel']     true label
 
     def __init__(self,
                  root: str,
@@ -55,6 +55,7 @@ class RatInABox(Dataset):
         for traj in data:
             x = np.concatenate([traj[neurons]['firingrate'][frames] for neurons in self.X_VAR], axis=-1)    # (T,20,Dx)
             y = np.concatenate([traj['agent'][feature][frames] for feature in self.Y_VAR], axis=-1)         # (T,20,Dy)
+            # y = np.concatenate([traj[neurons]['firingrate'][frames] for neurons in self.Y_VAR], axis=-1)    # (T,20,Dx)
             samples.append((x, y))
         return samples
 

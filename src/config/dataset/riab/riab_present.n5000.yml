@@ -4,7 +4,7 @@
 name: RatInABox-n5000
 
 train: !dataset.RatInABox
-  root: data/riab/raw/riab-10000.pkl
+  root: data/riab/raw/riab-20000-T.pkl
   size: 5000
   split: train
   train_val_test_split: '3:1:1'
@@ -13,7 +13,7 @@ train: !dataset.RatInABox
     - !transform.NumpyToTensor
 
 val: !dataset.RatInABox
-  root: data/riab/raw/riab-10000.pkl
+  root: data/riab/raw/riab-20000-T.pkl
   size: 5000
   split: val
   train_val_test_split: '3:1:1'
@@ -22,10 +22,10 @@ val: !dataset.RatInABox
     - !transform.NumpyToTensor
 
 test: !dataset.RatInABox
-  root: data/riab/raw/riab-10000.pkl
-  size: 5000
+  root: data/riab/raw/riab-20000-T.pkl
+  # size: 5000
   split: test
-  train_val_test_split: '3:1:6'
+  train_val_test_split: '3:1:16'
   window: present
   transform: !transform.Compose
     - !transform.NumpyToTensor
