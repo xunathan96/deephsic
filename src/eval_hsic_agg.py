@@ -80,7 +80,7 @@ def dataset(name):
                              transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
                          ]))
     elif name == 'RatInABox':
-        return RatInABox(root='data/riab/raw/riab-10000.pkl',
+        return RatInABox(root='data/riab/raw/riab-20000-T.pkl',
                          split='test',
                          train_val_test_split='0:0:10',
                          window='present',
