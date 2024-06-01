@@ -3,7 +3,7 @@
 # -----------------------
 name: RatInABox
 
-train: !dataset.RatInABox
+train: !dataset.RatInABox &settings
   root: data/riab/raw/riab-10000.pkl
   split: train
   window: past
@@ -11,15 +11,9 @@ train: !dataset.RatInABox
     - !transform.NumpyToTensor
 
 val: !dataset.RatInABox
-  root: data/riab/raw/riab-10000.pkl
+  <<: *settings
   split: val
-  window: past
-  transform: !transform.Compose
-    - !transform.NumpyToTensor
 
 test: !dataset.RatInABox
-  root: data/riab/raw/riab-10000.pkl
+  <<: *settings
   split: test
-  window: past
-  transform: !transform.Compose
-    - !transform.NumpyToTensor

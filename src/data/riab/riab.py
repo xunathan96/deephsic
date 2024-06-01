@@ -16,7 +16,7 @@ class RatInABox(Dataset):
     def __init__(self,
                  root: str,
                  split: str = 'train',
-                 train_val_test_split: str = '7:1:2',
+                 train_val_test_split: str = '7:1:2',   # can be a ratio or (if one split is inferred) absolute sizes 
                  size: int = None,
                  window: str = 'full',  # past, future, present, full
                  transform: Callable[..., Any] | None = None,
@@ -31,7 +31,12 @@ class RatInABox(Dataset):
 
         # compute train-val-test splits
         size = min(size, n) if size is not None else n
-        splits = list(map(int, train_val_test_split.split(':')))
+        splits = [int(m) if m.isdigit() else None for m in train_val_test_split.split(':')]
+        # one split is inferred
+        if splits.count(None) > 1:
+            raise Exception(f"We can only infer a maximum of one split.")
+        splits = [size-sum(filter(None, splits)) if m is None else m for m in splits]
+
         TRAIN_SPLIT = splits[0]/sum(splits)
         VAL_SPLIT = splits[1]/sum(splits)
         TEST_SPLIT = splits[2]/sum(splits)
