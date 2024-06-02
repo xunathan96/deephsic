@@ -96,7 +96,8 @@ class InfoNCETrainer(BaseTrainer):
     def eval(self,
              n_samples = None,
              n_tests = 100,
-             n_permutations = 500,):
+             n_permutations = 500,
+             **kwds):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")

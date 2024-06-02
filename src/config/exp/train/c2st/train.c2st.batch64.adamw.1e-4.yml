@@ -1,7 +1,7 @@
 # -----------------------
 #    TRAINING SETTINGS
 # -----------------------
-
+method: c2st
 seed: 0
 # model: !include config/model/c2st/id-id@mlp4x8x12x8x1.yml
 # dataset: !include config/dataset/hdgm/hdgm4.yml

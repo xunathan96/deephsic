@@ -27,6 +27,12 @@ class Config:
         else:
             return False
 
+    def get(self, key, default=None):
+        if key in self.__dict__:
+            return self.__dict__[key]
+        else:
+            return default
+
     def set(self, key, value):
         return setattr(self, key, value)
 

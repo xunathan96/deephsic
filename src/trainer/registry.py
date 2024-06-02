@@ -25,12 +25,10 @@ class TrainerRegistry:
 
 
 trainerRegistry = TrainerRegistry()
-trainerRegistry.register('Classifier', Classifier)
-trainerRegistry.register('HSIC', HSICTrainer)
-trainerRegistry.register('C2ST', C2STTrainer)
-trainerRegistry.register('MMD', MMDTrainer)
-trainerRegistry.register('Pathwise', Pathwise)
-trainerRegistry.register('InfoNCE', InfoNCETrainer)
+trainerRegistry.register('hsic', HSICTrainer)
+trainerRegistry.register('c2st', C2STTrainer)
+trainerRegistry.register('mmd', MMDTrainer)
+trainerRegistry.register('infonce', InfoNCETrainer)
 
 
 def get(key) -> BaseTrainer:

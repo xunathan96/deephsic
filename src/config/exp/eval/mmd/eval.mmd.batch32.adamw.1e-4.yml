@@ -1,0 +1,16 @@
+# ------------------------
+#    EVALUATION SETTINGS
+# ------------------------
+method: mmd
+seed: 0
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 32
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
+criterion: !criterion.MMDTestPower
+  reg: 1.e-8

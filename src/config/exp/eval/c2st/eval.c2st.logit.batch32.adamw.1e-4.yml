@@ -1,0 +1,17 @@
+# -----------------------
+#   EVALUATION SETTINGS
+# -----------------------
+method: c2st
+statistic: logit
+seed: 0
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 32
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
+criterion: !criterion.BCEWithLogitsLoss
+  reduction: mean

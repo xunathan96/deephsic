@@ -1,12 +1,19 @@
 import numpy as np
 import torch
 from tqdm import tqdm
+from config.config import Config
 from .base import BaseTrainer
 import metrics
 
 RUNNING_INTERVAL = 24
 
 class C2STTrainer(BaseTrainer):
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.statistic = self.cfg.get('statistic', 'logit')
+        if self.statistic not in ('accuracy', 'logit'):
+            raise Exception(f"Error: C2ST test statistic must be either 'accuracy' or 'logit' but got '{self.statistic}'.")
 
     def train_one_epoch(self, epoch: int):
         self.model.train()
@@ -58,13 +65,12 @@ class C2STTrainer(BaseTrainer):
                 running_loss = 0
 
         return sum(losses)/len(losses)
-    
+
 
     @torch.no_grad
     def inference(self,
                   n_tests: int = 100,
                   n_permutations: int = 500,
-                  significance: float = 0.05,
                   statistic: str = 'logit'):
         self.model.eval()
         samples = list()
@@ -104,10 +110,11 @@ class C2STTrainer(BaseTrainer):
 
 
     def eval(self,
-             n_samples=None,
-             n_tests=100,
-             n_permutations=500,
-             statistic='logit'):
+             n_samples = None,
+             n_tests = 100,
+             n_permutations = 500,
+            #  statistic='logit',
+             **kwds):
         # run inference on the test set and return the computed metrics dictionary
         if not self.is_test:
             raise Exception(f"Evaluation error: no test data specified.")
@@ -115,7 +122,7 @@ class C2STTrainer(BaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests, n_permutations, statistic=statistic)
+        samples = self.inference(n_tests, n_permutations, statistic=self.statistic)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

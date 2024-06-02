@@ -1,0 +1,16 @@
+# ------------------------
+#   EVALUTATION SETTINGS
+# ------------------------
+method: hsic
+seed: 0
+
+dataloader:
+  test: !torch.DataLoader
+    batch_size: 64
+    shuffle: True
+    drop_last: True
+    num_workers: 0
+    pin_memory: True
+
+criterion: !criterion.HSICTestPower
+  reg: 1.e-8
