@@ -3,14 +3,16 @@
 # -----------------------
 name: HDGM-40
 
-train: !dataset.HDGM
-  size: 100000  # needs at least 100,000 samples for deep kernel to train
+train: !dataset.HDGM &settings
+  size: 1000000
   dim: 40
+  split: train
+  train_val_test_split: '100000:4000:'
 
-val: &data !dataset.HDGM
-  size: 4000
-  dim: 40
+val: !dataset.HDGM
+  <<: *settings
+  split: val
 
 test: !dataset.HDGM
-  size: 10000
-  dim: 40
+  <<: *settings
+  split: test

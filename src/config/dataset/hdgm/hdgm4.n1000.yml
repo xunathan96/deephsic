@@ -3,22 +3,16 @@
 # -----------------------
 name: HDGM-4-n1000
 
-train: !dataset.HDGM &data
-  size: 1000
+train: !dataset.HDGM &settings
+  size: 1000000
   dim: 4
   split: train
-  train_val_test_split: '7:1:2'
+  train_val_test_split: '500:0:'
 
 val: !dataset.HDGM
-  <<: *data
+  <<: *settings
   split: val
 
 test: !dataset.HDGM
-  # <<: *data
-  # split: test
-  size: 10000   # 200
-  dim: 4
-
-  # TODO: strange evaluation bug if size is exactly same as batch size (prob due to rng)
-
-# Must manually select test sizes -- otherwise weird bug
+  <<: *settings
+  split: test

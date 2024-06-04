@@ -15,7 +15,6 @@ from kernel import BaseKernel
 
 RUNNING_PER_EPOCH = 5   # number of running statistics computed per epoch
 
-
 class HSICBaseTrainer(BaseTrainer):
 
     def _setup_model(self):

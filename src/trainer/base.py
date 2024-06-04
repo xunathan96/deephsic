@@ -14,8 +14,8 @@ from torch.optim import Optimizer
 from config.config import Config
 import utils.utils as utils
 
-EARLY_STOP = 400        # interval after which apply early stopping
-SAVE_INTERVAL = 100     # interval after which the model is saved
+EARLY_STOP = 400    # interval after which apply early stopping
+SAVE_INTERVAL = 1   # interval after which the model is saved
 
 
 class BaseTrainer(ABC):
@@ -150,17 +150,19 @@ class BaseTrainer(ABC):
                                  dynamic_ncols=True,
                                  position=0)):
 
-            pbar.set_description(f"Training: [best-epoch: {self.best_epoch+1}, best-loss: {self.best_loss:.3e}]")
             loss_train = self.train_one_epoch(epoch, *args, **kwds)
             if self.is_validate:
+                pbar.set_description(f"Training: [best-epoch: {self.best_epoch+1}, best-loss: {self.best_loss:.3e}]")
                 loss_val = self.validation(epoch, *args, **kwds)
                 stop = self._early_stopping(epoch, loss_val)
                 if stop: break
-            elif (epoch+1) % SAVE_INTERVAL == 0:
-                fp = Path(self.cfg['save_dir'])/'best.pt'
-                self.save_checkpoint(fp, epoch, loss_train)
-                # fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
-                # self.save_checkpoint(fp, epoch, loss_train)
+            else:
+                pbar.set_description(f"Training: [epoch: {epoch+1}, loss: {loss_train:.3e}]")
+                if (epoch+1) % SAVE_INTERVAL == 0:
+                    # fp = Path(self.cfg['save_dir'])/f"epoch_{epoch+1}.pt"
+                    fp = Path(self.cfg['save_dir'])/'best.pt'
+                    self.save_checkpoint(fp, epoch, loss_train)
+
             if self.scheduler is not None:
                 self.scheduler.step()
             if self.wandb:  # TODO: set a log interval

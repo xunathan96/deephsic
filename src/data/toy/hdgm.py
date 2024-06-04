@@ -27,7 +27,8 @@ class GaussianMixture(ToyDataset):
         super().__init__(n_samples)
 
 
-    def sample(self, shape: tuple):
+    def sample(self, shape: tuple, deterministic: bool = True):
+        if deterministic: np.random.seed(2024)
         size = shape + (self.dim,)
         eps = np.random.normal(size=size)   # (N,D)
         data = np.empty_like(eps)
@@ -35,24 +36,6 @@ class GaussianMixture(ToyDataset):
         for i in range(self.n_mixtures):
             data[mix_id==i] = self.means[i] + eps[mix_id==i] @ self.chols[i].T
         return data
-
-
-class HDGM_depreciated(GaussianMixture):
-    def __init__(self,
-                 size: int,
-                 dim: int,):
-        weights = [1., 1.]
-        means = [np.zeros(dim), np.zeros(dim)]
-        cov1 = np.eye(dim)
-        cov2 = np.eye(dim)
-        cov1[0,3] = cov1[3,0] = 0.5
-        cov2[0,3] = cov2[3,0] = -0.5
-        covs = [cov1, cov2]
-        super().__init__(size, means, covs, weights)
-
-    def __getitem__(self, idx) -> tuple[torch.Tensor, torch.Tensor]:
-        xy = torch.from_numpy(self.data[idx]).float()
-        return marginals(xy)
 
 
 class HDGM(GaussianMixture):
@@ -71,7 +54,12 @@ class HDGM(GaussianMixture):
         super().__init__(size, means, covs, weights)
 
         # compute train-val-test splits
-        splits = list(map(int, train_val_test_split.split(':')))
+        splits = [int(m) if m.isdigit() else None for m in train_val_test_split.split(':')]
+        # one split is inferred
+        if splits.count(None) > 1:
+            raise Exception(f"We can only infer a maximum of one split.")
+        splits = [size-sum(filter(None, splits)) if m is None else m for m in splits]
+
         TRAIN_SPLIT = splits[0]/sum(splits)
         VAL_SPLIT = splits[1]/sum(splits)
         TEST_SPLIT = splits[2]/sum(splits)

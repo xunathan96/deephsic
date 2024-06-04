@@ -3,14 +3,16 @@
 # -----------------------
 name: HDGM-50
 
-train: !dataset.HDGM
-  size: 100000
+train: !dataset.HDGM &settings
+  size: 1000000
   dim: 50
+  split: train
+  train_val_test_split: '100000:4000:'
 
-val: &data !dataset.HDGM
-  size: 4000
-  dim: 50
+val: !dataset.HDGM
+  <<: *settings
+  split: val
 
 test: !dataset.HDGM
-  size: 10000
-  dim: 50
+  <<: *settings
+  split: test
