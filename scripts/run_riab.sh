@@ -1,15 +1,19 @@
 #!/bin/bash
 #SBATCH --account=def-dsuth
-#SBATCH --gpus-per-node=1               # Request 1 available GPU (--gpus-per-node=p100:1)
-#SBATCH --mem=12000M                    # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-24:00:00               # DD-HH:MM:SS
+#SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
+#SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
+#SBATCH --time=0-12:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=riab
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
+PROJ_DIR=$project/deepkernel
+VENV_DIR=$PROJ_DIR/myenv
+SOURCE_DIR=$PROJ_DIR/src
+SCRIPT_DIR=$PROJ_DIR/scripts
+cd $SCRIPT_DIR
 
-# NOTE: this only works if each "sbatch" corresponds to a different bash shell.
-# Otherwise the datasets variable will update for all "sbatch" instances.
-# test if this script works by running a dataset exp and test size exp simutaneously
+module load python/3.10 scipy-stack cuda cudnn
+source $VENV_DIR/bin/activate
 
 # config files
 train_root=config/exp/train/
@@ -53,7 +57,7 @@ function train_args {
         --data-config $data_root/riab/$dataset.yml \
         --model-config $model_root/$basemethod/$model.yml \
         --save-dir $save_root/riab/$dataset/$basemethod/$model/$run \
-        --n-epochs 100 \
+        --n-epochs 1000 \
     "
 }
 function eval_args {
@@ -87,7 +91,20 @@ function eval_args {
     "
 }
 
-run=1
+
+run=15
+# runs 1,2,3 are for rate tests and 4,5,6 are size tests
+#      7,8,9                        10,11,12
+# runs 13,14,15 are both tests but with no validation for riab.present
+
+datasets="riab.present"
+source train.sh $run "hsic c2st mmd infonce bandwidth" "$datasets"
+source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth" "$datasets"
+
+datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+source train.sh $run "hsic c2st mmd infonce bandwidth" "$datasets"
+source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth" "$datasets"
+
 
 # datasets="riab.present"
 # datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
@@ -106,7 +123,7 @@ run=1
 
 
 
-
 unset dataset_to_testsize
 unset method_to_model
-return
+module purge
+deactivate

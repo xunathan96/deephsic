@@ -1,10 +1,19 @@
 #!/bin/bash
 #SBATCH --account=def-dsuth
-#SBATCH --gpus-per-node=1               # Request 1 available GPU (--gpus-per-node=p100:1)
-#SBATCH --mem=12000M                    # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-24:00:00               # DD-HH:MM:SS
+#SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
+#SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
+#SBATCH --time=0-48:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=hdgm
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
+
+PROJ_DIR=$project/deepkernel
+VENV_DIR=$PROJ_DIR/myenv
+SOURCE_DIR=$PROJ_DIR/src
+SCRIPT_DIR=$PROJ_DIR/scripts
+cd $SCRIPT_DIR
+
+module load python/3.10 scipy-stack cuda cudnn
+source $VENV_DIR/bin/activate
 
 # config files
 train_root=config/exp/train/
@@ -113,7 +122,7 @@ function train_args {
         --data-config $data_root/hdgm/$dataset.yml \
         --model-config $model_root/$basemethod/$model.yml \
         --save-dir $save_root/hdgm/$dataset/$basemethod/$model/$run \
-        --n-epochs 10 \
+        --n-epochs 1000 \
     "
 }
 function eval_args {
@@ -151,7 +160,8 @@ function eval_args {
     "
 }
 
-run=1
+run=6
+# runs 1,2,3 are for rate tests and 4,5,6 are size tests
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
@@ -180,4 +190,5 @@ run=1
 
 unset dataset_to_testsize
 unset method_to_model
-return
+module purge
+deactivate
