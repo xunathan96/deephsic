@@ -73,6 +73,7 @@ method_to_model["hsic-tied"]="$(printf "%s:mlp2x4x6x4-tied;" "hdgm4" "hdgm4.n100
                               $(printf "%s:mlp20x40x60x40-tied;" "hdgm40")\
                               $(printf "%s:mlp25x50x75x50-tied;" "hdgm50")\
                               "
+method_to_model["hsic-raw"]="${method_to_model["hsic"]}"
 method_to_model["mmd"]="$(printf "%s:id-id@mlp4x8x12x8;" "hdgm4" "hdgm4.n1000" "hdgm4.n2000" "hdgm4.n3000" "hdgm4.n4000")\
                         $(printf "%s:id-id@mlp8x16x24x16;" "hdgm8" "hdgm8.n1000" "hdgm8.n2000" "hdgm8.n3000" "hdgm8.n4000")\
                         $(printf "%s:id-id@mlp10x20x30x20;" "hdgm10" "hdgm10.n2000" "hdgm10.n4000" "hdgm10.n6000" "hdgm10.n8000")\
@@ -108,56 +109,90 @@ method_to_model["bandwidth"]="$(printf "%s:bandwidth-squared;" "hdgm4" "hdgm4.n1
                               $(printf "%s:bandwidth-squared;" "hdgm50")\
                               "
 
-
 function train_args {
-    local basemethod
     case $method in
-        bandwidth) basemethod="hsic" ;;
-        hsic-tied) basemethod="hsic" ;;
-        c2st-s | c2st-l) basemethod="c2st" ;;
-        *) basemethod=$method ;;
-    esac
-    echo "\
-        --train-config $train_root/$basemethod/train.$basemethod.batch128.adamw.1e-4.yml \
-        --data-config $data_root/hdgm/$dataset.yml \
-        --model-config $model_root/$basemethod/$model.yml \
-        --save-dir $save_root/hdgm/$dataset/$basemethod/$model/$run \
-        --n-epochs 1000 \
-    "
-}
-function eval_args {
-    local basemethod
-    local eval_config
-    case $method in
-        bandwidth)
-            basemethod="hsic"
-            eval_config="$eval_root/$basemethod/eval.$basemethod.batch128.adamw.1e-4.yml"
+        bandwidth | hsic-tied)
+            echo "\
+                --train-config $train_root/hsic/train.hsic.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/hsic/$model/$run \
+                --n-epochs 10"
             ;;
-        hsic-tied)
-            basemethod="hsic"
-            eval_config="$eval_root/$basemethod/eval.$basemethod.batch128.adamw.1e-4.yml"
+        c2st-s | c2st-l)
+            echo "\
+                --train-config $train_root/c2st/train.c2st.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/c2st/$model/$run \
+                --n-epochs 1000"
             ;;
-        c2st-s)
-            basemethod="c2st"
-            eval_config="$eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml"
-            ;;
-        c2st-l)
-            basemethod="c2st"
-            eval_config="$eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml"
+        hsic-raw)
+            echo "\
+                --train-config $train_root/hsic/train.hsic_raw.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/hsic_raw/$model/$run \
+                --n-epochs 10"
             ;;
         *)
-            basemethod=$method
-            eval_config="$eval_root/$basemethod/eval.$basemethod.batch128.adamw.1e-4.yml"
+            echo "\
+                --train-config $train_root/$method/train.$method.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/$method/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/$method/$model/$run \
+                --n-epochs 100"
             ;;
     esac
-    echo "\
-        --eval-config $eval_config \
-        --data-config $data_root/hdgm/$dataset.yml \
-        --model-config $model_root/$basemethod/$model.yml \
-        --pretrained-path $save_root/hdgm/$dataset/$basemethod/$model/$run/best.pt \
-        --log-dir $log_root/hdgm/$run \
-        --n-samples $n_samples \
-    "
+}
+function eval_args {
+    case $method in
+        bandwidth | hsic-tied)
+            echo "\
+                --eval-config $eval_root/hsic/eval.hsic.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/hsic/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        c2st-s)
+            echo "\
+                --eval-config $eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/c2st/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        c2st-l)
+            echo "\
+                --eval-config $eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/c2st/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        hsic-raw)
+            echo "\
+                --eval-config $eval_root/hsic/eval.hsic_raw.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/hsic_raw/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        *)
+            echo "\
+                --eval-config $eval_root/$method/eval.$method.batch128.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/$method/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/$method/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+    esac
 }
 
 run=6

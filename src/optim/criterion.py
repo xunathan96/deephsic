@@ -9,6 +9,19 @@ import metrics
 from kernel import Kernel
 
 
+class HSIC(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self,
+                k: Kernel,
+                l: Kernel,
+                X: torch.Tensor,
+                Y: torch.Tensor,) -> torch.Tensor:
+        hsic, var = metrics.hsic.hsic(k, l, X, Y, statistic='u', onesampleU=True, compute_var=False)
+        return -hsic
+
+
 class MMDTestPower(nn.Module):
     def __init__(self,
                  reg: float = 1e-8):

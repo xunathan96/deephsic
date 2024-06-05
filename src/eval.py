@@ -1,17 +1,12 @@
 import argparse
-import torch
-from torch.utils.data import DataLoader
 from datetime import datetime
-from tqdm import tqdm
 from pathlib import Path
-from collections import defaultdict
 
-import metrics
 from config.config import Config
 from trainer import registry
 from utils import utils
 from utils.yaml import parse_yaml
-from kernel import Kernel
+from optim.criterion import HSIC
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -86,10 +81,15 @@ def main(args):
     print(stats)
 
     # save evaluation metrics
+    method = cfg['method']
+    if cfg['method'] == 'c2st':
+        method = 'c2st-l' if cfg['statistic']=='logit' else 'c2st-s'
+    elif cfg['method'] == 'hsic' and isinstance(pipeline.criterion, HSIC):
+        method = 'hsic-raw'
     table = utils.Tabular(f"{args.log_dir}/stats-{cfg['method']}.csv")
     row = {
         'dataset': cfg['dataset']['name'],
-        'method': cfg['method'] if cfg['method']!='c2st' else ('c2st-l' if cfg['statistic']=='logit' else 'c2st-s'),
+        'method': method, #cfg['method'] if cfg['method']!='c2st' else ('c2st-l' if cfg['statistic']=='logit' else 'c2st-s'),
         'model': cfg['model']['name'],
         'n_samples': args.n_samples,
         **stats

@@ -78,6 +78,7 @@ yamlRegistry.register(yaml_tag=u'!scheduler.SequentialLR',                  node
 yamlRegistry.register(yaml_tag=u'!criterion.CrossEntropyLoss',      nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.CrossEntropyLoss)
 yamlRegistry.register(yaml_tag=u'!criterion.BCEWithLogitsLoss',     nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.BCEWithLogitsLoss)
 yamlRegistry.register(yaml_tag=u'!criterion.MSELoss',               nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MSELoss)
+yamlRegistry.register(yaml_tag=u'!criterion.HSIC',                  nodetype=YamlNodeType.SCALAR).map_to(optim.criterion.HSIC)
 yamlRegistry.register(yaml_tag=u'!criterion.MMDTestPower',          nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MMDTestPower)
 yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.HSICTestPower)
 yamlRegistry.register(yaml_tag=u'!criterion.MutualInfoLowerBound',  nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MutualInfoLowerBound)

@@ -37,6 +37,7 @@ dataset_to_testsize["riab.present.5000"]="2000"
 # method:models
 declare -A method_to_model
 method_to_model["hsic"]=$(printf "%s:mlp8x32x64x32-mlp2x4x8x4;" "${!dataset_to_testsize[@]}")
+method_to_model["hsic-raw"]="${method_to_model["hsic"]}"
 method_to_model["mmd"]=$(printf "%s:id-id@mlp10x32x64x32;" "${!dataset_to_testsize[@]}")
 method_to_model["c2st"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
 method_to_model["c2st-s"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
@@ -46,49 +47,89 @@ method_to_model["bandwidth"]=$(printf "%s:bandwidth-squared;" "${!dataset_to_tes
 
 
 function train_args {
-    local basemethod
-    case $method in
-        bandwidth) basemethod="hsic" ;;
-        c2st-s | c2st-l) basemethod="c2st" ;;
-        *) basemethod=$method ;;
-    esac
-    echo "\
-        --train-config $train_root/$basemethod/train.$basemethod.batch128.adamw.1e-4.yml \
-        --data-config $data_root/riab/$dataset.yml \
-        --model-config $model_root/$basemethod/$model.yml \
-        --save-dir $save_root/riab/$dataset/$basemethod/$model/$run \
-        --n-epochs 1000 \
-    "
-}
-function eval_args {
-    local basemethod
-    local eval_config
     case $method in
         bandwidth)
-            basemethod="hsic"
-            eval_config="$eval_root/$basemethod/eval.$basemethod.batch128.adamw.1e-4.yml"
+            echo "\
+                --train-config $train_root/hsic/train.hsic.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/riab/$dataset/hsic/$model/$run \
+                --n-epochs 1000"
             ;;
-        c2st-s)
-            basemethod="c2st"
-            eval_config="$eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml"
+        c2st-s | c2st-l)
+            echo "\
+                --train-config $train_root/c2st/train.c2st.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --save-dir $save_root/riab/$dataset/c2st/$model/$run \
+                --n-epochs 1000"
             ;;
-        c2st-l)
-            basemethod="c2st"
-            eval_config="$eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml"
+        hsic-raw)
+            echo "\
+                --train-config $train_root/hsic/train.hsic_raw.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/riab/$dataset/hsic_raw/$model/$run \
+                --n-epochs 1000"
             ;;
         *)
-            basemethod=$method
-            eval_config="$eval_root/$basemethod/eval.$basemethod.batch128.adamw.1e-4.yml"
+            echo "\
+                --train-config $train_root/$method/train.$method.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/$method/$model.yml \
+                --save-dir $save_root/riab/$dataset/$method/$model/$run \
+                --n-epochs 1000"
             ;;
     esac
-    echo "\
-        --eval-config $eval_config \
-        --data-config $data_root/riab/$dataset.yml \
-        --model-config $model_root/$basemethod/$model.yml \
-        --pretrained-path $save_root/riab/$dataset/$basemethod/$model/$run/best.pt \
-        --log-dir $log_root/riab/$run \
-        --n-samples $n_samples \
-    "
+}
+function eval_args {
+    case $method in
+        bandwidth)
+            echo "\
+                --eval-config $eval_root/hsic/eval.hsic.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/hsic/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+        c2st-s)
+            echo "\
+                --eval-config $eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/c2st/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+        c2st-l)
+            echo "\
+                --eval-config $eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/c2st/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/c2st/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+        hsic-raw)
+            echo "\
+                --eval-config $eval_root/hsic/eval.hsic_raw.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/hsic_raw/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+        *)
+            echo "\
+                --eval-config $eval_root/$method/eval.$method.batch128.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/$method/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/$method/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+    esac
 }
 
 
