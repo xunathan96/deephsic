@@ -59,13 +59,32 @@ class LinearBlock(nn.Module):
                  activation = 'ReLU',
                  batch_norm = False,
                  layer_norm = False,
-                 dropout = 0.):
+                 dropout = 0.,
+                 init = 'normal'):
         super().__init__()
+        self.in_features = in_features
+        self.out_features = out_features
         self.linear = nn.Linear(in_features, out_features)
         self.batch_norm = nn.BatchNorm1d(out_features) if batch_norm else None
         self.layer_norm = nn.LayerNorm(out_features) if layer_norm else None
         self.activation = activation_registry(activation)
         self.dropout = nn.Dropout(dropout)
+        self.init_weights(method=init)
+
+
+    def init_weights(self, method = 'default'):
+        if method == 'default':
+            return
+        nn.init.constant_(self.linear.bias, val=0) if self.linear.bias != None else None
+        if method == 'zeros':
+            nn.init.constant_(self.linear.weight, val=0)
+        elif method == 'normal':
+            nn.init.trunc_normal_(self.linear.weight, mean=0, std=1/self.in_features, a=-2/self.in_features, b=2/self.in_features)
+        elif method == 'xavier':
+            nn.init.xavier_normal_(self.linear.weight)
+        elif method == 'kaiming':
+            nn.init.kaiming_normal_(self.linear.weight, nonlinearity='relu')
+
 
     def forward(self, input):
         x = self.linear(input)
