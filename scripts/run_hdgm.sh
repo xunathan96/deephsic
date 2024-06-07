@@ -117,7 +117,7 @@ function train_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic/$model/$run \
-                --n-epochs 10"
+                --n-epochs 1000"
             ;;
         c2st-s | c2st-l)
             echo "\
@@ -133,7 +133,7 @@ function train_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic_raw/$model/$run \
-                --n-epochs 10"
+                --n-epochs 1000"
             ;;
         *)
             echo "\
@@ -141,7 +141,7 @@ function train_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/$method/$model/$run \
-                --n-epochs 100"
+                --n-epochs 1000"
             ;;
     esac
 }
@@ -195,8 +195,9 @@ function eval_args {
     esac
 }
 
-run=6
+run=9
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
+# runs 7,8,9 are with new initializations (and 1000 epochs)
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
@@ -206,8 +207,8 @@ run=6
 #           hdgm30.n8000 hdgm30.n12000 hdgm30.n16000 hdgm30.n20000 \
 #           "
 
-# source train.sh $run "hsic hsic-tied" "$datasets"
-# source eval.sh $run "hsic hsic-tied" "$datasets"
+# source train.sh $run "hsic hsic-tied hsic-raw" "$datasets"
+# source eval.sh $run "hsic hsic-tied hsic-raw" "$datasets"
 
 # source train.sh $run "c2st" "$datasets"
 # source eval.sh $run "c2st-s c2st-l" "$datasets"
