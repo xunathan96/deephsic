@@ -29,19 +29,6 @@ class DeepKernel(BaseKernel):
     def eps(self):
         return torch.sigmoid(self.raw_eps)
 
-    def gram_depreciated(self, X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
-        r"""compute the kernel gram matrix between samples X and Y of the same shape
-        X: (Nx, *) torch.Tensor
-        Y: (Ny, *) torch.Tensor
-        returns the gram matrix of size (Nx, Ny) with elements k(x_i, y_j)"""
-        phi_X = self.featurizer(X)  # (Nx, D)
-        phi_Y = self.featurizer(Y)  # (Ny, D)
-        if X.dim() > 2: X = torch.flatten(X, start_dim=1)   # (Nx, d)
-        if Y.dim() > 2: Y = torch.flatten(Y, start_dim=1)   # (Ny, d)
-        Kxy = self.feature_kernel(phi_X, phi_Y) # (Nx, Ny)
-        Qxy = self.smoothing_kernel(X, Y)       # (Nx, Ny)
-        return (1-self.eps)*Kxy + self.eps*Qxy
-
     def gram(self, X, Y) -> torch.Tensor:
         if isinstance(X, torch.Tensor) and isinstance(Y, torch.Tensor):
             return self.gram_tensor(X, Y)

@@ -13,6 +13,7 @@ featurizer: !model.Neck
       features: [40, 80, 120, 80]
       activation: ReLU
       batch_norm: False
+      init: narrow_normal
   connection: cat
   squeeze_single_head: True
 feature_kernel: !kernel.Gaussian

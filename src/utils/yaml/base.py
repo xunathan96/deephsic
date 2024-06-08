@@ -14,7 +14,7 @@ class BaseMappingObject:
         self.params: dict = params
 
     def __len__(self):
-        return 1
+        return len(self.params)
 
     def __repr__(self):
         return f"{self.Blueprint.__name__}Builder({self.params})"
@@ -32,7 +32,7 @@ class BaseMappingObject:
             return False
 
     def build(self, *args, **kwds):
-        built_params = build_recursive(self.params, *args, **kwds)  # build paramater objects recursively
+        built_params = build_recursive(self.params)
         sig = list(inspect.signature(self.Blueprint).parameters)
         kwds = {k:v for k,v in (built_params|kwds).items() if k in sig} # filter out unnecessary arguments
         return self.Blueprint(*args, **kwds)
@@ -75,14 +75,11 @@ class BaseSequenceObject:
     def __setitem__(self, idx, value):
         self.seq[idx] = value
 
-    def build(self, unpack=False, *args, **kwds):
-        built_seq = build_recursive(self.seq, *args, **kwds)  # build paramater objects recursively
-        # built blueprint based on packed or unpacked sequence of nodes
-        if not unpack: built_seq = [built_seq]
-        args = tuple(built_seq + list(args))
-        # filter out unnecessary arguments
+    def build(self, *args, **kwds):
+        built_seq = build_recursive(self.seq)
+        args = built_seq + list(args)
         sig = list(inspect.signature(self.Blueprint).parameters)
-        kwds = {k:v for k,v in kwds.items() if k in sig}
+        kwds = {k:v for k,v in kwds.items() if k in sig}    # filter out unnecessary arguments
         return self.Blueprint(*args, **kwds)
 
     @classmethod
@@ -109,11 +106,7 @@ class BaseScalarObject:
     Blueprint: object
 
     def __init__(self, value):
-        self.value = value
-        # NOTE: hardcoded solution to the auto string casting issue
-        if isinstance(value, str):
-            if value.lstrip("-+").isdigit():
-                self.value = int(value)
+        self.value = value if value != '' else None
 
     def __len__(self):
         return 1
@@ -122,25 +115,38 @@ class BaseScalarObject:
         return f"{self.Blueprint.__name__}Builder({self.value})"
 
     def build(self, *args, **kwds):
-        if self.value != '':
-            return self.Blueprint(self.value, *args, **kwds)
-        else:
+        built_value = build_recursive(self.value)
+        sig = list(inspect.signature(self.Blueprint).parameters)
+        kwds = {k:v for k,v in kwds.items() if k in sig}    # filter out unnecessary arguments
+        if built_value is None:
             return self.Blueprint(*args, **kwds)
+        else:
+            return self.Blueprint(built_value, *args, **kwds)
 
     @classmethod
     def from_yaml(cls, loader: yaml.loader, node: yaml.Node):
         r"""Constructs an object instance from the given yaml node."""
         if isinstance(node, yaml.nodes.ScalarNode):
             value = loader.construct_scalar(node)
-            self = cls(value)
-        else:
-            raise Exception(f'{cls.yaml_tag} specifies a ScalarNode but found {node.__class__.__name__} instead.')
+        elif isinstance(node, yaml.nodes.SequenceNode):
+            value = loader.construct_sequence(node, deep=True)
+        elif isinstance(node, yaml.nodes.MappingNode):
+            value = loader.construct_mapping(node, deep=True)
+        # else:
+        #     raise Exception(f'{cls.yaml_tag} specifies a ScalarNode but found {node.__class__.__name__} instead.')
+        self = cls(value)
         return self
 
     @classmethod
     def to_yaml(cls, dumper: yaml.dumper, self):
         r"""Maps the given object instance back to a yaml node."""
-        return dumper.represent_scalar(cls.yaml_tag, value=str(self.value))
+        if isinstance(self.value, dict):
+            return dumper.represent_mapping(cls.yaml_tag, mapping=self.value)
+        elif isinstance(self.value, list):
+            return dumper.represent_sequence(cls.yaml_tag, sequence=self.value)
+        else:
+            value = self.value if self.value != None else ''    # TODO: figure out how to dump NoneTypes
+            return dumper.represent_scalar(cls.yaml_tag, value=value, style="'")
 
 
 

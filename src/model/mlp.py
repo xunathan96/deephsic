@@ -2,30 +2,6 @@ import torch.nn as nn
 from utils.utils import activation_registry
 
 
-class MLP(nn.Module):
-    def __init__(self,
-                 features: list[int],
-                 activation='ReLU',
-                 batch_norm=False,
-                 layer_norm=False,
-                 dropout=0.):
-        super().__init__()
-        n_layers = len(features)
-        self.net = nn.Sequential()
-        for i in range(LASTLAYER := n_layers-1):
-            linearBlock = LinearBlock(in_features=features[i],
-                                      out_features=features[i+1],
-                                      activation=activation  if i<LASTLAYER-1 else None,
-                                      batch_norm=batch_norm  if i<LASTLAYER-1 else False,
-                                      layer_norm=layer_norm  if i<LASTLAYER-1 else False,
-                                      dropout=dropout        if i<LASTLAYER-1 else 0.)
-            self.net.append(linearBlock)
-
-    def forward(self, input):
-        return self.net(input)
-
-
-
 class FeedForward(nn.Module):
     def __init__(self,
                  features: list[int],
@@ -33,7 +9,8 @@ class FeedForward(nn.Module):
                  batch_norm = False,
                  layer_norm = False,
                  dropout = 0.,
-                 last_nonlinear = False,):
+                 last_nonlinear = False,
+                 init = 'default'):
         super().__init__()
 
         num_layers = len(features)
@@ -44,7 +21,8 @@ class FeedForward(nn.Module):
                                 activation  if (i<LASTLAYER-1 or last_nonlinear) else None,
                                 batch_norm  if (i<LASTLAYER-1 or last_nonlinear) else False,
                                 layer_norm  if (i<LASTLAYER-1 or last_nonlinear) else False,
-                                dropout     if (i<LASTLAYER-1 or last_nonlinear) else 0.,)
+                                dropout     if (i<LASTLAYER-1 or last_nonlinear) else 0.,
+                                init)
             self.layers.append(block)
 
     def forward(self, input):
@@ -60,10 +38,11 @@ class LinearBlock(nn.Module):
                  batch_norm = False,
                  layer_norm = False,
                  dropout = 0.,
-                 init = 'normal'):
+                 init = 'default'):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
+        self.activation_name = activation
         self.linear = nn.Linear(in_features, out_features)
         self.batch_norm = nn.BatchNorm1d(out_features) if batch_norm else None
         self.layer_norm = nn.LayerNorm(out_features) if layer_norm else None
@@ -71,20 +50,20 @@ class LinearBlock(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.init_weights(method=init)
 
-
     def init_weights(self, method = 'default'):
-        if method == 'default':
-            return
-        nn.init.constant_(self.linear.bias, val=0) if self.linear.bias != None else None
+        if method == 'default': return
+        if self.linear.bias != None:
+            nn.init.constant_(self.linear.bias, val=0)
         if method == 'zeros':
             nn.init.constant_(self.linear.weight, val=0)
         elif method == 'normal':
-            nn.init.trunc_normal_(self.linear.weight, mean=0, std=1/self.in_features, a=-2/self.in_features, b=2/self.in_features)
+            nn.init.normal_(self.linear.weight)
         elif method == 'xavier':
             nn.init.xavier_normal_(self.linear.weight)
         elif method == 'kaiming':
-            nn.init.kaiming_normal_(self.linear.weight, nonlinearity='relu')
-
+            nn.init.kaiming_normal_(self.linear.weight, nonlinearity=self.activation_name)
+        elif method == 'narrow_normal':
+            nn.init.trunc_normal_(self.linear.weight, mean=0, std=1/self.in_features, a=-2/self.in_features, b=2/self.in_features)
 
     def forward(self, input):
         x = self.linear(input)

@@ -12,6 +12,7 @@ heads: !nn.ModuleList
     features: [4, 8, 12, 8, 1]
     activation: ReLU
     batch_norm: False
+    init: narrow_normal
 connection: cat
 squeeze_single_head: True
 squeeze_scalar_output: True

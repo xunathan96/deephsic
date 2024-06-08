@@ -9,6 +9,7 @@ k: &deepkernel !kernel.DeepKernel
     features: [25, 50, 75, 50]
     activation: ReLU
     batch_norm: False
+    init: narrow_normal
   feature_kernel: !kernel.Gaussian
     scale: 1
     bandwidth: 1

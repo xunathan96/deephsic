@@ -6,10 +6,7 @@ class Identity(nn.Module):
     def forward(self, input):
         return input
 
-class Sequential(nn.Sequential):
-    def __init__(self, modules: list[nn.Module]):
-        super().__init__(*modules)
-
+# rename into Join or Joint
 class Neck(nn.Module):
     def __init__(self,
                  backbones: nn.ModuleList,
