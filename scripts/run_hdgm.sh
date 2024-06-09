@@ -203,12 +203,12 @@ run=18
 # runs 13,14,15 are rate tests and 16,17,18 are size tests (with best inits: default for hsic, narrow_normal for others)
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
-datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
-          hdgm8.n1000 hdgm8.n2000 hdgm8.n3000 hdgm8.n4000 \
-          hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000 \
-          hdgm20.n4000 hdgm20.n8000 hdgm20.n12000 hdgm20.n16000 \
-          hdgm30.n8000 hdgm30.n12000 hdgm30.n16000 hdgm30.n20000 \
-          "
+# datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
+#           hdgm8.n1000 hdgm8.n2000 hdgm8.n3000 hdgm8.n4000 \
+#           hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000 \
+#           hdgm20.n4000 hdgm20.n8000 hdgm20.n12000 hdgm20.n16000 \
+#           hdgm30.n8000 hdgm30.n12000 hdgm30.n16000 hdgm30.n20000 \
+#           "
 
 # source train.sh $run "hsic hsic-tied" "$datasets"
 # source eval.sh $run "hsic hsic-tied" "$datasets"
