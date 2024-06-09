@@ -8,7 +8,7 @@ tied: False
 k: !kernel.DeepKernel
   featurizer: !model.FeedForward
     features: [8, 32, 64, 32]
-    activation: ReLU
+    activation: relu
     batch_norm: False
     init: narrow_normal
   feature_kernel: !kernel.Gaussian
@@ -25,7 +25,7 @@ k: !kernel.DeepKernel
 l: !kernel.DeepKernel
   featurizer: !model.FeedForward
     features: [2, 4, 8, 4]
-    activation: ReLU
+    activation: relu
     batch_norm: False
     init: narrow_normal
   feature_kernel: !kernel.Gaussian

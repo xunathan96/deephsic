@@ -37,14 +37,14 @@ def load(file):
 def activation_registry(activation, *args, **kwds):
     return {
         None: nn.Identity,
-        'ReLU': nn.ReLU,
-        'LeakyReLU': nn.LeakyReLU,
-        'Tanh': nn.Tanh,
-        'GLU': nn.GLU,
-        'ELU': nn.ELU,
-        'GELU': nn.GELU,
-        'Sigmoid': nn.Sigmoid,
-        'Softmax': nn.Softmax,
+        'relu': nn.ReLU,
+        'leaky_relu': nn.LeakyReLU,
+        'tanh': nn.Tanh,
+        'glu': nn.GLU,
+        'elu': nn.ELU,
+        'gelu': nn.GELU,
+        'sigmoid': nn.Sigmoid,
+        'softmax': nn.Softmax,
     }[activation](*args, **kwds)
 
 

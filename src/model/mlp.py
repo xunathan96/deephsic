@@ -5,7 +5,7 @@ from utils.utils import activation_registry
 class FeedForward(nn.Module):
     def __init__(self,
                  features: list[int],
-                 activation = 'ReLU',
+                 activation = 'relu',
                  batch_norm = False,
                  layer_norm = False,
                  dropout = 0.,
@@ -34,7 +34,7 @@ class LinearBlock(nn.Module):
     def __init__(self,
                  in_features,
                  out_features,
-                 activation = 'ReLU',
+                 activation = 'relu',
                  batch_norm = False,
                  layer_norm = False,
                  dropout = 0.,
@@ -61,7 +61,8 @@ class LinearBlock(nn.Module):
         elif method == 'xavier':
             nn.init.xavier_normal_(self.linear.weight)
         elif method == 'kaiming':
-            nn.init.kaiming_normal_(self.linear.weight, nonlinearity=self.activation_name)
+            nonlinearity = self.activation_name if self.activation_name != None else 'leaky_relu'
+            nn.init.kaiming_normal_(self.linear.weight, nonlinearity=nonlinearity)
         elif method == 'narrow_normal':
             nn.init.trunc_normal_(self.linear.weight, mean=0, std=1/self.in_features, a=-2/self.in_features, b=2/self.in_features)
 

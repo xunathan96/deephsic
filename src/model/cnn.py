@@ -9,7 +9,7 @@ class ConvNet(nn.Module):
                  stride: list[int],
                  padding: list[int],
                  dilation: list[int],
-                 activation: str = 'ReLU',
+                 activation: str = 'relu',
                  batch_norm: bool = False,
                  layer_norm: bool = False,
                  dropout: float = 0.,
@@ -51,7 +51,7 @@ class ConvBlock(nn.Module):
                  stride = 1,
                  padding = 0,
                  dilation = 1,
-                 activation = 'ReLU',
+                 activation = 'relu',
                  batch_norm = False,
                  layer_norm = False,
                  dropout = 0.,
@@ -78,7 +78,8 @@ class ConvBlock(nn.Module):
         elif method == 'xavier':
             nn.init.xavier_normal_(self.conv.weight)
         elif method == 'kaiming':
-            nn.init.kaiming_normal_(self.conv.weight, nonlinearity=self.activation_name)
+            nonlinearity = self.activation_name if self.activation_name != None else 'leaky_relu'
+            nn.init.kaiming_normal_(self.conv.weight, nonlinearity=nonlinearity)
         elif method == 'narrow_normal':
             nn.init.trunc_normal_(self.conv.weight, mean=0, std=1/self.in_channels, a=-2/self.in_channels, b=2/self.in_channels)
 

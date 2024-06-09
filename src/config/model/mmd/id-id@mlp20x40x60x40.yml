@@ -11,9 +11,9 @@ featurizer: !model.Neck
   heads: !nn.ModuleList
     - !model.FeedForward
       features: [20, 40, 60, 40]
-      activation: ReLU
+      activation: relu
       batch_norm: False
-      init: narrow_normal
+      init: kaiming
   connection: cat
   squeeze_single_head: True
 feature_kernel: !kernel.Gaussian

@@ -10,9 +10,9 @@ backbones: !nn.ModuleList
 heads: !nn.ModuleList
   - !model.FeedForward
     features: [50, 100, 150, 100, 1]
-    activation: ReLU
+    activation: relu
     batch_norm: False
-    init: narrow_normal
+    init: kaiming
 connection: cat
 squeeze_single_head: True
 squeeze_scalar_output: True

@@ -11,7 +11,7 @@ featurizer: !model.Neck
   heads: !nn.ModuleList
     - !model.FeedForward
       features: [18, 32, 64, 32]
-      activation: ReLU
+      activation: relu
       batch_norm: False
       init: narrow_normal
   connection: cat
