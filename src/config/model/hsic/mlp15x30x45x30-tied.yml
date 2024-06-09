@@ -9,7 +9,7 @@ k: &deepkernel !kernel.DeepKernel
     features: [15, 30, 45, 30]
     activation: relu
     batch_norm: False
-    init: kaiming
+    init: default
   feature_kernel: !kernel.Gaussian
     scale: 1
     bandwidth: 1
