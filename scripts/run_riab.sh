@@ -133,11 +133,12 @@ function eval_args {
 }
 
 
-run=18
+run=21
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 #      7,8,9                        10,11,12
 # runs 13,14,15 are both tests but with no validation for riab.present
-# runs 16,17,18 are with new initialization
+
+# runs 16,17,18,19,20,21 are with new initialization
 
 datasets="riab.present"
 source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
