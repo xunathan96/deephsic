@@ -202,8 +202,9 @@ def main(args):
     # save evaluation metrics
     table = utils.Tabular(f"{args.save_dir}/stats-hsic.csv")
     row = {
-        'dataset': args.dataset,
-        'kernel': 'median',
+        'dataset': f"{args.dataset}-{args.n_samples}",
+        'method': 'hsic',
+        'model': 'median',
         'n_samples': args.n_samples,
         **stats
     }
