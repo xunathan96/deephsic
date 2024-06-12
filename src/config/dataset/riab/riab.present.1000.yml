@@ -7,7 +7,7 @@ train: !dataset.RatInABox &settings
   root: data/riab/raw/riab-20000-T.pkl
   size: 1000
   split: train
-  train_val_test_split: '500:0:'
+  train_val_test_split: '600:0:' #'500:0:'
   window: present
   transform: !transform.Compose
     - !transform.NumpyToTensor

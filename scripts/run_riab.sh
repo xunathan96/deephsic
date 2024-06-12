@@ -28,10 +28,10 @@ log_root=exp/eval/
 declare -A dataset_to_testsize
 dataset_to_testsize["riab.present"]="100 200 500 1000 2000"
 dataset_to_testsize["riab.present.500"]="200"
-dataset_to_testsize["riab.present.1000"]="500"
-dataset_to_testsize["riab.present.2000"]="1000"
-dataset_to_testsize["riab.present.3000"]="1000"
-dataset_to_testsize["riab.present.4000"]="1000"
+dataset_to_testsize["riab.present.1000"]="400"
+dataset_to_testsize["riab.present.2000"]="800"
+dataset_to_testsize["riab.present.3000"]="1200"
+dataset_to_testsize["riab.present.4000"]="1600"
 dataset_to_testsize["riab.present.5000"]="2000"
 
 # method:models
@@ -133,12 +133,13 @@ function eval_args {
 }
 
 
-run=21
+run=22
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 #      7,8,9                        10,11,12
 # runs 13,14,15 are both tests but with no validation for riab.present
 
 # runs 16,17,18,19,20,21 are with new initialization
+# runs 22,23,24 are with consistent splits
 
 datasets="riab.present"
 source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
