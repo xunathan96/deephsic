@@ -133,19 +133,20 @@ function eval_args {
 }
 
 
-run=22
+run=27
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 #      7,8,9                        10,11,12
 # runs 13,14,15 are both tests but with no validation for riab.present
 
 # runs 16,17,18,19,20,21 are with new initialization
-# runs 22,23,24 are with consistent splits
+# runs 22,23,24,25,26,27 are size tests with consistent splits
 
-datasets="riab.present"
-source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
-source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
+# datasets="riab.present"
+# source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
+# source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
 
-datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+datasets="riab.present.3000"
 source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
 source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
 

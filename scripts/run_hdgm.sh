@@ -27,30 +27,30 @@ log_root=exp/eval/
 # dataset:testsizes
 declare -A dataset_to_testsize
 dataset_to_testsize["hdgm4"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm4.n1000"]="500"
-dataset_to_testsize["hdgm4.n2000"]="1000"
-dataset_to_testsize["hdgm4.n3000"]="1000"
-dataset_to_testsize["hdgm4.n4000"]="1000"
+dataset_to_testsize["hdgm4.n1000"]="300"
+dataset_to_testsize["hdgm4.n2000"]="600"
+dataset_to_testsize["hdgm4.n3000"]="900"
+dataset_to_testsize["hdgm4.n4000"]="1200"
 dataset_to_testsize["hdgm8"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm8.n1000"]="500"
-dataset_to_testsize["hdgm8.n2000"]="1000"
-dataset_to_testsize["hdgm8.n3000"]="1000"
-dataset_to_testsize["hdgm8.n4000"]="1000"
+dataset_to_testsize["hdgm8.n1000"]="300"
+dataset_to_testsize["hdgm8.n2000"]="600"
+dataset_to_testsize["hdgm8.n3000"]="900"
+dataset_to_testsize["hdgm8.n4000"]="1200"
 dataset_to_testsize["hdgm10"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm10.n2000"]="1000"
-dataset_to_testsize["hdgm10.n4000"]="1000"
-dataset_to_testsize["hdgm10.n6000"]="2000"
-dataset_to_testsize["hdgm10.n8000"]="2000"
+dataset_to_testsize["hdgm10.n2000"]="600"
+dataset_to_testsize["hdgm10.n4000"]="1200"
+dataset_to_testsize["hdgm10.n6000"]="1800"
+dataset_to_testsize["hdgm10.n8000"]="2400"
 dataset_to_testsize["hdgm20"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm20.n4000"]="1000"
-dataset_to_testsize["hdgm20.n8000"]="2000"
-dataset_to_testsize["hdgm20.n12000"]="2000"
-dataset_to_testsize["hdgm20.n16000"]="2000"
+dataset_to_testsize["hdgm20.n4000"]="1200"
+dataset_to_testsize["hdgm20.n8000"]="2400"
+dataset_to_testsize["hdgm20.n12000"]="3600"
+dataset_to_testsize["hdgm20.n16000"]="4800"
 dataset_to_testsize["hdgm30"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm30.n8000"]="2000"
-dataset_to_testsize["hdgm30.n12000"]="2000"
-dataset_to_testsize["hdgm30.n16000"]="2000"
-dataset_to_testsize["hdgm30.n20000"]="2000"
+dataset_to_testsize["hdgm30.n8000"]="2400"
+dataset_to_testsize["hdgm30.n12000"]="3600"
+dataset_to_testsize["hdgm30.n16000"]="4800"
+dataset_to_testsize["hdgm30.n20000"]="6000"
 dataset_to_testsize["hdgm40"]="100 200 500 1000 2000"
 dataset_to_testsize["hdgm50"]="100 200 500 1000 2000"
 
@@ -195,12 +195,13 @@ function eval_args {
     esac
 }
 
-run=18
+run=24
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
 
 # runs 13,14,15 are rate tests and 16,17,18 are size tests (with best inits: default for hsic, narrow_normal for others)
+# runs 19,20,21 are rate tests and 22,23,24 are size tests (with best inits, no validation, consistent 7:3 splits)
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
@@ -210,8 +211,8 @@ run=18
 #           hdgm30.n8000 hdgm30.n12000 hdgm30.n16000 hdgm30.n20000 \
 #           "
 
-# source train.sh $run "hsic hsic-tied" "$datasets"
-# source eval.sh $run "hsic hsic-tied" "$datasets"
+# source train.sh $run "hsic hsic-tied bandwidth" "$datasets"
+# source eval.sh $run "hsic hsic-tied bandwidth" "$datasets"
 
 # source train.sh $run "c2st" "$datasets"
 # source eval.sh $run "c2st-s c2st-l" "$datasets"
