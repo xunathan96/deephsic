@@ -99,7 +99,7 @@ def main(args):
 
     # save config
     save_config = '--'.join([Path(pth).stem for pth in (args.eval_config, args.data_config, args.model_config) if pth is not None])
-    sf = Path(cfg['save_dir'])/"settings"/Path(save_config).with_suffix('.yml')
+    sf = Path(cfg['save_dir'])/"settings"/(Path(save_config).name + '.yml')
     cfg.save(sf)
 
 
