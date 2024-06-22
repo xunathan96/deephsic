@@ -7,7 +7,7 @@ train: !dataset.HDGM &settings
   size: 1000000
   dim: 30
   split: train
-  train_val_test_split: '100000:0:'    # needs at least 100,000 samples for deep kernel to train
+  train_val_test_split: '100000:2000:'    # needs at least 100,000 samples for deep kernel to train
 
 val: !dataset.HDGM
   <<: *settings
