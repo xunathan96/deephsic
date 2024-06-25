@@ -7,7 +7,7 @@ train: !dataset.HDGM &settings
   size: 1000000
   dim: 20
   split: train
-  train_val_test_split: '11200:1600:'   # 7:1:2
+  train_val_test_split: '11200:3200:'   # 7:2:1
 
 val: !dataset.HDGM
   <<: *settings

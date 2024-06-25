@@ -37,15 +37,15 @@ dataset_to_testsize["hdgm8.n2000"]="600"
 dataset_to_testsize["hdgm8.n3000"]="900"
 dataset_to_testsize["hdgm8.n4000"]="1200"
 dataset_to_testsize["hdgm10"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm10.n2000"]="400" #"600"
-dataset_to_testsize["hdgm10.n4000"]="800" #"1200"
-dataset_to_testsize["hdgm10.n6000"]="1200" #"1800"
-dataset_to_testsize["hdgm10.n8000"]="1600" #"2400"
+dataset_to_testsize["hdgm10.n2000"]="200" #"600"
+dataset_to_testsize["hdgm10.n4000"]="400" #"1200"
+dataset_to_testsize["hdgm10.n6000"]="600" #"1800"
+dataset_to_testsize["hdgm10.n8000"]="800" #"2400"
 dataset_to_testsize["hdgm20"]="100 200 500 1000 2000"
-dataset_to_testsize["hdgm20.n4000"]="800" #"1200"
-dataset_to_testsize["hdgm20.n8000"]="1600" #"2400"
-dataset_to_testsize["hdgm20.n12000"]="2400" #"3600"
-dataset_to_testsize["hdgm20.n16000"]="3200" #"4800"
+dataset_to_testsize["hdgm20.n4000"]="400" #"1200"
+dataset_to_testsize["hdgm20.n8000"]="800" #"2400"
+dataset_to_testsize["hdgm20.n12000"]="1200" #"3600"
+dataset_to_testsize["hdgm20.n16000"]="1600" #"4800"
 dataset_to_testsize["hdgm30"]="100 200 500 1000 2000"
 dataset_to_testsize["hdgm30.n8000"]="1600" #"2400"
 dataset_to_testsize["hdgm30.n12000"]="2400" #"3600"
@@ -195,7 +195,7 @@ function eval_args {
     esac
 }
 
-run=36
+run=42
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
@@ -204,6 +204,7 @@ run=36
 # runs 19,20,21 are rate tests and 22,23,24 are size tests (best inits, no validation, consistent 7:3 splits)
 # runs 25,26,27 are rate tests and 28,29,30 are size tests (best inits, 2000 validation; 9:1 splits) 
 # runs 31,32,33 are rate tests and 34,35,36 are size tests (best inits, 2000 validation; 7:1:2 splits)
+# runs 37,38,39 are rate tests and 40,41,42 are size tests (best inits, 2000 validation; 7:2:1 splits)
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
@@ -214,7 +215,6 @@ run=36
 #           "
 # datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000 \
 #           hdgm20.n4000 hdgm20.n8000 hdgm20.n12000 hdgm20.n16000 \
-#           hdgm30.n8000 hdgm30.n12000 hdgm30.n16000 hdgm30.n20000 \
 #           "
 
 # source train.sh $run "hsic hsic-tied" "$datasets"
