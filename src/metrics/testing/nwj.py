@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-__all__ = ['infoNCE', 'nwj', 'permutation_test']
+__all__ = ['nwj', 'permutation_test']
 
 
 def gram(f: nn.Module,
