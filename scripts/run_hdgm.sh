@@ -100,6 +100,7 @@ method_to_model["infonce"]="$(printf "%s:id-id@mlp4x8x12x8x1;" "hdgm4" "hdgm4.n1
                             $(printf "%s:id-id@mlp40x80x120x80x1;" "hdgm40")\
                             $(printf "%s:id-id@mlp50x100x150x100x1;" "hdgm50")\
                             "
+method_to_model["nwj"]="${method_to_model["infonce"]}"
 method_to_model["bandwidth"]="$(printf "%s:bandwidth-squared;" "hdgm4" "hdgm4.n1000" "hdgm4.n2000" "hdgm4.n3000" "hdgm4.n4000")\
                               $(printf "%s:bandwidth-squared;" "hdgm8" "hdgm8.n1000" "hdgm8.n2000" "hdgm8.n3000" "hdgm8.n4000")\
                               $(printf "%s:bandwidth-squared;" "hdgm10" "hdgm10.n2000" "hdgm10.n4000" "hdgm10.n6000" "hdgm10.n8000")\
@@ -229,6 +230,9 @@ run=45
 
 # source train.sh $run "infonce" "$datasets"
 # source eval.sh $run "infonce" "$datasets"
+
+# source train.sh $run "nwj" "$datasets"
+# source eval.sh $run "nwj" "$datasets"
 
 # source train.sh $run "hsic-raw bandwidth" "$datasets"
 # source eval.sh $run "hsic-raw bandwidth" "$datasets"

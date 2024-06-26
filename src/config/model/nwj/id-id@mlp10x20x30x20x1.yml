@@ -1,0 +1,18 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!model.Neck
+name: id-id@mlp10x20x30x20x1
+backbones: !nn.ModuleList
+  - !model.Identity
+  - !model.Identity
+heads: !nn.ModuleList
+  - !model.FeedForward
+    features: [10, 20, 30, 20, 1]
+    activation: relu
+    batch_norm: False
+    init: narrow_normal
+connection: cat
+squeeze_single_head: True
+squeeze_scalar_output: True
