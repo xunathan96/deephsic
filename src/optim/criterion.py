@@ -60,6 +60,7 @@ class MutualInfoLowerBound(nn.Module):
             'mine': NotImplementedError(),
             'tuba': NotImplementedError(),
             'info_nce': metrics.infonce.infoNCE,
+            'nwj': metrics.nwj.nwj,
         }[bound]
 
     def forward(self,

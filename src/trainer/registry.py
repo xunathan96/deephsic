@@ -5,6 +5,7 @@ from .pathwise import Pathwise
 from .c2st import C2STTrainer
 from .mmd import MMDTrainer
 from .infonce import InfoNCETrainer
+from .nwj import NWJTrainer
 
 class TrainerRegistry:
     
@@ -29,6 +30,7 @@ trainerRegistry.register('hsic', HSICTrainer)
 trainerRegistry.register('c2st', C2STTrainer)
 trainerRegistry.register('mmd', MMDTrainer)
 trainerRegistry.register('infonce', InfoNCETrainer)
+trainerRegistry.register('nwj', NWJTrainer)
 
 
 def get(key) -> BaseTrainer:
