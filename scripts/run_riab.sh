@@ -43,6 +43,7 @@ method_to_model["c2st"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_tes
 method_to_model["c2st-s"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
 method_to_model["c2st-l"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
 method_to_model["infonce"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
+method_to_model["nwj"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
 method_to_model["bandwidth"]=$(printf "%s:bandwidth-squared;" "${!dataset_to_testsize[@]}")
 
 
@@ -144,27 +145,16 @@ run=27
 # datasets="riab.present"
 # source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
 # source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
+# source train.sh $run "nwj" "$datasets"
+# source eval.sh $run "nwj" "$datasets"
 
 # datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
-datasets="riab.present.3000"
-source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
-source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
+# source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
+# source eval.sh $run "hsic c2st-l c2st-s mmd infonce bandwidth hsic-raw" "$datasets"
+# source train.sh $run "nwj" "$datasets"
+# source eval.sh $run "nwj" "$datasets"
 
 
-# datasets="riab.present"
-# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
-
-# source train.sh $run "hsic bandwidth" "$datasets"
-# source eval.sh $run "hsic bandwidth" "$datasets"
-
-# source train.sh $run "c2st" "$datasets"
-# source eval.sh $run "c2st-l c2st-s" "$datasets"
-
-# source train.sh $run "mmd" "$datasets"
-# source eval.sh $run "mmd" "$datasets"
-
-# source train.sh $run "infonce" "$datasets"
-# source eval.sh $run "infonce" "$datasets"
 
 
 

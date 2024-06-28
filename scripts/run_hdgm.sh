@@ -196,7 +196,7 @@ function eval_args {
     esac
 }
 
-run=45
+run=39
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
@@ -207,6 +207,10 @@ run=45
 # runs 31,32,33 are rate tests and 34,35,36 are size tests (best inits, 2000 validation; 7:1:2 splits)
 # runs 37,38,39 are rate tests and 40,41,42 are size tests (best inits, 2000 validation; 7:2:1 splits)
 # runs 43,44,45 are size tests (7:2:1 splits)
+
+# adding nwj
+# runs 25,26,27,31 are rate tests and 40,41,42,43 are size tests with best init (truc. normal)
+# runs 37,38,39 are rate tests with default init
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
