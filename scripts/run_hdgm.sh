@@ -114,7 +114,7 @@ function train_args {
     case $method in
         bandwidth | hsic-tied)
             echo "\
-                --train-config $train_root/hsic/train.hsic.batch128.adamw.1e-4.yml \
+                --train-config $train_root/hsic/train.hsic.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic/$model/$run \
@@ -122,7 +122,7 @@ function train_args {
             ;;
         c2st-s | c2st-l)
             echo "\
-                --train-config $train_root/c2st/train.c2st.batch128.adamw.1e-4.yml \
+                --train-config $train_root/c2st/train.c2st.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/c2st/$model/$run \
@@ -130,7 +130,7 @@ function train_args {
             ;;
         hsic-raw)
             echo "\
-                --train-config $train_root/hsic/train.hsic_raw.batch128.adamw.1e-4.yml \
+                --train-config $train_root/hsic/train.hsic_raw.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic_raw/$model/$run \
@@ -138,7 +138,7 @@ function train_args {
             ;;
         *)
             echo "\
-                --train-config $train_root/$method/train.$method.batch128.adamw.1e-4.yml \
+                --train-config $train_root/$method/train.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/$method/$model/$run \
@@ -196,7 +196,7 @@ function eval_args {
     esac
 }
 
-run=39
+run=50
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
@@ -211,6 +211,11 @@ run=39
 # adding nwj
 # runs 25,26,27,31 are rate tests and 40,41,42,43 are size tests with best init (truc. normal)
 # runs 37,38,39 are rate tests with default init
+
+# testing higher batch size
+# run hsic_narrow_1,2,3 are rate tests for hdgm50 (narrow_normal, 2000 validation, 512 batch size)
+# runs 46,47,48,49,50 are rate tests (best inits, 2000 validation, 512 batch size)
+
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # datasets="hdgm4.n1000 hdgm4.n2000 hdgm4.n3000 hdgm4.n4000 \
