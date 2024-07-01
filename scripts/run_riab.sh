@@ -139,7 +139,7 @@ run=35
 #      7,8,9                        10,11,12
 # runs 13,14,15 are both tests but with no validation for riab.present
 
-# runs 16,17,18,19,20,21 are with new initialization
+# runs 16,17,18,19,20,21 are rate & size tests with new initialization
 # runs 22,23,24,25,26,27 are size tests with consistent splits
 
 # NWJ

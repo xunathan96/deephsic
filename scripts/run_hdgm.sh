@@ -150,7 +150,7 @@ function eval_args {
     case $method in
         bandwidth | hsic-tied)
             echo "\
-                --eval-config $eval_root/hsic/eval.hsic.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/hsic/eval.hsic.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/hsic/$model/$run/best.pt \
@@ -159,7 +159,7 @@ function eval_args {
             ;;
         c2st-s)
             echo "\
-                --eval-config $eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/c2st/eval.c2st.acc.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/c2st/$model/$run/best.pt \
@@ -168,7 +168,7 @@ function eval_args {
             ;;
         c2st-l)
             echo "\
-                --eval-config $eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/c2st/eval.c2st.logit.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/c2st/$model/$run/best.pt \
@@ -177,7 +177,7 @@ function eval_args {
             ;;
         hsic-raw)
             echo "\
-                --eval-config $eval_root/hsic/eval.hsic_raw.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/hsic/eval.hsic_raw.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/hsic_raw/$model/$run/best.pt \
@@ -186,7 +186,7 @@ function eval_args {
             ;;
         *)
             echo "\
-                --eval-config $eval_root/$method/eval.$method.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/$method/eval.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/$method/$model/$run/best.pt \
