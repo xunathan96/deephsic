@@ -164,3 +164,4 @@ cython_debug/
 *.tar.gz
 *.tar
 src/wandb
+.DS_Store
