@@ -196,7 +196,7 @@ function eval_args {
     esac
 }
 
-run=50
+run=55
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
@@ -215,6 +215,9 @@ run=50
 # testing higher batch size
 # run hsic_narrow_1,2,3 are rate tests for hdgm50 (narrow_normal, 2000 validation, 512 batch size)
 # runs 46,47,48,49,50 are rate tests (best inits, 2000 validation, 512 batch size)
+
+# testing default init and 512 batch size
+# runs 51,52,53,54,55 are rate tests (default init, 2000 validation, 512 batch size)
 
 
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"

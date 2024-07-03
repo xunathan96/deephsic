@@ -73,7 +73,8 @@ def main(args):
 
     # save config
     save_config = '--'.join([Path(pth).stem for pth in (args.train_config, args.data_config, args.model_config) if pth is not None])
-    sf = Path(cfg['save_dir'])/Path(save_config).with_suffix('.yml')
+    # sf = Path(cfg['save_dir'])/Path(save_config).with_suffix('.yml')
+    sf = Path(cfg['save_dir'])/(Path(save_config).name + '.yml')
     cfg.save(sf)
 
     pipeline = registry.get(cfg['method']).build(cfg)

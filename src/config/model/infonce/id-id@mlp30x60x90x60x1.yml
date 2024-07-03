@@ -12,7 +12,7 @@ heads: !nn.ModuleList
     features: [30, 60, 90, 60, 1]
     activation: relu
     batch_norm: False
-    init: narrow_normal
+    init: default
 connection: cat
 squeeze_single_head: True
 squeeze_scalar_output: True
