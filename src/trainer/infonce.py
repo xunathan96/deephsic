@@ -138,9 +138,9 @@ class InfoNCETrainer(BaseTrainer):
             X = batch[0].to(self.device)    # (N, *, Dx)
             Y = batch[1].to(self.device)    # (N, *, Dy)
             Y_shuffle = Y[torch.randperm(Y.shape[0], device=self.device)]   # null distribution
-            acc, p_value = metrics.infonce.infoNCE(self.model,
-                                                   X, Y_shuffle,
-                                                   n_permutations=n_permutations)
+            acc, p_value = metrics.infonce.permutation_test(self.model,
+                                                            X, Y_shuffle,
+                                                            n_permutations=n_permutations)
             if p_value < significance:
                 n_reject += 1
             pbar.set_description(f"[{i+1}/{n_tests}] stat: {acc}, p-value: {p_value:.4f}")
