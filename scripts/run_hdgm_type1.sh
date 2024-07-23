@@ -1,8 +1,7 @@
 #!/bin/bash
 #SBATCH --account=def-dsuth
-#SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
-#SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-48:00:00       # DD-HH:MM:SS
+#SBATCH --mem=4000M
+#SBATCH --time=0-12:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=hdgm
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
@@ -130,6 +129,7 @@ function eval_args {
     case $method in
         bandwidth | hsic-tied)
             echo "\
+                --cpu \
                 --eval-config $eval_root/hsic/eval.hsic.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
@@ -139,6 +139,7 @@ function eval_args {
             ;;
         c2st-s)
             echo "\
+                --cpu \
                 --eval-config $eval_root/c2st/eval.c2st.acc.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
@@ -148,6 +149,7 @@ function eval_args {
             ;;
         c2st-l)
             echo "\
+                --cpu \
                 --eval-config $eval_root/c2st/eval.c2st.logit.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
@@ -157,6 +159,7 @@ function eval_args {
             ;;
         hsic-raw)
             echo "\
+                --cpu \
                 --eval-config $eval_root/hsic/eval.hsic_raw.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
@@ -166,6 +169,7 @@ function eval_args {
             ;;
         *)
             echo "\
+                --cpu \
                 --eval-config $eval_root/$method/eval.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
@@ -176,7 +180,9 @@ function eval_args {
     esac
 }
 
-run=type1_1
+run=38
+# 2 for infonce
+# 38 for nwj
 
 datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 
@@ -193,7 +199,7 @@ datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # source eval_type1.sh $run "infonce" "$datasets"
 
 # source train.sh $run "nwj" "$datasets"
-# source eval_type1.sh $run "nwj" "$datasets"
+source eval_type1.sh $run "nwj" "$datasets"
 
 # source train.sh $run "hsic-raw bandwidth" "$datasets"
 # source eval_type1.sh $run "hsic-raw bandwidth" "$datasets"

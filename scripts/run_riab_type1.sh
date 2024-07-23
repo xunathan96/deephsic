@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --account=def-dsuth
-#SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
-#SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
+#SBATCH --mem=4000M
 #SBATCH --time=0-12:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=riab
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
@@ -81,6 +80,7 @@ function eval_args {
     case $method in
         bandwidth)
             echo "\
+                --cpu \
                 --eval-config $eval_root/hsic/eval.hsic.batch128.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
@@ -90,6 +90,7 @@ function eval_args {
             ;;
         c2st-s)
             echo "\
+                --cpu \
                 --eval-config $eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
@@ -99,6 +100,7 @@ function eval_args {
             ;;
         c2st-l)
             echo "\
+                --cpu \
                 --eval-config $eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
@@ -108,6 +110,7 @@ function eval_args {
             ;;
         hsic-raw)
             echo "\
+                --cpu \
                 --eval-config $eval_root/hsic/eval.hsic_raw.batch128.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
@@ -117,6 +120,7 @@ function eval_args {
             ;;
         *)
             echo "\
+                --cpu \
                 --eval-config $eval_root/$method/eval.$method.batch128.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
@@ -128,7 +132,9 @@ function eval_args {
 }
 
 
-run=35
+run=30
+# 1 for infonce
+# 30 for nwj
 
 datasets="riab.present"
 # source train.sh $run "hsic c2st mmd infonce bandwidth hsic-raw" "$datasets"
@@ -138,7 +144,7 @@ datasets="riab.present"
 # source eval_type1.sh $run "infonce" "$datasets"
 
 # source train.sh $run "nwj" "$datasets"
-# source eval_type1.sh $run "nwj" "$datasets"
+source eval_type1.sh $run "nwj" "$datasets"
 
 
 
