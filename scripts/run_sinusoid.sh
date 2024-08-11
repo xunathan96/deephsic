@@ -2,7 +2,7 @@
 #SBATCH --account=def-dsuth
 #SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
 #SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-48:00:00       # DD-HH:MM:SS
+#SBATCH --time=0-12:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=sinusoid
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
