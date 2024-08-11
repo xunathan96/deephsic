@@ -1,0 +1,52 @@
+# -----------------------
+#        EMBxMLP
+# -----------------------
+
+name: emb64.mlp256x128x32-mlp64x32x8
+tied: False
+
+k: !kernel.DeepKernel
+  featurizer: !nn.Sequential
+    - !nn.Embedding
+      num_embeddings: 10000
+      embedding_dim: 16
+    - !nn.Flatten
+      start_dim: 1
+    - !model.FeedForward
+      features: [64, 64, 32]
+      activation: relu
+      batch_norm: False
+      init: default
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  eps: 0.01
+  trainable: True
+
+l: !kernel.DeepKernel
+  featurizer: !nn.Sequential
+    - !nn.Embedding
+      num_embeddings: 10000
+      embedding_dim: 16
+    - !nn.Flatten
+      start_dim: 1
+    - !model.FeedForward
+      features: [16, 16, 8]
+      activation: relu
+      batch_norm: False
+      init: default
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  eps: 0.01
+  trainable: True

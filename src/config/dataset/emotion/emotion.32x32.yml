@@ -1,0 +1,22 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Emotion
+
+train: !dataset.Emotion &settings
+  root: data/emotion/archive
+  split: train
+  transform: !transform.Compose
+    - !transform.Grayscale
+    - !transform.Resize     {size: 32}
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: 0.5, std: 0.5}
+
+val: !dataset.Emotion
+  <<: *settings
+  split: val
+
+test: !dataset.Emotion
+  <<: *settings
+  size: null      # use entire dataset
+  split: test

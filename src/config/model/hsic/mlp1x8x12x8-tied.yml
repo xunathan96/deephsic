@@ -1,0 +1,23 @@
+# -----------------------
+#        MLP-MLP
+# -----------------------
+
+name: mlp1x8x12x8-tied
+tied: True
+k: &deepkernel !kernel.DeepKernel
+  featurizer: !model.FeedForward
+    features: [1, 8, 12, 8]
+    activation: relu
+    batch_norm: False
+    init: default
+  feature_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  smoothing_kernel: !kernel.Gaussian
+    scale: 1
+    bandwidth: 1
+    trainable: True
+  eps: 0.01
+  trainable: True
+l: *deepkernel

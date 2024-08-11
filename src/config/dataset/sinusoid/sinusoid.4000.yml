@@ -1,0 +1,19 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Sinusoid-4000
+
+train: !dataset.Sinusoid &settings
+  size: 1000000
+  frequency: 4
+  dim: 1
+  split: train
+  train_val_test_split: '2800:800:'   # 7:2:1
+
+val: !dataset.Sinusoid
+  <<: *settings
+  split: val
+
+test: !dataset.Sinusoid
+  <<: *settings
+  split: test

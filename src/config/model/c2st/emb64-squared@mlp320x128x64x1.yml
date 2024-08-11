@@ -1,0 +1,28 @@
+# -----------------------
+#     EMB + EMB > MLP
+# -----------------------
+
+!model.Neck
+name: emb64-squared@mlp320x128x64x1
+backbones: !nn.ModuleList
+  - !nn.Sequential
+    - !nn.Embedding
+      num_embeddings: 10000 #2893
+      embedding_dim: 64
+    - !nn.Flatten
+      start_dim: 1
+  - !nn.Sequential
+    - !nn.Embedding
+      num_embeddings: 10000
+      embedding_dim: 64
+    - !nn.Flatten
+      start_dim: 1
+heads: !nn.ModuleList
+  - !model.FeedForward
+    features: [320, 128, 64, 1]
+    activation: relu
+    batch_norm: False
+    init: default
+connection: cat
+squeeze_single_head: True
+

@@ -51,6 +51,9 @@ yamlRegistry.register(yaml_tag=u'!dataset.HDGM',            nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!dataset.CIFAR10H',        nodetype=YamlNodeType.MAPPING).map_to(data.cifar10h.CIFAR10H)
 yamlRegistry.register(yaml_tag=u'!dataset.ImageNetC',       nodetype=YamlNodeType.MAPPING).map_to(data.imagenet_c.ImageNetC)
 yamlRegistry.register(yaml_tag=u'!dataset.RatInABox',       nodetype=YamlNodeType.MAPPING).map_to(data.riab.RatInABox)
+yamlRegistry.register(yaml_tag=u'!dataset.PennTreebank',    nodetype=YamlNodeType.MAPPING).map_to(data.penn_treebank.PennTreebank)
+yamlRegistry.register(yaml_tag=u'!dataset.Emotion',         nodetype=YamlNodeType.MAPPING).map_to(data.emotion.Emotion)
+yamlRegistry.register(yaml_tag=u'!dataset.Sinusoid',        nodetype=YamlNodeType.MAPPING).map_to(data.toy.Sinusoid)
 
 # transforms
 yamlRegistry.register(yaml_tag=u'!transform.CenterCrop',    nodetype=YamlNodeType.MAPPING).map_to(data.transforms.CenterCrop)
@@ -59,7 +62,7 @@ yamlRegistry.register(yaml_tag=u'!transform.Normalize',     nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!transform.ToTensor',      nodetype=YamlNodeType.SCALAR).map_to(data.transforms.ToTensor)
 yamlRegistry.register(yaml_tag=u'!transform.Compose',       nodetype=YamlNodeType.SCALAR).map_to(data.transforms.Compose)
 yamlRegistry.register(yaml_tag=u'!transform.NumpyToTensor', nodetype=YamlNodeType.SCALAR).map_to(data.transforms.NumpyToTensor)
-yamlRegistry.register(yaml_tag=u'!transform.Grayscale',     nodetype=YamlNodeType.MAPPING).map_to(data.transforms.Grayscale)
+yamlRegistry.register(yaml_tag=u'!transform.Grayscale',     nodetype=YamlNodeType.SCALAR).map_to(data.transforms.Grayscale)
 yamlRegistry.register(yaml_tag=u'!transform.GaussianBlur',  nodetype=YamlNodeType.MAPPING).map_to(data.transforms.GaussianBlur)
 
 # optimizers
@@ -86,7 +89,8 @@ yamlRegistry.register(yaml_tag=u'!criterion.MutualInfoLowerBound',  nodetype=Yam
 # models
 yamlRegistry.register(yaml_tag=u'!nn.ModuleList',               nodetype=YamlNodeType.SCALAR).map_to(nn.ModuleList)
 yamlRegistry.register(yaml_tag=u'!nn.Sequential',               nodetype=YamlNodeType.SEQUENCE).map_to(nn.Sequential)
-yamlRegistry.register(yaml_tag=u'!nn.Flatten',                  nodetype=YamlNodeType.SCALAR).map_to(nn.Flatten)
+yamlRegistry.register(yaml_tag=u'!nn.Embedding',                nodetype=YamlNodeType.MAPPING).map_to(nn.Embedding)
+yamlRegistry.register(yaml_tag=u'!nn.Flatten',                  nodetype=YamlNodeType.MAPPING).map_to(nn.Flatten)       # TODO: old code used SCALAR
 yamlRegistry.register(yaml_tag=u'!model.Identity',              nodetype=YamlNodeType.SCALAR).map_to(model.base.Identity)
 yamlRegistry.register(yaml_tag=u'!model.Neck',                  nodetype=YamlNodeType.MAPPING).map_to(model.base.Neck)
 yamlRegistry.register(yaml_tag=u'!model.FeedForward',           nodetype=YamlNodeType.MAPPING).map_to(model.mlp.FeedForward)
@@ -95,6 +99,7 @@ yamlRegistry.register(yaml_tag=u'!model.ResNet',                nodetype=YamlNod
 yamlRegistry.register(yaml_tag=u'!model.Gaussian',              nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Gaussian)
 yamlRegistry.register(yaml_tag=u'!model.Dirichlet',             nodetype=YamlNodeType.MAPPING).map_to(model.distribution.Dirichlet)
 yamlRegistry.register(yaml_tag=u'!model.TransformerEncoder',    nodetype=YamlNodeType.MAPPING).map_to(model.transformer.TransformerEncoder)
+yamlRegistry.register(yaml_tag=u'!model.SelfAttention',         nodetype=YamlNodeType.MAPPING).map_to(model.attention.SelfAttention)
 
 # kernels
 yamlRegistry.register(yaml_tag=u'!kernel.Gaussian',         nodetype=YamlNodeType.MAPPING).map_to(kernel.Gaussian)

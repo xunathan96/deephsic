@@ -1,0 +1,24 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Emotion-1500
+
+train: !dataset.Emotion &settings
+  root: data/emotion/archive
+  size: 1500
+  split: train
+  train_val_test_split: '1200:0:'
+  transform: !transform.Compose
+    - !transform.Grayscale
+    - !transform.Resize     {size: 32}
+    - !transform.ToTensor
+    - !transform.Normalize  {mean: 0.5, std: 0.5}
+
+val: !dataset.Emotion
+  <<: *settings
+  split: val
+
+test: !dataset.Emotion
+  <<: *settings
+  size: null      # use entire dataset
+  split: test

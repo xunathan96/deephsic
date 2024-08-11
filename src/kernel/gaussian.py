@@ -119,7 +119,7 @@ def pDist2(X: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
     X: (Nx, D) torch.Tensor
     Y: (Ny: D) torch.Tensor
     returns matrix of paired distances of size (Nx, Ny)"""
-    xyT = X @ Y.T                       # (Nx, Ny) pairwise inner products <x_i, y_j>
+    xyT = X @ Y.mT                      # (Nx, Ny) pairwise inner products <x_i, y_j>
     x_norm2 = torch.sum(X**2, dim=-1)   # (Nx,)
     y_norm2 = torch.sum(Y**2, dim=-1)   # (Ny,)
     x_norm2 = x_norm2.unsqueeze(-1)     # (Nx, 1)

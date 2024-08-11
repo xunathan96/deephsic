@@ -1,0 +1,16 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: penn_treebank
+
+train: !dataset.PennTreebank &settings
+  root: data/penn_treebank/
+  split: train
+
+val: !dataset.PennTreebank
+  <<: *settings
+  split: val
+
+test: !dataset.PennTreebank
+  <<: *settings
+  split: test

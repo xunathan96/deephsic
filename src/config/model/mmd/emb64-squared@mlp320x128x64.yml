@@ -1,0 +1,38 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!kernel.DeepKernel
+name: emb64-squared@mlp320x128x64
+featurizer: !model.Neck
+  backbones: !nn.ModuleList
+    - !nn.Sequential
+      - !nn.Embedding
+        num_embeddings: 10000
+        embedding_dim: 64
+      - !nn.Flatten
+        start_dim: 1
+    - !nn.Sequential
+      - !nn.Embedding
+        num_embeddings: 10000
+        embedding_dim: 64
+      - !nn.Flatten
+        start_dim: 1
+  heads: !nn.ModuleList
+    - !model.FeedForward
+      features: [320, 128, 64, 1]
+      activation: relu
+      batch_norm: False
+      init: default
+  connection: cat
+  squeeze_single_head: True
+feature_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: True
+eps: 0.01
+trainable: True

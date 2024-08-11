@@ -7,10 +7,12 @@ import torch
 from torchvision import transforms
 
 from utils import utils
-from data.toy import HDGM
+from data.toy import HDGM, Sinusoid
 from data.cifar10h import CIFAR10H
 from data.imagenet_c import ImageNetC
 from data.riab import RatInABox
+from data.penn_treebank import PennTreebank
+from data.emotion import Emotion
 from data.transforms import NumpyToTensor
 from kernel import Gaussian, median_heuristic
 import metrics
@@ -26,7 +28,8 @@ def parse_args():
                         help='the gpu core to use during experiment.')
     parser.add_argument('--dataset',
                         type=str,
-                        choices=['HDGM-4', 'HDGM-8', 'HDGM-10', 'HDGM-20', 'HDGM-30', 'HDGM-40', 'HDGM-50', 'Cifar10h', 'ImageNet-GN-ZB-F', 'RatInABox'],
+                        choices=['HDGM-4', 'HDGM-8', 'HDGM-10', 'HDGM-20', 'HDGM-30', 'HDGM-40', 'HDGM-50',
+                                 'Cifar10h', 'ImageNet-GN-ZB-F', 'RatInABox', 'PennTreebank', 'Emotion', 'Sinusoid'],
                         help='dataset to run tests on.')
     parser.add_argument('--save-dir',
                         type=str,
@@ -93,7 +96,27 @@ def dataset(name):
                          train_val_test_split='0:0:10',
                          window='present',
                          transform=NumpyToTensor())
-
+    elif name == 'PennTreebank':
+        return PennTreebank(root='data/penn_treebank',
+                            split='test',
+                            train_val_test_split='0:0:10',
+                            shuffle=True)
+    elif name == 'Emotion':
+        return Emotion(root='data/emotion/archive',
+                       split='test',
+                       train_val_test_split='0:0:10',
+                       transform=transforms.Compose([
+                          transforms.Grayscale(),
+                          transforms.Resize(32),
+                          transforms.ToTensor(),
+                          transforms.Normalize(0.5, 0.5)
+                      ]))
+    elif name == 'Sinusoid':
+        return Sinusoid(size=1000000,
+                        frequency=4,
+                        dim=1,
+                        split='test',
+                        train_val_test_split='0:0:1')
 
 def eval_hsic_median(dataset: Dataset,
                      n_samples: int,

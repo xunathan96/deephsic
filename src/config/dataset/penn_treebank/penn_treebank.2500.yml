@@ -1,0 +1,20 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: penn_treebank_2500
+
+train: !dataset.PennTreebank &settings
+  root: data/penn_treebank/
+  size: 2500
+  split: train
+  train_val_test_split: '2000:0:'
+  shuffle: True
+
+val: !dataset.PennTreebank
+  <<: *settings
+  split: val
+
+test: !dataset.PennTreebank
+  <<: *settings
+  size: null
+  split: test

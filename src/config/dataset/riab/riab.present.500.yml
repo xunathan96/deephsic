@@ -18,5 +18,5 @@ val: !dataset.RatInABox
 
 test: !dataset.RatInABox
   <<: *settings
-  size: null
+  size: null  # use entire dataset
   split: test
