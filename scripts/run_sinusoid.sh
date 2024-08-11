@@ -26,8 +26,10 @@ log_root=exp/eval/
 
 # dataset:testsizes
 declare -A dataset_to_testsize
-dataset_to_testsize["sinusoid"]="100 200 500 1000 2000"
+dataset_to_testsize["sinusoid"]="50 100 200 500 1000 2000"
+dataset_to_testsize["sinusoid.1000"]="100"
 dataset_to_testsize["sinusoid.2000"]="200"
+dataset_to_testsize["sinusoid.3000"]="300"
 dataset_to_testsize["sinusoid.4000"]="400"
 dataset_to_testsize["sinusoid.6000"]="600"
 dataset_to_testsize["sinusoid.8000"]="800"
@@ -54,7 +56,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/hsic/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 10000"
             ;;
         c2st-s | c2st-l)
             echo "\
@@ -62,7 +64,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/c2st/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 10000"
             ;;
         hsic-raw)
             echo "\
@@ -70,7 +72,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/hsic_raw/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 10000"
             ;;
         *)
             echo "\
@@ -78,7 +80,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/$method/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 10000"
             ;;
     esac
 }
@@ -132,11 +134,22 @@ function eval_args {
     esac
 }
 
-run=1
-datasets="sinusoid.10000"
-source train.sh $run "bandwidth" "$datasets"
-source eval.sh $run "bandwidth" "$datasets"
+# run=1
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# source train.sh $run "hsic hsic-tied bandwidth" "$datasets"
+# source eval.sh $run "hsic hsic-tied bandwidth" "$datasets"
 
+# source train.sh $run "c2st" "$datasets"
+# source eval.sh $run "c2st-l c2st-s" "$datasets"
+
+# source train.sh $run "mmd" "$datasets"
+# source eval.sh $run "mmd" "$datasets"
+
+# source train.sh $run "infonce" "$datasets"
+# source eval.sh $run "infonce" "$datasets"
+
+# source train.sh $run "nwj" "$datasets"
+# source eval.sh $run "nwj" "$datasets"
 
 
 unset dataset_to_testsize

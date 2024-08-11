@@ -14,7 +14,7 @@ from torch.optim import Optimizer
 from config.config import Config
 import utils.utils as utils
 
-EARLY_STOP = 1000   # interval after which apply early stopping
+EARLY_STOP = 10000    # interval after which apply early stopping
 SAVE_INTERVAL = 1   # interval after which the model is saved
 
 

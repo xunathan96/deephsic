@@ -51,8 +51,8 @@ yamlRegistry.register(yaml_tag=u'!dataset.HDGM',            nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!dataset.CIFAR10H',        nodetype=YamlNodeType.MAPPING).map_to(data.cifar10h.CIFAR10H)
 yamlRegistry.register(yaml_tag=u'!dataset.ImageNetC',       nodetype=YamlNodeType.MAPPING).map_to(data.imagenet_c.ImageNetC)
 yamlRegistry.register(yaml_tag=u'!dataset.RatInABox',       nodetype=YamlNodeType.MAPPING).map_to(data.riab.RatInABox)
-yamlRegistry.register(yaml_tag=u'!dataset.PennTreebank',    nodetype=YamlNodeType.MAPPING).map_to(data.penn_treebank.PennTreebank)
-yamlRegistry.register(yaml_tag=u'!dataset.Emotion',         nodetype=YamlNodeType.MAPPING).map_to(data.emotion.Emotion)
+# yamlRegistry.register(yaml_tag=u'!dataset.PennTreebank',    nodetype=YamlNodeType.MAPPING).map_to(data.penn_treebank.PennTreebank)
+# yamlRegistry.register(yaml_tag=u'!dataset.Emotion',         nodetype=YamlNodeType.MAPPING).map_to(data.emotion.Emotion)
 yamlRegistry.register(yaml_tag=u'!dataset.Sinusoid',        nodetype=YamlNodeType.MAPPING).map_to(data.toy.Sinusoid)
 
 # transforms
