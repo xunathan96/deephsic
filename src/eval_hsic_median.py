@@ -11,8 +11,6 @@ from data.toy import HDGM, Sinusoid
 from data.cifar10h import CIFAR10H
 from data.imagenet_c import ImageNetC
 from data.riab import RatInABox
-from data.penn_treebank import PennTreebank
-from data.emotion import Emotion
 from data.transforms import NumpyToTensor
 from kernel import Gaussian, median_heuristic
 import metrics
@@ -96,27 +94,27 @@ def dataset(name):
                          train_val_test_split='0:0:10',
                          window='present',
                          transform=NumpyToTensor())
-    elif name == 'PennTreebank':
-        return PennTreebank(root='data/penn_treebank',
-                            split='test',
-                            train_val_test_split='0:0:10',
-                            shuffle=True)
-    elif name == 'Emotion':
-        return Emotion(root='data/emotion/archive',
-                       split='test',
-                       train_val_test_split='0:0:10',
-                       transform=transforms.Compose([
-                          transforms.Grayscale(),
-                          transforms.Resize(32),
-                          transforms.ToTensor(),
-                          transforms.Normalize(0.5, 0.5)
-                      ]))
     elif name == 'Sinusoid':
         return Sinusoid(size=1000000,
                         frequency=4,
                         dim=1,
                         split='test',
-                        train_val_test_split='0:0:1')
+                        train_val_test_split='0:0:10')
+    # elif name == 'PennTreebank':
+    #     return PennTreebank(root='data/penn_treebank',
+    #                         split='test',
+    #                         train_val_test_split='0:0:10',
+    #                         shuffle=True)
+    # elif name == 'Emotion':
+    #     return Emotion(root='data/emotion/archive',
+    #                    split='test',
+    #                    train_val_test_split='0:0:10',
+    #                    transform=transforms.Compose([
+    #                       transforms.Grayscale(),
+    #                       transforms.Resize(32),
+    #                       transforms.ToTensor(),
+    #                       transforms.Normalize(0.5, 0.5)
+    #                   ]))
 
 def eval_hsic_median(dataset: Dataset,
                      n_samples: int,
