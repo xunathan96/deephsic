@@ -95,9 +95,9 @@ def main():
 
     dataset = Sinusoid(size=1000000,
                        frequency=4,
-                       dim=3,
+                       dim=1,
                        split='train',
-                       train_val_test_split='10000:0:')
+                       train_val_test_split='5000:0:')
     print('size:', len(dataset))
 
     dataloader = DataLoader(dataset, batch_size=10000, shuffle=True)
@@ -107,8 +107,15 @@ def main():
     print(Y.shape)
 
     plt.scatter(X[:,0], Y[:,-1], s=2)
-    plt.axis('equal')
+    plt.axis('square')
+
+    plt.xlim(left=-3.2, right=3.2)
+    plt.ylim(top=3.2, bottom=-3.2)
+    plt.xticks([])
+    plt.yticks([])
+
     plt.show()
+    # plt.savefig(f"density-1.pdf", format="pdf", bbox_inches="tight")
 
     # samples = dataset.data
     # plt.scatter(samples[:,0], samples[:,5], s=2)
