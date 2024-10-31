@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 from .base import Kernel, BaseKernel
-__all__ = ['Gaussian', 'WeightedGaussian', 'median_heuristic']
+__all__ = ['Gaussian', 'GaussianJoint', 'WeightedGaussian', 'median_heuristic']
 
 class Gaussian(BaseKernel):
     def __init__(self,
@@ -61,6 +61,16 @@ class Gaussian(BaseKernel):
         # print('mahalanobis.min():', mahalanobis.min())
         # print('gram:', self.scale * torch.exp(mahalanobis))
 
+
+class GaussianJoint(Gaussian):
+    
+    def gram(self, Z1: tuple[torch.Tensor], Z2: tuple[torch.Tensor]):
+        # gaussian kernel on the joint sample Z1=(X1,Y1) and Z2=(X2,Y2)
+        Z1 = torch.cat(Z1, dim=-1)  # (N, Dx+Dy)
+        Z2 = torch.cat(Z2, dim=-1)  # (N, Dx+Dy)
+        dist2 = pDist2(Z1, Z2)
+        mahalanobis = -0.5*dist2/(self.bandwidth**2)
+        return self.scale * torch.exp(mahalanobis)
 
 
 class WeightedGaussian(BaseKernel):
@@ -145,6 +155,7 @@ def median_heuristic(X: torch.Tensor, Y: torch.Tensor = None):
     Dxy = pDist2(X,Y) if Y is not None else pDist2(X, X)
     upper_idx = torch.triu_indices(*Dxy.shape, offset=1)    # (2, N)
     dist2 = Dxy[upper_idx[0], upper_idx[1]]
+    return torch.sqrt(dist2.median()).item()
     return torch.sqrt(dist2.median()/2).item()
 
 

@@ -85,6 +85,7 @@ yamlRegistry.register(yaml_tag=u'!criterion.HSIC',                  nodetype=Yam
 yamlRegistry.register(yaml_tag=u'!criterion.MMDTestPower',          nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MMDTestPower)
 yamlRegistry.register(yaml_tag=u'!criterion.HSICTestPower',         nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.HSICTestPower)
 yamlRegistry.register(yaml_tag=u'!criterion.MutualInfoLowerBound',  nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MutualInfoLowerBound)
+yamlRegistry.register(yaml_tag=u'!criterion.MITestPower',           nodetype=YamlNodeType.MAPPING).map_to(optim.criterion.MITestPower)
 
 # models
 yamlRegistry.register(yaml_tag=u'!nn.ModuleList',               nodetype=YamlNodeType.SCALAR).map_to(nn.ModuleList)

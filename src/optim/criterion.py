@@ -70,6 +70,25 @@ class MutualInfoLowerBound(nn.Module):
         return -self.metric(f, X, Y)
 
 
-
-
+class MITestPower(nn.Module):
+    def __init__(self,
+                 normalize: bool = False,
+                 reg: float = 1e-8):
+        super().__init__()
+        self.reg = reg
+        self.normalize = normalize
+    
+    def forward(self,
+                f: nn.Module,
+                X: torch.Tensor,
+                Y: torch.Tensor,) -> torch.Tensor:
+        T1, var = metrics.mi.T(f, X, Y)
+        if not self.normalize:
+            # maximize T / var
+            return - T1 / torch.sqrt(var + self.reg)
+        else:
+            # maximize (T - T0) / var
+            Fxy = metrics.mi.gram(f, X, Y)  # (n,n)
+            T0 = torch.mean(Fxy)
+            return - (T1 - T0) / torch.sqrt(var + self.reg)
 

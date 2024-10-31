@@ -160,7 +160,7 @@ def eval_hsic_median(dataset: Dataset,
                                                               significance=significance)
         if p_value < significance:
             n_reject += 1   # reject null hypothesis
-        pbar.set_description(f"[{i+1}/{n_tests}] hsic: {hsic}, p-value: {p_value:.4f}")
+        pbar.set_description(f"[{i+1}/{n_tests}] n_reject: {n_reject}, hsic: {hsic}, p-value: {p_value:.4f}")
         stats['hsic'].append(hsic)
         stats['p-value'].append(p_value)
         stats['thresh'].append(r)

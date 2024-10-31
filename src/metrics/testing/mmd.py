@@ -234,6 +234,69 @@ def permutation_test_independence(k: Kernel,
             thresh)
 
 
+def permutation_test_pairs(k: Kernel,
+                           X: torch.Tensor,
+                           Y: torch.Tensor,
+                           compute_var: bool = False,
+                           n_shuffles: int = 1,
+                           n_permutations: int = 500,
+                           significance: float = 0.05,):
+    
+    n = X.shape[0]
+    device = X.device
+    Z_null, Z_alt = compile_pairs(X, Y, n_shuffles)
+
+    mmd2_est, var_est = mmd2(k, Z_null, Z_alt, onesampleU=False, compute_var=compute_var)
+
+    count = 0
+    stats = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples Y for null hypothesis (i.e. Pxy=Px*Py)
+        Y_shuff = Y[torch.randperm(n, device=device)]
+        Z_alt = (X, Y_shuff)
+        mmd2_null,_ = mmd2(k, Z_null, Z_alt, onesampleU=False, compute_var=False)
+        stats.append(mmd2_null.item())
+        if mmd2_null > mmd2_est:
+            count += 1
+
+    # compute p-value (prob of hsic, assuming the null hypothesis is true)
+    p_value = count/n_permutations
+    # compute rejection threshold r
+    stats.sort()
+    thresh = n*stats[int(n_permutations*(1-significance)//1)]   # NOTE: multiply by n since r is scaled by n
+    return (mmd2_est.item(),
+            var_est.item() if var_est is not None else None,
+            p_value,
+            thresh)
+
+
+
+def compile_pairs(X: torch.Tensor, Y: torch.Tensor, n_shuffles: int = 1,):
+    # compile samples Z=(X,Y) for the independence testing problem
+    n = X.shape[0]
+    device = X.device
+    assert n_shuffles < n, "n_shuffles must be less than n."
+
+    shuffle_ind = list()
+    base_shuffle = torch.randperm(n, device=device)
+    for i in range(n_shuffles):
+        shift_ind = (base_shuffle + i) % n
+        shuffle_ind.append(shift_ind)
+    shuffle_ind = torch.cat(shuffle_ind)    # (n * n_shuffles,)
+    base_ind = torch.arange(n*n_shuffles) % n   # (n * n_shuffles,)
+
+    Y_shuff = Y[shuffle_ind]
+    X_shuff = X[base_ind]
+    Z_null = (X_shuff, Y_shuff) # null: Px*Py
+    Z_alt = (X, Y)              # alternate: Pxy
+    return Z_null, Z_alt
+
+
+
+
 def permutation_test_split_independece(k: Kernel,
                                        X: torch.Tensor,
                                        Y: torch.Tensor,
