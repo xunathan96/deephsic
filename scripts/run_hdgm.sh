@@ -2,7 +2,7 @@
 #SBATCH --account=def-dsuth
 #SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
 #SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-48:00:00       # DD-HH:MM:SS
+#SBATCH --time=0-24:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=hdgm
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
@@ -12,8 +12,8 @@ SOURCE_DIR=$PROJ_DIR/src
 SCRIPT_DIR=$PROJ_DIR/scripts
 cd $SCRIPT_DIR
 
-module load python/3.10 scipy-stack cuda cudnn
 source $VENV_DIR/bin/activate
+module load python/3.10 scipy-stack/2023b cuda cudnn
 
 # config files
 train_root=config/exp/train/
@@ -197,7 +197,7 @@ function eval_args {
     esac
 }
 
-run=55
+# run=55
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 # runs 7,8,9 are with new initializations (and 1000 epochs)
 # runs 10,11,12 are with kaiming init
@@ -250,6 +250,11 @@ run=55
 # source train.sh $run "hsic-raw bandwidth" "$datasets"
 # source eval.sh $run "hsic-raw bandwidth" "$datasets"
 
+
+run=1
+datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+source train.sh $run "mi" "$datasets"
+source eval.sh $run "mi" "$datasets"
 
 
 unset dataset_to_testsize

@@ -12,8 +12,8 @@ SOURCE_DIR=$PROJ_DIR/src
 SCRIPT_DIR=$PROJ_DIR/scripts
 cd $SCRIPT_DIR
 
-module load python/3.10 scipy-stack cuda cudnn
 source $VENV_DIR/bin/activate
+module load python/3.10 scipy-stack/2023b cuda cudnn
 
 # config files
 train_root=config/exp/train/
@@ -135,7 +135,7 @@ function eval_args {
 }
 
 
-run=35
+# run=35
 # runs 1,2,3 are for rate tests and 4,5,6 are size tests
 #      7,8,9                        10,11,12
 # runs 13,14,15 are both tests but with no validation for riab.present
@@ -160,10 +160,15 @@ run=35
 # source eval.sh $run "nwj" "$datasets"
 
 
+run=1
+# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+datasets="riab.present.500"
+source train.sh $run "mi" "$datasets"
+# source eval.sh $run "mi" "$datasets"
 
 
 
 unset dataset_to_testsize
 unset method_to_model
-module purge
-deactivate
+# module purge
+# deactivate
