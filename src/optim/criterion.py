@@ -89,6 +89,6 @@ class MITestPower(nn.Module):
         else:
             # maximize (T - T0) / var
             Fxy = metrics.mi.gram(f, X, Y)  # (n,n)
-            T0 = torch.mean(Fxy)
+            T0 = torch.mean(Fxy) - torch.trace(Fxy)
             return - (T1 - T0) / torch.sqrt(var + self.reg)
 
