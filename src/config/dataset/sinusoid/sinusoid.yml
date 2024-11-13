@@ -8,7 +8,7 @@ train: !dataset.Sinusoid &settings
   frequency: 4
   dim: 1
   split: train
-  train_val_test_split: '10000:2000:'
+  train_val_test_split: '2800:800:'   # 7:2:1
 
 val: !dataset.Sinusoid
   <<: *settings
