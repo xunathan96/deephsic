@@ -2,7 +2,7 @@
 #SBATCH --account=def-dsuth
 #SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
 #SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-24:00:00       # DD-HH:MM:SS
+#SBATCH --time=0-48:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=hdgm
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
@@ -251,8 +251,22 @@ function eval_args {
 # source eval.sh $run "hsic-raw bandwidth" "$datasets"
 
 
-run=1
-datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+# hdgm<20 takes 4h/1000 epochs
+# hdgm>=20 takes 38h/1000 epochs
+# hdgm 40/50 should use 500 epochs
+
+# runs 1/2/3 are with minus trace (which fails)
+# runs 4/5/6 are with minus trace/(n*n-1)
+
+
+# run=power_vs_datasize/6
+# datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000 \
+#           hdgm20.n4000 hdgm20.n8000 hdgm20.n12000 hdgm20.n16000"
+# source train.sh $run "mi" "$datasets"
+# source eval.sh $run "mi" "$datasets"
+
+run=power_vs_testsize/6
+datasets="hdgm4 hdgm8 hdgm10"
 source train.sh $run "mi" "$datasets"
 source eval.sh $run "mi" "$datasets"
 

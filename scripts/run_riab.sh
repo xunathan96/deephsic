@@ -2,7 +2,7 @@
 #SBATCH --account=def-dsuth
 #SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
 #SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-12:00:00       # DD-HH:MM:SS
+#SBATCH --time=0-24:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=riab
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
@@ -56,7 +56,7 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/riab/$dataset/hsic/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 2000"
             ;;
         c2st-s | c2st-l)
             echo "\
@@ -64,7 +64,7 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --save-dir $save_root/riab/$dataset/c2st/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 2000"
             ;;
         hsic-raw)
             echo "\
@@ -72,7 +72,7 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/riab/$dataset/hsic_raw/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 2000"
             ;;
         *)
             echo "\
@@ -80,7 +80,7 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/riab/$dataset/$method/$model/$run \
-                --n-epochs 1000"
+                --n-epochs 4000"
             ;;
     esac
 }
@@ -159,13 +159,18 @@ function eval_args {
 # source train.sh $run "nwj" "$datasets"
 # source eval.sh $run "nwj" "$datasets"
 
+# runs 7/8/9 are with minus trace (which fails)
+# runs 10/11/12 are with minus trace/(n*n-1)
 
-run=1
-# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
-datasets="riab.present.500"
+run=power_vs_datasize/12
+datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
 source train.sh $run "mi" "$datasets"
-# source eval.sh $run "mi" "$datasets"
+source eval.sh $run "mi" "$datasets"
 
+run=power_vs_testsize/12
+datasets="riab.present"
+source train.sh $run "mi" "$datasets"
+source eval.sh $run "mi" "$datasets"
 
 
 unset dataset_to_testsize

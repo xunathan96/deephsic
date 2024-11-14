@@ -2,7 +2,7 @@
 #SBATCH --account=def-dsuth
 #SBATCH --gpus-per-node=1       # Request 1 available GPU (--gpus-per-node=p100:1)
 #SBATCH --mem=4000M             # Memory proportional to GPUs: 32000 Cedar, 47000 Béluga, 64000 Graham.
-#SBATCH --time=0-06:00:00       # DD-HH:MM:SS
+#SBATCH --time=0-24:00:00       # DD-HH:MM:SS
 #SBATCH --job-name=sinusoid
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
@@ -81,7 +81,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/$method/$model/$run \
-                --n-epochs 10000"
+                --n-epochs 4000"
             ;;
     esac
 }
@@ -135,8 +135,8 @@ function eval_args {
     esac
 }
 
-run=1
-datasets="sinusoid.1000 sinusoid.2000 sinusoid.4000 sinusoid.3000"
+# run=1
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.4000 sinusoid.3000"
 
 # source train.sh $run "hsic hsic-tied bandwidth" "$datasets"
 # source eval.sh $run "hsic hsic-tied bandwidth" "$datasets"
@@ -163,9 +163,17 @@ datasets="sinusoid.1000 sinusoid.2000 sinusoid.4000 sinusoid.3000"
 # dataset_to_testsize["sinusoid.4000"]="50 100 200 500 1000 2000"
 # source eval.sh $run "nwj" "$datasets"
 
+# runs 7/8/9 are with minus trace (which fails)
+# runs 10/11/12 are with minus trace/(n*n-1)
+
+run=power_vs_datasize/12
+datasets="sinusoid.1000 sinusoid.2000 sinusoid.4000 sinusoid.3000"
 source train.sh $run "mi" "$datasets"
 source eval.sh $run "mi" "$datasets"
-dataset_to_testsize["sinusoid.4000"]="50 100 200 500 1000 2000"
+
+run=power_vs_testsize/12
+datasets="sinusoid"
+source train.sh $run "mi" "$datasets"
 source eval.sh $run "mi" "$datasets"
 
 
