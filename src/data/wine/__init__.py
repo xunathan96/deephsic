@@ -1,0 +1,1 @@
+from .wine import Wine

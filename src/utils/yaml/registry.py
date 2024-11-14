@@ -1,3 +1,6 @@
+import data.telco
+import data.telco.telco
+import data.wine
 from .base import *
 from utils.enums import YamlNodeType
 
@@ -54,6 +57,8 @@ yamlRegistry.register(yaml_tag=u'!dataset.RatInABox',       nodetype=YamlNodeTyp
 # yamlRegistry.register(yaml_tag=u'!dataset.PennTreebank',    nodetype=YamlNodeType.MAPPING).map_to(data.penn_treebank.PennTreebank)
 # yamlRegistry.register(yaml_tag=u'!dataset.Emotion',         nodetype=YamlNodeType.MAPPING).map_to(data.emotion.Emotion)
 yamlRegistry.register(yaml_tag=u'!dataset.Sinusoid',        nodetype=YamlNodeType.MAPPING).map_to(data.toy.Sinusoid)
+yamlRegistry.register(yaml_tag=u'!dataset.Telco',           nodetype=YamlNodeType.MAPPING).map_to(data.telco.Telco)
+yamlRegistry.register(yaml_tag=u'!dataset.Wine',            nodetype=YamlNodeType.MAPPING).map_to(data.wine.Wine)
 
 # transforms
 yamlRegistry.register(yaml_tag=u'!transform.CenterCrop',    nodetype=YamlNodeType.MAPPING).map_to(data.transforms.CenterCrop)

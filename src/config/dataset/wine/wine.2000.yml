@@ -1,0 +1,17 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Wine-2000
+
+train: !dataset.Wine &settings
+  root: data/wine/raw/winequality-red-white.mixed.maximum.2.txt
+  split: train
+  train_val_test_split: '1200:0:'
+
+val: !dataset.Wine
+  <<: *settings
+  split: val
+
+test: !dataset.Wine
+  <<: *settings
+  split: test

@@ -1,0 +1,17 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Telco-2000
+
+train: !dataset.Telco &settings
+  root: data/telco/raw/churn.csv
+  split: train
+  train_val_test_split: '1200:0:'
+
+val: !dataset.Telco
+  <<: *settings
+  split: val
+
+test: !dataset.Telco
+  <<: *settings
+  split: test
