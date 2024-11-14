@@ -23,6 +23,25 @@ def gram(f: nn.Module,
     return Fxy
 
 
+
+def pairscore(f: nn.Module,
+              X: torch.Tensor,
+              Y: torch.Tensor) -> torch.Tensor:
+    # compute T - T0
+    Fxy = gram(f, X, Y)
+    var_est = torch.var(torch.diagonal(Fxy, offset=0, dim1=-2, dim2=-1), dim=-1)
+    T_shift_est = pairscore_fast(Fxy)
+    return T_shift_est, var_est
+
+def pairscore_fast(Fxy: torch.Tensor) -> torch.Tensor:
+    n = Fxy.size(0)
+    trF = torch.trace(Fxy)
+    sumF = torch.sum(Fxy)
+    return (trF / (n-1)) - (sumF / (n*(n-1)))
+
+
+
+
 def T(f: nn.Module,
             X: torch.Tensor,
             Y: torch.Tensor,):
@@ -30,13 +49,9 @@ def T(f: nn.Module,
     assert X.size(0) == Y.size(0)
     fxy = f(X,Y)  # (n,) vector of f(Xi,Yi)
     T_est = torch.mean(fxy)
-    var_est = sample_var(fxy)
+    var_est = torch.var(fxy, dim=-1)
     return T_est, var_est
 
-
-def sample_var(X: torch.Tensor) -> torch.Tensor:
-    mu = X.mean(-1, keepdim=True)
-    return torch.mean((X - mu)**2, dim=-1)
 
 
 def permutation_test(f: nn.Module,
@@ -51,7 +66,8 @@ def permutation_test(f: nn.Module,
     """
     n = X.shape[0]
     device = X.device
-    Tstat, _ = T(f, X, Y)
+    Fxy = gram(f, X, Y)
+    nce = pairscore_fast(Fxy)
 
     count = 0
     stats = []
@@ -61,13 +77,11 @@ def permutation_test(f: nn.Module,
                   leave=False):
         # permute samples in Y for null hypothesis (i.e. Px*Py)
         shuffle_idx = torch.randperm(n, device=device)
-
-        Y_null = Y[shuffle_idx]
-        Tstat_null, _ = T(f, X, Y_null)
-
-        stats.append(Tstat_null.item())
-        if Tstat_null >= Tstat:
+        Fxy_shuffled = Fxy[:, shuffle_idx]
+        nce_null = pairscore_fast(Fxy_shuffled)
+        stats.append(nce_null.item())
+        if nce_null >= nce:
             count += 1
 
     p_value = count/n_permutations
-    return Tstat.item(), p_value
+    return nce.item(), p_value

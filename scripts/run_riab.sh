@@ -175,5 +175,5 @@ source eval.sh $run "mi" "$datasets"
 
 unset dataset_to_testsize
 unset method_to_model
-# module purge
-# deactivate
+module purge
+deactivate
