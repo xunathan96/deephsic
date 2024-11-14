@@ -80,7 +80,7 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/riab/$dataset/$method/$model/$run \
-                --n-epochs 4000"
+                --n-epochs 2000"
             ;;
     esac
 }
@@ -164,8 +164,10 @@ function eval_args {
 
 run=power_vs_datasize/12
 datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
-source train.sh $run "mi" "$datasets"
-source eval.sh $run "mi" "$datasets"
+for item in $datasets; do
+    source train.sh $run "mi" "$item"
+    source eval.sh $run "mi" "$item"
+done
 
 run=power_vs_testsize/12
 datasets="riab.present"

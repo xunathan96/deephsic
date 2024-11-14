@@ -167,9 +167,11 @@ function eval_args {
 # runs 10/11/12 are with minus trace/(n*n-1)
 
 run=power_vs_datasize/12
-datasets="sinusoid.1000 sinusoid.2000 sinusoid.4000 sinusoid.3000"
-source train.sh $run "mi" "$datasets"
-source eval.sh $run "mi" "$datasets"
+datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+for item in $datasets; do
+    source train.sh $run "mi" "$item"
+    source eval.sh $run "mi" "$item"
+done
 
 run=power_vs_testsize/12
 datasets="sinusoid"
