@@ -1,3 +1,4 @@
+import data.alzheimer
 import data.telco
 import data.telco.telco
 import data.wine
@@ -59,6 +60,7 @@ yamlRegistry.register(yaml_tag=u'!dataset.RatInABox',       nodetype=YamlNodeTyp
 yamlRegistry.register(yaml_tag=u'!dataset.Sinusoid',        nodetype=YamlNodeType.MAPPING).map_to(data.toy.Sinusoid)
 yamlRegistry.register(yaml_tag=u'!dataset.Telco',           nodetype=YamlNodeType.MAPPING).map_to(data.telco.Telco)
 yamlRegistry.register(yaml_tag=u'!dataset.Wine',            nodetype=YamlNodeType.MAPPING).map_to(data.wine.Wine)
+yamlRegistry.register(yaml_tag=u'!dataset.Alzheimer',       nodetype=YamlNodeType.MAPPING).map_to(data.alzheimer.Alzheimer)
 
 # transforms
 yamlRegistry.register(yaml_tag=u'!transform.CenterCrop',    nodetype=YamlNodeType.MAPPING).map_to(data.transforms.CenterCrop)

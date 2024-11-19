@@ -13,6 +13,8 @@ from data.imagenet_c import ImageNetC
 from data.riab import RatInABox
 from data.telco import Telco
 from data.wine import Wine
+from data.htru import HTRU2
+from data.alzheimer import Alzheimer
 from data.transforms import NumpyToTensor
 from kernel import Gaussian, median_heuristic
 import metrics
@@ -28,8 +30,6 @@ def parse_args():
                         help='the gpu core to use during experiment.')
     parser.add_argument('--dataset',
                         type=str,
-                        choices=['HDGM-4', 'HDGM-8', 'HDGM-10', 'HDGM-20', 'HDGM-30', 'HDGM-40', 'HDGM-50',
-                                 'Cifar10h', 'ImageNet-GN-ZB-F', 'RatInABox', 'PennTreebank', 'Emotion', 'Sinusoid', 'Telco', 'Wine'],
                         help='dataset to run tests on.')
     parser.add_argument('--save-dir',
                         type=str,
@@ -110,6 +110,15 @@ def dataset(name):
         return Wine(root='data/wine/raw/winequality-red-white.mixed.maximum.2.txt',
                      split='test',
                      train_val_test_split='0:0:10')
+    elif name == 'HTRU2':
+        return HTRU2(root='data/htru/raw/HTRU_2.csv',
+                     split='test',
+                     train_val_test_split='0:0:10')
+    elif name == 'Alzheimer':
+        return Alzheimer(root='data/alzheimer/raw/alzheimers_disease_data.csv',
+                         split='test',
+                         train_val_test_split='0:0:10')
+
     # elif name == 'PennTreebank':
     #     return PennTreebank(root='data/penn_treebank',
     #                         split='test',

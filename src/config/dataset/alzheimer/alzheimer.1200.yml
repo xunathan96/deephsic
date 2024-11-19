@@ -1,0 +1,17 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Alzheimer-1200
+
+train: !dataset.Alzheimer &settings
+  root: data/alzheimer/raw/alzheimers_disease_data.csv
+  split: train
+  train_val_test_split: '720:0:'
+
+val: !dataset.Alzheimer
+  <<: *settings
+  split: val
+
+test: !dataset.Alzheimer
+  <<: *settings
+  split: test
