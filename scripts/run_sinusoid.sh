@@ -165,15 +165,16 @@ function eval_args {
 
 # runs 7/8/9 are with minus trace (which fails)
 # runs 10/11/12 are with minus trace/(n*n-1)
+# runs 13/14/15 are with nce-like code
 
-run=power_vs_datasize/12
+run=power_vs_datasize/15
 datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
 for item in $datasets; do
     source train.sh $run "mi" "$item"
     source eval.sh $run "mi" "$item"
 done
 
-run=power_vs_testsize/12
+run=power_vs_testsize/15
 datasets="sinusoid"
 source train.sh $run "mi" "$datasets"
 source eval.sh $run "mi" "$datasets"

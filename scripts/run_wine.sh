@@ -6,14 +6,14 @@
 #SBATCH --job-name=wine
 #SBATCH --output=logs/%x/slurm-%j.out   # output file. %x is the job name, %N is the hostname, %j is the job id
 
-# PROJ_DIR=$project/deepkernel
-# VENV_DIR=$PROJ_DIR/myenv
-# SOURCE_DIR=$PROJ_DIR/src
-# SCRIPT_DIR=$PROJ_DIR/scripts
-# cd $SCRIPT_DIR
+PROJ_DIR=$project/deepkernel
+VENV_DIR=$PROJ_DIR/myenv
+SOURCE_DIR=$PROJ_DIR/src
+SCRIPT_DIR=$PROJ_DIR/scripts
+cd $SCRIPT_DIR
 
-# source $VENV_DIR/bin/activate
-# module load python/3.10 scipy-stack/2023b cuda cudnn
+source $VENV_DIR/bin/activate
+module load python/3.10 scipy-stack/2023b cuda cudnn
 
 # config files
 train_root=config/exp/train/
@@ -124,20 +124,64 @@ function eval_args {
     esac
 }
 
-# run=power_vs_datasize/1
-# datasets="wine.1000 wine.2000 wine.3000 wine.4000"
+# run=power_vs_datasize/2
+# datasets="wine.500"
 # for item in $datasets; do
 #     source train.sh $run "hsic" "$item"
 #     source eval.sh $run "hsic" "$item"
 # done
 
-run=power_vs_testsize/1
-datasets="wine"
-source train.sh $run "hsic" "$datasets"
-source eval.sh $run "hsic" "$datasets"
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "mmd" "$item"
+#     source eval.sh $run "mmd" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "c2st" "$item"
+#     source eval.sh $run "c2st-s c2st-l" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "infonce" "$item"
+#     source eval.sh $run "infonce" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "nwj" "$item"
+#     source eval.sh $run "nwj" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "mi" "$item"
+#     source eval.sh $run "mi" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.500"
+# for item in $datasets; do
+#     source train.sh $run "bandwidth" "$item"
+#     source eval.sh $run "bandwidth" "$item"
+# done
+
+
+# POWER VS TESTSIZE
+dataset_to_testsize["wine.2000"]="50 100 200 500 1000"
+run=power_vs_testsize/3
+datasets="wine.2000"
+source eval.sh $run "bandwidth mi" "$datasets"
 
 
 unset dataset_to_testsize
 unset method_to_model
-# module purge
-# deactivate
+module purge
+deactivate
