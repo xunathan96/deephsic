@@ -29,6 +29,8 @@ declare -A dataset_to_testsize
 dataset_to_testsize["wine"]="50 100 200 500 1000 2000"
 dataset_to_testsize["wine.500"]="200"
 dataset_to_testsize["wine.1000"]="400"
+dataset_to_testsize["wine.1200"]="480"
+dataset_to_testsize["wine.1300"]="520"
 dataset_to_testsize["wine.1500"]="600"
 dataset_to_testsize["wine.2000"]="800"
 
@@ -124,61 +126,64 @@ function eval_args {
     esac
 }
 
+# # POWER VS DATASIZE
+
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "hsic" "$item"
 #     source eval.sh $run "hsic" "$item"
 # done
 
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
+# for item in $datasets; do
+#     source train.sh $run "bandwidth" "$item"
+#     source eval.sh $run "bandwidth" "$item"
+# done
+
+# run=power_vs_datasize/2
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "mmd" "$item"
 #     source eval.sh $run "mmd" "$item"
 # done
 
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "c2st" "$item"
 #     source eval.sh $run "c2st-s c2st-l" "$item"
 # done
 
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "infonce" "$item"
 #     source eval.sh $run "infonce" "$item"
 # done
 
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "nwj" "$item"
 #     source eval.sh $run "nwj" "$item"
 # done
 
 # run=power_vs_datasize/2
-# datasets="wine.500"
+# datasets="wine.1200 wine.1300"
 # for item in $datasets; do
 #     source train.sh $run "mi" "$item"
 #     source eval.sh $run "mi" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="wine.500"
-# for item in $datasets; do
-#     source train.sh $run "bandwidth" "$item"
-#     source eval.sh $run "bandwidth" "$item"
-# done
 
+# # POWER VS TESTSIZE
 
-# POWER VS TESTSIZE
-dataset_to_testsize["wine.2000"]="50 100 200 500 1000"
-run=power_vs_testsize/3
-datasets="wine.2000"
-source eval.sh $run "bandwidth mi" "$datasets"
+# dataset_to_testsize["wine.2000"]="50 100 200 500 1000"
+# run=power_vs_testsize/3
+# datasets="wine.2000"
+# source eval.sh $run "bandwidth mi" "$datasets"
 
 
 unset dataset_to_testsize
