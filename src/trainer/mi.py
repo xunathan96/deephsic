@@ -148,6 +148,35 @@ class MITrainer(BaseTrainer):
 
 
 
+    @torch.no_grad
+    def test_asymptotic_power(self, n_tests: int = 100,):
+        self.model.eval()
+        snrs = list()
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
+
+            T_tilde, var_est = metrics.mi.pairscore(self.model, X, Y)
+            snr = T_tilde / torch.sqrt(var_est + 1e-8)  # (T - T0) / sigma
+            snrs.append(snr.item())
+
+            pbar.set_description(f"[{i+1}/{n_tests}] snr: {snr.item():.4f}")
+        import pickle
+        with open('snr_mi.pkl', 'wb') as file: 
+            pickle.dump(snrs, file) 
+        return snrs
+
+
 
 # ==============================
 #       HELPER FUNCTIONS

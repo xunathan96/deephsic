@@ -13,6 +13,7 @@ from data.toy import HDGM, Sinusoid
 from data.imagenet_c import ImageNetC
 from data.cifar10h import CIFAR10H
 from data.riab import RatInABox
+from data.wine import Wine
 from data.transforms import NumpyToTensor
 
 def parse_args():
@@ -90,6 +91,10 @@ def dataset(name):
                         dim=1,
                         split='test',
                         train_val_test_split='0:0:10')
+    elif name == 'Wine':
+        return Wine(root='data/wine/raw/winequality-red-white.mixed.maximum.2.txt',
+                    split='test',
+                    train_val_test_split='0:0:10')
 
 
 def eval_hsic_agg(dataloader: DataLoader,
