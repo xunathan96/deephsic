@@ -52,7 +52,7 @@ function train_args {
     case $method in
         bandwidth)
             echo "\
-                --train-config $train_root/hsic/train.hsic.batch128.adamw.1e-4.yml \
+                --train-config $train_root/hsic/train.hsic.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/riab/$dataset/hsic/$model/$run \
@@ -60,7 +60,7 @@ function train_args {
             ;;
         c2st-s | c2st-l)
             echo "\
-                --train-config $train_root/c2st/train.c2st.batch128.adamw.1e-4.yml \
+                --train-config $train_root/c2st/train.c2st.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --save-dir $save_root/riab/$dataset/c2st/$model/$run \
@@ -68,7 +68,7 @@ function train_args {
             ;;
         hsic-raw)
             echo "\
-                --train-config $train_root/hsic/train.hsic_raw.batch128.adamw.1e-4.yml \
+                --train-config $train_root/hsic/train.hsic_raw.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/riab/$dataset/hsic_raw/$model/$run \
@@ -76,7 +76,7 @@ function train_args {
             ;;
         *)
             echo "\
-                --train-config $train_root/$method/train.$method.batch128.adamw.1e-4.yml \
+                --train-config $train_root/$method/train.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/riab/$dataset/$method/$model/$run \
@@ -88,7 +88,7 @@ function eval_args {
     case $method in
         bandwidth)
             echo "\
-                --eval-config $eval_root/hsic/eval.hsic.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/hsic/eval.hsic.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/hsic/$model/$run/best.pt \
@@ -97,7 +97,7 @@ function eval_args {
             ;;
         c2st-s)
             echo "\
-                --eval-config $eval_root/c2st/eval.c2st.acc.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/c2st/eval.c2st.acc.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/c2st/$model/$run/best.pt \
@@ -106,7 +106,7 @@ function eval_args {
             ;;
         c2st-l)
             echo "\
-                --eval-config $eval_root/c2st/eval.c2st.logit.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/c2st/eval.c2st.logit.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/c2st/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/c2st/$model/$run/best.pt \
@@ -115,7 +115,7 @@ function eval_args {
             ;;
         hsic-raw)
             echo "\
-                --eval-config $eval_root/hsic/eval.hsic_raw.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/hsic/eval.hsic_raw.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/hsic_raw/$model/$run/best.pt \
@@ -124,7 +124,7 @@ function eval_args {
             ;;
         *)
             echo "\
-                --eval-config $eval_root/$method/eval.$method.batch128.adamw.1e-4.yml \
+                --eval-config $eval_root/$method/eval.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/$method/$model/$run/best.pt \
@@ -161,18 +161,20 @@ function eval_args {
 
 # runs 7/8/9 are with minus trace (which fails)
 # runs 10/11/12 are with minus trace/(n*n-1)
+# runs 13/14/15 are with nce-like code
+# runs 16/17/18/19/20/21 are with batch=512 instead of 128
 
-run=power_vs_datasize/12
+run=power_vs_datasize/21
 datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
 for item in $datasets; do
     source train.sh $run "mi" "$item"
     source eval.sh $run "mi" "$item"
 done
 
-run=power_vs_testsize/12
-datasets="riab.present"
-source train.sh $run "mi" "$datasets"
-source eval.sh $run "mi" "$datasets"
+# run=power_vs_testsize/15
+# datasets="riab.present"
+# source train.sh $run "mi" "$datasets"
+# source eval.sh $run "mi" "$datasets"
 
 
 unset dataset_to_testsize

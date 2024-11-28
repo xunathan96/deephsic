@@ -117,62 +117,54 @@ function eval_args {
 
 # # POWER VS DATASIZE
 
-run=power_vs_datasize/1
+run=power_vs_datasize/3
 datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 for item in $datasets; do
     source train.sh $run "hsic" "$item"
     source eval.sh $run "hsic" "$item"
 done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "bandwidth" "$item"
 #     source eval.sh $run "bandwidth" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "mmd" "$item"
 #     source eval.sh $run "mmd" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "c2st" "$item"
 #     source eval.sh $run "c2st-s c2st-l" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "infonce" "$item"
 #     source eval.sh $run "infonce" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "nwj" "$item"
 #     source eval.sh $run "nwj" "$item"
 # done
 
-# run=power_vs_datasize/2
-# datasets="alzheimer.1200 alzheimer.1300"
+# run=power_vs_datasize/1
+# datasets="alzheimer.1200 alzheimer.1000 alzheimer.800 alzheimer.500"
 # for item in $datasets; do
 #     source train.sh $run "mi" "$item"
 #     source eval.sh $run "mi" "$item"
 # done
-
-
-# # POWER VS TESTSIZE
-
-# dataset_to_testsize["alzheimer.2000"]="50 100 200 500 1000"
-# run=power_vs_testsize/3
-# datasets="alzheimer.2000"
-# source eval.sh $run "bandwidth mi" "$datasets"
 
 
 unset dataset_to_testsize
