@@ -147,10 +147,16 @@ class InfoNCETrainer(BaseTrainer):
         return {'type1-error': n_reject / n_tests}
 
 
+    # NOTE: for debugging
     @torch.no_grad
     def test_asymptotic_power(self, n_tests: int = 100,):
         self.model.eval()
         snrs = list()
+        T1s = list()
+        T0s = list()
+        Fxy_quantile = list()
+        var_nulls = list()
+        var_alts = list()
         test_iter = iter(self.dataloader['test'])
         for i in (pbar:=tqdm(range(n_tests),
                              bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
@@ -165,14 +171,28 @@ class InfoNCETrainer(BaseTrainer):
             X = batch[0].to(self.device)    # (N, *, Dx)
             Y = batch[1].to(self.device)    # (N, *, Dy)
 
-            T_tilde, var_est = metrics.mi.pairscore(self.model, X, Y)
-            snr = T_tilde / torch.sqrt(var_est + 1e-8)  # (T - T0) / sigma
-            snrs.append(snr.item())
+            m = X.shape[0]
+            Fxy = metrics.mi.gram(self.model, X, Y)
+            T1 = torch.trace(Fxy) / m
+            T0 = Fxy[~torch.eye(*Fxy.shape, dtype=torch.bool)].mean()
+            T1s.append(T1.item())
+            T0s.append(T0.item())
 
-            pbar.set_description(f"[{i+1}/{n_tests}] snr: {snr.item():.4f}")
+            pbar.set_description(f"[{i+1}/{n_tests}] snr:") # {fxy:.4f}")
         import pickle
-        with open('snr_infonce.pkl', 'wb') as file: 
-            pickle.dump(snrs, file) 
+        # with open('snr_infonce.pkl', 'wb') as file: 
+        #     pickle.dump(snrs, file) 
+        # with open('gram_infonce.pkl', 'wb') as file: 
+        #     pickle.dump(Fxy, file) 
+        with open('T_infonce.pkl', 'wb') as file: 
+            pickle.dump({
+                'T1': T1s,
+                'T0': T0s,
+                'var_alt': var_alts,
+                'var_null': var_alts,
+                'snr': snrs,
+                'Fxy_quantile': Fxy_quantile,
+            }, file) 
         return snrs
 
 

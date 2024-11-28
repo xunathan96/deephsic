@@ -16,6 +16,7 @@ from data.wine import Wine
 from data.htru import HTRU2
 from data.alzheimer import Alzheimer
 from data.transforms import NumpyToTensor
+from data.mice import MiceProtein
 from kernel import Gaussian, median_heuristic
 import metrics
 
@@ -118,6 +119,10 @@ def dataset(name):
         return Alzheimer(root='data/alzheimer/raw/alzheimers_disease_data.csv',
                          split='test',
                          train_val_test_split='0:0:10')
+    elif name == 'Mice':
+        return MiceProtein(root='data/mice/raw/Data_Cortex_Nuclear.csv',
+                            split='test',
+                            train_val_test_split='0:0:10')
 
     # elif name == 'PennTreebank':
     #     return PennTreebank(root='data/penn_treebank',
@@ -169,9 +174,13 @@ def eval_hsic_median(dataset: Dataset,
 
         X = batch[0].to(device)
         Y = batch[1].to(device)
+        # Y = Y[torch.randperm(Y.shape[0], device=device)]
         median_x, median_y = compute_median_batch((X,Y))
         k.bandwidth = median_x
         l.bandwidth = median_y
+        # print(f"{median_x=}")
+        # print(f"{median_y=}")
+        # return 1/0
         hsic, var, p_value, r = metrics.hsic.permutation_test(k, l,
                                                               X, Y,
                                                               compute_var=False,

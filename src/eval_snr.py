@@ -70,11 +70,13 @@ def main(args):
     cfg.update(dataset=parse_yaml(args.data_config)) if args.data_config else None
     cfg.update(model=parse_yaml(args.model_config)) if args.model_config else None
     cfg['dataloader']['test']['num_workers'] = args.num_workers
+    cfg['dataloader']['test']['batch_size'] = args.n_samples
+    # cfg['dataloader']['test']['shuffle'] = False
     utils.seed_all(cfg['seed'])
 
     pipeline = registry.get(cfg['method']).build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
-    snrs = pipeline.test_asymptotic_power(n_tests = 100)
+    snrs = pipeline.test_asymptotic_power(n_tests = 5000)
     return 1
 
     stats = pipeline.eval(n_samples=args.n_samples,

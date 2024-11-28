@@ -40,6 +40,22 @@ def pairscore_fast(Fxy: torch.Tensor) -> torch.Tensor:
     return (trF / (n-1)) - (sumF / (n*(n-1)))
 
 
+def T_tilde(f: nn.Module,
+            X: torch.Tensor,
+            Y: torch.Tensor) -> torch.Tensor:
+    # compute T - T0
+    Fxy = gram(f, X, Y)
+    var_est = torch.var(torch.diagonal(Fxy, offset=0, dim1=-2, dim2=-1), dim=-1)
+    T1, T0 = T_tilde_fast(Fxy)
+    # fxy_null = Fxy[~torch.eye(*Fxy.shape, dtype=torch.bool)]
+    return T1, T0, var_est #, fxy_null
+
+def T_tilde_fast(Fxy: torch.Tensor) -> torch.Tensor:
+    n = Fxy.size(0)
+    trF = torch.trace(Fxy)
+    sumF = torch.sum(Fxy)
+    return (trF / (n-1)), (sumF / (n*(n-1)))
+
 
 
 def T(f: nn.Module,
@@ -49,7 +65,7 @@ def T(f: nn.Module,
     assert X.size(0) == Y.size(0)
     fxy = f(X,Y)  # (n,) vector of f(Xi,Yi)
     T_est = torch.mean(fxy)
-    var_est = torch.var(fxy, dim=-1)
+    var_est = torch.var(fxy, dim=0)
     return T_est, var_est
 
 
@@ -85,3 +101,36 @@ def permutation_test(f: nn.Module,
 
     p_value = count/n_permutations
     return nce.item(), p_value
+
+
+def permutation_empirical(f: nn.Module,
+                     X: torch.Tensor,
+                     Y: torch.Tensor,
+                     n_permutations: int = 500):
+    r"""perform a permutation test to compute the test statistic and p-value.
+    f: function taking X and Y with scalar outputs
+    X: (N,*,Dx) samples from Pxy
+    Y: (N,*,Dy) samples from Pxy
+    returns the test statistic and its p-value under the null hypothesis
+    """
+    n = Y.shape[0]
+    device = Y.device
+
+    fxy, var_alt = T(f, X, Y)
+    
+    count = 0
+    stats = []
+    var_null = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples in Y for null hypothesis (i.e. Px*Py)
+
+        Y_shuffle = Y[torch.randperm(n, device=device)]
+        fxy_null, var_est = T(f, X, Y_shuffle)
+
+        stats.append(fxy_null.item())
+        var_null.append(var_est.item())
+
+    return fxy.item(), stats, var_alt.item(), sum(var_null)/len(var_null)

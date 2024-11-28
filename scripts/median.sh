@@ -19,10 +19,6 @@ cd ../src
 # python eval_hsic_median.py --dataset HDGM-4 --save-dir exp/eval-final/hdgm-final/logs/agg --n-samples 1000 --n-permutations 100
 # python eval_hsic_median.py --dataset HDGM-4 --save-dir exp/eval-final/hdgm-final/logs/agg --n-samples 2000 --n-permutations 100
 
-
-python eval_hsic_median.py --dataset Wine --save-dir exp/eval/wine/median --n-samples 1500 --n-permutations 100
-# 1000 samples -> 0.60
-# 1500 samples -> 0.79
-
+python eval_hsic_median.py --dataset Mice --save-dir exp/eval/wine/median --n-samples 1000 --n-permutations 100
 
 cd -
