@@ -171,11 +171,6 @@ for item in $datasets; do
     source eval.sh $run "mi" "$item"
 done
 
-# run=power_vs_testsize/15
-# datasets="riab.present"
-# source train.sh $run "mi" "$datasets"
-# source eval.sh $run "mi" "$datasets"
-
 
 unset dataset_to_testsize
 unset method_to_model
