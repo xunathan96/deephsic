@@ -35,7 +35,9 @@ class Neck(nn.Module):
         if self.connection == 'cat':
             latent = torch.cat(encodings, dim=-1)   # (*, d_1+...d_n)
         elif self.connection == 'add':
-            latent = torch.stack(encodings, dim=-1).sum(dim=-1)  # (*, d)
+            latent = torch.stack(encodings, dim=-1).sum(dim=-1)     # (*, d)
+        elif self.connection == 'dot':
+            latent = torch.cat(encodings, dim=-1).prod(dim=-1, keepdim=True)    # (*, 1)
         else:
             raise NotImplementedError()
 
@@ -43,9 +45,9 @@ class Neck(nn.Module):
         for head in self.heads:
             out = head(latent)
             if self.squeeze_scalar_output:
-                out.squeeze_(-1)
+                out = torch.squeeze(out, dim=-1)
             outputs.append(out)
-        
+
         if self.squeeze_single_head and self.n_outputs==1:
             return outputs[0]
         return outputs

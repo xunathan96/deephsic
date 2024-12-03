@@ -1,0 +1,22 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!model.Neck
+name: mlp8x32x64x32x1-mlp2x4x8x4x1
+backbones: !nn.ModuleList
+  - !model.FeedForward
+    features: [8, 32, 64, 32, 1]
+    activation: relu
+    batch_norm: False
+    init: narrow_normal
+  - !model.FeedForward
+    features: [2, 4, 8, 4, 1]
+    activation: relu
+    batch_norm: False
+    init: narrow_normal
+heads: !nn.ModuleList
+  - !model.Identity
+connection: dot
+squeeze_single_head: True
+squeeze_scalar_output: True
