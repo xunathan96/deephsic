@@ -1,0 +1,9 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: ISA
+
+test: !generator.ISA
+  dim: 1
+  std: 0.1
+  rot: 0.5

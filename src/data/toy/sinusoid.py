@@ -1,7 +1,9 @@
 import numpy as np
 import torch
-from .base import ToyDataset
-__all__ = ['Sinusoid']
+from typing import Callable
+from .base import ToyDataset, ToyIterator
+from data.transforms import numpy_to_tensor
+__all__ = ['Sinusoid', 'SinusoidGenerator']
 
 
 class Sinusoid(ToyDataset):
@@ -69,6 +71,41 @@ class Sinusoid(ToyDataset):
             reorder_idx[-1] = 1
             samples_proposal = samples_proposal[:, reorder_idx]
         return samples_proposal[alpha < keep_prob]
+
+
+
+
+class SinusoidGenerator(ToyIterator):
+
+    def __init__(self,
+                 dim: int,
+                 frequency: float,
+                 transform: Callable = numpy_to_tensor):
+        super().__init__(transform)
+        self.dim = dim
+        self.frequency = frequency
+
+    def __next__(self):
+        l = self.frequency
+        accept = False
+        while not accept:
+            x = np.pi * (2*np.random.rand(2) - 1)
+            px = 1 + np.sin(l * x[0]) * np.sin(l * x[1])
+            keep_prob = px / 2  # p(x)/{Mq(x)}
+            alpha = np.random.rand()
+            accept = alpha < keep_prob
+
+            if self.dim > 1:
+                # add uniform noise to other dims
+                u = np.pi * (2*np.random.rand(2*(self.dim-1)) - 1)
+                x = np.concatenate((x, u), axis=-1)     # (2d,)
+                # move dependent axes to first and last axes
+                reorder_idx = np.arange(2*self.dim)
+                reorder_idx[1] = 2*self.dim - 1
+                reorder_idx[-1] = 1
+                x = x[reorder_idx]
+
+        return marginals(self.transform(x))
 
 
 

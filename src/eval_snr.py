@@ -76,7 +76,8 @@ def main(args):
 
     pipeline = registry.get(cfg['method']).build(cfg)
     pipeline.load_checkpoint(args.pretrained_path)
-    snrs = pipeline.test_asymptotic_power(n_tests = 5000)
+    # snrs = pipeline.test_asymptotic_power(n_tests = 5000)
+    pipeline.gram(20000)
     return 1
 
     stats = pipeline.eval(n_samples=args.n_samples,

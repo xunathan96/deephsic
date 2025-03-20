@@ -80,9 +80,9 @@ def save_checkpoint(filepath: str,
 
 def load_checkpoint(filepath: str,
                     model: nn.Module | Sequence[nn.Module],
-                    optimizer: Optimizer | Sequence[Optimizer] | None,
-                    scheduler: LRScheduler | Sequence[LRScheduler] | None,
-                    device: torch.device):
+                    optimizer: Optimizer | Sequence[Optimizer] | None = None,
+                    scheduler: LRScheduler | Sequence[LRScheduler] | None = None,
+                    device: torch.device = torch.device('cuda:0')):
     checkpoint = torch.load(Path(filepath), map_location=device)
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']

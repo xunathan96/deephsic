@@ -1,0 +1,7 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: HDGM-4
+
+test: !generator.HDGM
+  dim: 2

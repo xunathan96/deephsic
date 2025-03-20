@@ -12,7 +12,7 @@ def gram(f: nn.Module,
     if (n:=X.size(0)) != Y.size(0):
         raise Exception(f"Error: expected batches X and Y to have equal number of samples.")
     device = X.device
-    Fxy = torch.empty((n,n), device=device)
+    Fxy = torch.empty((n,n), device=device, dtype=X.dtype)
     idx = torch.arange(n, device=device)
     idy = torch.arange(n, device=device)
     for i in range(n):

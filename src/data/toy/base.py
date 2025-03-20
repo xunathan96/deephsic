@@ -1,7 +1,8 @@
 import numpy as np
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, IterableDataset
 from abc import ABC, abstractmethod
+from typing import Callable
 
 
 class ToyDataset(Dataset):
@@ -19,6 +20,23 @@ class ToyDataset(Dataset):
     @abstractmethod
     def sample(self, shape):
         ...
+
+
+class ToyIterator(IterableDataset):
+    
+    def __init__(self, transform: Callable, seed: int = None):
+        super().__init__()
+        self.seed = seed
+        self.rng = np.random.default_rng(seed)
+        self.transform = transform
+
+    def __iter__(self):
+        return self
+
+    @abstractmethod
+    def __next__(self):
+        ...
+
 
 
 

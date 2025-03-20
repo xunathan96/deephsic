@@ -173,6 +173,8 @@ class InfoNCETrainer(BaseTrainer):
 
             m = X.shape[0]
             Fxy = metrics.mi.gram(self.model, X, Y)
+
+            return 1/0
             T1 = torch.trace(Fxy) / m
             T0 = Fxy[~torch.eye(*Fxy.shape, dtype=torch.bool)].mean()
             T1s.append(T1.item())
@@ -194,6 +196,65 @@ class InfoNCETrainer(BaseTrainer):
                 'Fxy_quantile': Fxy_quantile,
             }, file) 
         return snrs
+
+
+    @torch.no_grad
+    def gram(self, n_samples: int = None):
+        self.model.eval()
+
+        if n_samples is not None:
+            testloader = self.cfg['dataloader']['test'].build(
+                dataset=self.dataset['test'],
+                batch_size=n_samples)
+        else:
+            testloader = self.dataloader['test']
+        test_iter = iter(testloader)
+
+        batch = next(test_iter)
+        X = batch[0].to(self.device)    # (N, *, Dx)
+        Y = batch[1].to(self.device)    # (N, *, Dy)
+        Fxy = metrics.infonce.gram(self.model, X, Y)
+
+        return Fxy.detach().cpu().numpy()
+        import pickle
+        with open(f'gram_infonce_n={X.shape[0]}.pkl', 'wb') as file: 
+            pickle.dump(Fxy.detach().cpu().numpy(), file) 
+
+
+    @torch.no_grad
+    def snr(self, n_tests: int = 100):
+        self.model.eval()
+        snrs = list()
+
+        test_iter = iter(self.dataloader['test'])
+        for i in (pbar:=tqdm(range(n_tests),
+                             bar_format="{desc} |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                             dynamic_ncols=True,
+                             leave=False)):
+            try:
+                batch = next(test_iter)
+            except StopIteration:
+                test_iter = iter(self.dataloader['test'])
+                batch = next(test_iter)
+
+            X = batch[0].to(self.device)    # (N, *, Dx)
+            Y = batch[1].to(self.device)    # (N, *, Dy)
+
+            m = X.shape[0]
+            Fxy = metrics.mi.gram(self.model, X, Y)
+
+            T1 = Fxy.diag().mean()
+            T0 = Fxy.mean()
+            var_alt = Fxy.diag().var()
+            snr = (T1-T0)/torch.sqrt(var_alt)
+            snrs.append(snr.detach().cpu().item())
+
+        import pickle
+        with open(f'snr_infonce_n={X.shape[0]}.pkl', 'wb') as file: 
+            pickle.dump(snr, file) 
+
+
+
 
 
 # ==============================

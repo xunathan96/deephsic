@@ -1,7 +1,9 @@
 import numpy as np
 import torch
-from .base import ToyDataset
-__all__ = ['GaussianMixture', 'HDGM']
+from typing import Callable
+from .base import ToyDataset, ToyIterator
+from data.transforms import numpy_to_tensor
+__all__ = ['GaussianMixture', 'GaussianMixtureGenerator', 'HDGM', 'HDGMGenerator']
 
 
 class GaussianMixture(ToyDataset):
@@ -76,6 +78,60 @@ class HDGM(GaussianMixture):
     def __getitem__(self, idx) -> tuple[torch.Tensor, torch.Tensor]:
         xy = torch.from_numpy(self.data[idx]).float()
         return marginals(xy)
+
+
+
+class GaussianMixtureGenerator(ToyIterator):
+    
+    def __init__(self,
+                 means: list[np.ndarray],
+                 covs: list[np.ndarray],
+                 weights: list[float],
+                 transform: Callable = numpy_to_tensor):
+        super().__init__(transform)
+        self.n_mixtures = len(means)
+        if not (self.n_mixtures == len(covs) == len(weights)):
+            raise Exception(f"Error: the number of mixtures specified must be consistent with the size of means, covs, and weights.")
+
+        self.dim = means[0].shape[-1]
+        for mean, cov in zip(means, covs):
+            if mean.shape != (self.dim,) or cov.shape != (self.dim, self.dim):
+                raise Exception(f"Error: the means and covs must have consistent dimension size.")
+
+        self.means = means
+        self.covs = covs
+        self.chols = [np.linalg.cholesky(cov) for cov in covs]
+        self.weights = weights
+
+    def __next__(self):
+        eps = np.random.normal(size=self.dim)   # (d,)
+        data = np.empty_like(eps)
+        mix = np.random.choice(self.n_mixtures)
+        data = self.means[mix] + eps @ self.chols[mix].T
+        return marginals(self.transform(data))
+
+
+class HDGMGenerator(GaussianMixtureGenerator):
+
+    def __init__(self,
+                 dim: int,
+                 transform: Callable = numpy_to_tensor):
+        weights = [1., 1.]
+        means = [np.zeros(dim), np.zeros(dim)]
+        cov1 = np.eye(dim)
+        cov2 = np.eye(dim)
+        if dim == 2:
+            cov1[0,1] = cov1[1,0] = 0.5
+            cov2[0,1] = cov2[1,0] = -0.5
+        elif dim > 2:
+            cov1[0,3] = cov1[3,0] = 0.5
+            cov2[0,3] = cov2[3,0] = -0.5
+        covs = [cov1, cov2]
+        super().__init__(means, covs, weights, transform)
+
+
+
+
 
 
 

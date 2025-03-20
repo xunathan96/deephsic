@@ -195,6 +195,29 @@ class MITrainer(BaseTrainer):
         return snrs
 
 
+    @torch.no_grad
+    def gram(self, n_samples: int = None):
+        self.model.eval()
+
+        if n_samples is not None:
+            testloader = self.cfg['dataloader']['test'].build(
+                dataset=self.dataset['test'],
+                batch_size=n_samples)
+        else:
+            testloader = self.dataloader['test']
+        test_iter = iter(testloader)
+
+        batch = next(test_iter)
+        X = batch[0].to(self.device)    # (N, *, Dx)
+        Y = batch[1].to(self.device)    # (N, *, Dy)
+        Fxy = metrics.mi.gram(self.model, X, Y)
+
+        return Fxy.detach().cpu().numpy()
+        import pickle
+        with open(f'gram_mut_n={X.shape[0]}.pkl', 'wb') as file: 
+            pickle.dump(Fxy.detach().cpu().numpy(), file) 
+
+
 
 # ==============================
 #       HELPER FUNCTIONS

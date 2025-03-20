@@ -150,10 +150,10 @@ def hsic_fast(Kxx: torch.Tensor,
             ...
 
     elif statistic=='v':
-        trKL = torch.einsum('ij,ij', Kxx, Lyy)
-        trKL1 = torch.einsum('ij,jk->', Kxx, Lyy)
-        trK1L1 = torch.einsum('ij,kl->', Kxx, Lyy)
-        hsic_est = (1/(n**2))*trKL - (2/(n**3))*trKL1 + (1/(n**4))*trK1L1
+        c1 = torch.mean(Kxx * Lyy)
+        c2 = - (2/(n**3)) * torch.einsum('ij,ir->', Kxx, Lyy)
+        c3 = torch.mean(Kxx) * torch.mean(Lyy)
+        hsic_est = c1 + c2 + c3
 
     var_est = None
     if compute_var:
@@ -223,6 +223,34 @@ def test_power(hsic: torch.Tensor,
     quant = (sqrtn*hsic - thresh/sqrtn) / hsic_std
     power = normal_cdf(quant)
     return power
+
+
+
+def null_mean(Kxx: torch.Tensor,
+              Lyy: torch.Tensor,):
+    # mean of nHSIC under the null
+    assert Kxx.shape == Lyy.shape
+    n = Kxx.shape[-1]
+    embx2 = (Kxx.sum() - Kxx.diagonal().sum()) / (n*(n-1))
+    emby2 = (Lyy.sum() - Lyy.diagonal().sum()) / (n*(n-1))
+    return 1 + embx2 * emby2 - embx2 - emby2
+
+
+def null_var(Kxx: torch.Tensor,
+             Lyy: torch.Tensor,):
+    # var of nHSIC under the null
+    assert Kxx.shape == Lyy.shape
+    n = Kxx.shape[-1]
+    Kc = Kxx - Kxx.mean(dim=-1, keepdim=True) - Kxx.mean(dim=0, keepdim=True) + Kxx.mean()
+    Lc = Lyy - Lyy.mean(dim=-1, keepdim=True) - Lyy.mean(dim=0, keepdim=True) + Lyy.mean()
+    B = (Kc * Lc)**2
+    return ( 2*(n-4)*(n-5) / ((n-1)**2*(n-2)*(n-3)) ) * torch.sum(B.fill_diagonal_(0))  # TODO: is fill_diagonal_ differentiable?
+
+
+
+
+
+
 
 
 # ==============================
