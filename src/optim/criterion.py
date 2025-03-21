@@ -1,4 +1,5 @@
 # custom losses
+import math
 import torch
 import torch.nn as nn
 from torch.nn import (BCELoss,
@@ -7,6 +8,7 @@ from torch.nn import (BCELoss,
                       MSELoss)
 import metrics
 from kernel import Kernel
+from distribution import gamma
 
 
 class HSIC(nn.Module):
@@ -36,7 +38,7 @@ class MMDTestPower(nn.Module):
         return -mmd2/torch.sqrt(var + self.reg) # loss = negative power
 
 
-class HSICTestPower(nn.Module):
+class HSICTestPower_depreciated(nn.Module):
     def __init__(self,
                  reg: float = 1e-8):
         super().__init__()
@@ -49,6 +51,58 @@ class HSICTestPower(nn.Module):
                 Y: torch.Tensor,) -> torch.Tensor:
         hsic, var = metrics.hsic.hsic(k, l, X, Y, statistic='u', onesampleU=True, compute_var=True)
         return -hsic/torch.sqrt(var + self.reg) # loss = negative power
+
+
+class HSICTestPower(nn.Module):
+    def __init__(self,
+                 with_threshold: bool = False,
+                 significance: float = 0.05,
+                 reg: float = 1e-8):
+        super().__init__()
+        self.with_threshold = with_threshold
+        self.significance = significance
+        self.reg = reg
+
+    def forward(self,
+                k: Kernel,
+                l: Kernel,
+                X: torch.Tensor,
+                Y: torch.Tensor,) -> torch.Tensor:
+        if self.with_threshold:
+            return self.snr_w_thresh(k, l, X, Y)
+        else:
+            return self.snr_wo_thresh(k, l, X, Y)
+
+    def snr_wo_thresh(self,
+                      k: Kernel,
+                      l: Kernel,
+                      X: torch.Tensor,
+                      Y: torch.Tensor,) -> torch.Tensor:
+        hsic, var = metrics.hsic.hsic(k, l, X, Y, statistic='u', compute_var=True)
+        return - hsic / torch.sqrt(var + self.reg)
+
+    def snr_w_thresh(self,
+                     k: Kernel,
+                     l: Kernel,
+                     X: torch.Tensor,
+                     Y: torch.Tensor,) -> torch.Tensor:
+        m = X.shape[0]
+        Kxx = k(X, X)
+        Lyy = l(Y, Y)
+        hsic, var = metrics.hsic.hsic_fast(Kxx, Lyy, compute_var=True)
+        # asymptotic threshold based on (differentiable) gamma approx.
+        e0 = metrics.hsic.null_mean(Kxx, Lyy)
+        v0 = metrics.hsic.null_var(Kxx, Lyy)
+        shape = torch.atleast_1d(e0**2 / v0)
+        scale = torch.atleast_1d(v0 / e0)
+        r = gamma.icdf(1-self.significance, shape, scale)
+        # signal & thrsehold-to-noise ratios
+        std = torch.sqrt(var + self.reg)
+        snr = hsic / std
+        tnr = r / std
+        return - ( math.sqrt(m) * snr - tnr / math.sqrt(m) )
+
+
 
 
 class MutualInfoLowerBound(nn.Module):

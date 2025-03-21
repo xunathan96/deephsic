@@ -74,6 +74,7 @@ method_to_model["hsic-tied"]="$(printf "%s:mlp2x4x6x4-tied;" "hdgm4" "hdgm4.n100
                               $(printf "%s:mlp25x50x75x50-tied;" "hdgm50")\
                               "
 method_to_model["hsic-raw"]="${method_to_model["hsic"]}"
+method_to_model["hsic-w/"]="${method_to_model["hsic"]}"
 method_to_model["mmd"]="$(printf "%s:id-id@mlp4x8x12x8;" "hdgm4" "hdgm4.n1000" "hdgm4.n2000" "hdgm4.n3000" "hdgm4.n4000")\
                         $(printf "%s:id-id@mlp8x16x24x16;" "hdgm8" "hdgm8.n1000" "hdgm8.n2000" "hdgm8.n3000" "hdgm8.n4000")\
                         $(printf "%s:id-id@mlp10x20x30x20;" "hdgm10" "hdgm10.n2000" "hdgm10.n4000" "hdgm10.n6000" "hdgm10.n8000")\
@@ -137,6 +138,14 @@ function train_args {
                 --save-dir $save_root/hdgm/$dataset/hsic_raw/$model/$run \
                 --n-epochs 1000"
             ;;
+        hsic-w/)
+            echo "\
+                --train-config $train_root/hsic/train.power_w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/hsic_w_thresh/$model/$run \
+                --n-epochs 2000"
+            ;;
         *)
             echo "\
                 --train-config $train_root/$method/train.$method.batch512.adamw.1e-4.yml \
@@ -182,6 +191,15 @@ function eval_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/hsic_raw/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        hsic-w/)
+            echo "\
+                --eval-config $eval_root/hsic/eval.power_w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/hsic_w_thresh/$model/$run/best.pt \
                 --log-dir $log_root/hdgm/$run \
                 --n-samples $n_samples"
             ;;

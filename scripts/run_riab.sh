@@ -38,6 +38,7 @@ dataset_to_testsize["riab.present.5000"]="2000"
 declare -A method_to_model
 method_to_model["hsic"]=$(printf "%s:mlp8x32x64x32-mlp2x4x8x4;" "${!dataset_to_testsize[@]}")
 method_to_model["hsic-raw"]="${method_to_model["hsic"]}"
+method_to_model["hsic-w/"]="${method_to_model["hsic"]}"
 method_to_model["mmd"]=$(printf "%s:id-id@mlp10x32x64x32;" "${!dataset_to_testsize[@]}")
 method_to_model["c2st"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
 method_to_model["c2st-s"]=$(printf "%s:id-id@mlp10x32x64x32x1;" "${!dataset_to_testsize[@]}")
@@ -72,6 +73,14 @@ function train_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/riab/$dataset/hsic_raw/$model/$run \
+                --n-epochs 2000"
+            ;;
+        hsic-w/)
+            echo "\
+                --train-config $train_root/hsic/train.power_w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --save-dir $save_root/riab/$dataset/hsic_w_thresh/$model/$run \
                 --n-epochs 2000"
             ;;
         *)
@@ -119,6 +128,15 @@ function eval_args {
                 --data-config $data_root/riab/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/riab/$dataset/hsic_raw/$model/$run/best.pt \
+                --log-dir $log_root/riab/$run \
+                --n-samples $n_samples"
+            ;;
+        hsic-w/)
+            echo "\
+                --eval-config $eval_root/hsic/eval.power_w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/riab/$dataset.yml \
+                --model-config $model_root/hsic/$model.yml \
+                --pretrained-path $save_root/riab/$dataset/hsic_w_thresh/$model/$run/best.pt \
                 --log-dir $log_root/riab/$run \
                 --n-samples $n_samples"
             ;;

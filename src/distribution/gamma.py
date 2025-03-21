@@ -1,9 +1,14 @@
-# https://github.com/pytorch/pytorch/issues/41637#issuecomment-908603489
 import torch
 from torch.distributions import Gamma
 from torch.autograd import gradcheck
 from scipy import stats
+__all__ = ['GammaCDF', 'GammaInvCDF']
 
+
+###############################
+#       PyTorch Comment       #
+###############################
+# https://github.com/pytorch/pytorch/issues/41637#issuecomment-908603489
 
 def d_igamma_dp_series_expansion(p: torch.Tensor, x: torch.Tensor, eps: float = 1e-5, n_max: int = 100) -> torch.Tensor:
     """
@@ -180,7 +185,7 @@ class CustomIGamma(torch.autograd.Function):
         return (grad_output * d_igamma_a, grad_output * d_igamma_z)
 
 
-class _GammaCDF_(torch.autograd.Function):
+class GammaCDF_(torch.autograd.Function):
     """
     PyTorch Gamma distribution CDF implementation. This implementation solves the following issue raised on the PyTorch forum:
     https://github.com/pytorch/pytorch/issues/41637
@@ -204,6 +209,9 @@ class _GammaCDF_(torch.autograd.Function):
         return (grad_output * d_igamma_z / x, grad_output * d_igamma_a, -grad_output * d_igamma_z / psi)
 
 
+###############################
+#       Custom Autograd       #
+###############################
 
 class GammaCDF(torch.autograd.Function):
 
@@ -214,9 +222,9 @@ class GammaCDF(torch.autograd.Function):
         return cdf
 
     @staticmethod
-    def backward(ctx, grad_out, eps=1e-5):
+    def backward(ctx, grad_out, eps=1e-6):
         input, shape, scale = ctx.saved_tensors
-        input = torch.clamp(input, min=eps) # numerical stability
+        input = torch.clamp(input, min=eps) # stability
         # chain rule
         z = input / scale
         dz_dscale = - input / scale**2
@@ -228,21 +236,29 @@ class GammaCDF(torch.autograd.Function):
         return grad_out * digamma_dinput, grad_out * digamma_dshape, grad_out * digamma_dscale
 
 
-
 class GammaInvCDF(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, input: float, shape: torch.Tensor, scale: torch.Tensor):
-        gamma = Gamma(shape, 1./scale)
-        q = gamma.icdf(input)
-        fq = gamma.log_prob(q).exp()
-        ctx.save_for_backward(shape, scale, q, fq)
-        return q
+        # input: float or array
+        # shape/scale: tensor of dimension at least 1
+        shape_np = shape.detach().cpu().numpy()
+        scale_np = scale.detach().cpu().numpy()
+        gamma = stats.gamma(shape_np, scale=scale_np)
+        q = gamma.ppf(input)
+        fq = gamma.pdf(q)
+        ctx.constants = (q, fq)
+        ctx.save_for_backward(shape, scale)
+        return torch.from_numpy(q).to(dtype=shape.dtype, device=shape.device)
 
     @staticmethod
-    def backward(ctx, grad_out, eps=1e-6):
-        shape, scale, q, fq = ctx.saved_tensors
+    def backward(ctx, grad_out: torch.Tensor, eps=1e-6):
+        (q_np, fq_np) = ctx.constants
+        shape, scale = ctx.saved_tensors
+        q = torch.from_numpy(q_np).to(dtype=grad_out.dtype, device=grad_out.device)
+        fq = torch.from_numpy(fq_np).to(dtype=grad_out.dtype, device=grad_out.device)
         q = torch.clamp(q, min=eps) # stability
+        fq = torch.clamp(fq, min=eps)
         # gradient of gamma cdf (igamma)
         z = q / scale
         digamma_dshape = d_igamma_dp(shape, z, eps)
@@ -252,7 +268,8 @@ class GammaInvCDF(torch.autograd.Function):
         dquant_dscale = - (1/fq) * digamma_dscale
         return None, grad_out * dquant_dshape, grad_out * dquant_dscale
 
-
+cdf = GammaCDF.apply
+icdf = GammaInvCDF.apply
 
 
 
@@ -283,19 +300,31 @@ def test_gamma_inv():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("Device type: ", device)
 
-    significance = np.random.uniform(size=5)
-    shape = 10 * torch.rand(5, dtype=torch.double, device=device, requires_grad=True)
-    scale = 1 + torch.rand(5, dtype=torch.double, device=device, requires_grad=True)
+    n = 100
+    # significance = np.random.uniform(size=n)
+    # shape = torch.rand(n, dtype=torch.double, device=device, requires_grad=True)
+    # scale = torch.rand(n, dtype=torch.double, device=device, requires_grad=True)
 
-    quantile = GammaInvCDF.apply(significance, shape, scale)
+    significance = 0.05
+    shape = torch.rand(1, dtype=torch.double, device=device, requires_grad=True)
+    scale = torch.rand(1, dtype=torch.double, device=device, requires_grad=True)
+
+    shape = torch.tensor(1, dtype=torch.double, device=device, requires_grad=True)
+    print(shape.shape)  #torch.Size([1])
+
+    quantile = GammaInvCDF.apply(significance, shape*10, scale+1)
     print(f"{quantile=}")
 
-    test = gradcheck(GammaInvCDF.apply, (significance, shape, scale), eps=1e-6, atol=1e-4)
+    # quantile.backward(torch.ones(n, device=device))
+    # print(f"{shape.grad=}")
+    # print(f"{scale.grad=}")
+
+    test = gradcheck(GammaInvCDF.apply, (significance, shape*10, scale+1), eps=1e-6, atol=1e-4)
     print("GammaCDF", test)
 
 
 if __name__ == '__main__':
-    test_gamma()
+    test_gamma_inv()
 
 
 

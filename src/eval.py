@@ -86,10 +86,12 @@ def main(args):
         method = 'c2st-l' if cfg['statistic']=='logit' else 'c2st-s'
     elif cfg['method'] == 'hsic' and isinstance(pipeline.criterion, HSIC):
         method = 'hsic-raw'
+    elif cfg['method'] == 'hsic' and pipeline.criterion.with_threshold:
+        method = 'hsic-w/'
     table = utils.Tabular(f"{args.log_dir}/stats-{cfg['method']}.csv")
     row = {
         'dataset': cfg['dataset']['name'],
-        'method': method, #cfg['method'] if cfg['method']!='c2st' else ('c2st-l' if cfg['statistic']=='logit' else 'c2st-s'),
+        'method': method,
         'model': cfg['model']['name'],
         'n_samples': args.n_samples,
         **stats

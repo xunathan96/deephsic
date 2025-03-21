@@ -212,16 +212,16 @@ def parse_args():
     # neuron
     parser.add_argument('--n-place-cells',
                         type=int,
-                        default=16,)
+                        default=8,)
     parser.add_argument('--n-grid-cells',
                         type=int,
-                        default=16,)
+                        default=8,)
     parser.add_argument('--n-boundary-vector-cells',
                         type=int,
-                        default=16,)
+                        default=8,)
     parser.add_argument('--n-head-direction-cells',
                         type=int,
-                        default=16,)
+                        default=8,)
     parser.add_argument('--receptive-field',
                         type=float,
                         default=0.2)
@@ -263,7 +263,7 @@ def main(args):
                          T = args.traj_duration,
                          horizon = args.traj_length)    
     # save data
-    savefile = Path(args.save_dir)/'riab.pkl'
+    savefile = Path(args.save_dir)/f'riab-T-{args.n_traj}-cells8.pkl'
     savefile.parent.mkdir(parents=True, exist_ok=True)
     dump(data, savefile)
     # data = load(savefile)
@@ -273,17 +273,20 @@ def main(args):
     # riab.agent.plot_trajectory(fig=fig, ax=ax, alpha=0.5)
     # plt.show()
 
-    fig, ax = riab.env.plot_environment()
-    for traj in data:
-        pos = traj['agent']['pos']
-        plt.plot(pos[:,0], pos[:,1])
-    plt.show()
+    # fig, ax = riab.env.plot_environment()
+    # for traj in data:
+    #     pos = traj['agent']['pos']
+    #     plt.plot(pos[:,0], pos[:,1])
+    # plt.show()
 
 
     # (GCs, BVCs) vs (pos, vel, rot_vel, head_direction) for t+1, t+2 to make it high dim
     # seq-to-seq deep kernel
     # X is a seq and Y is a seq
 
+    """
+    python simulate.py --n-traj 100000 --traj-duration 1 --traj-length 20 --n-grid-cells 8
+    """
 
 
 # =============================
@@ -304,5 +307,6 @@ def load(file):
 
 if __name__=='__main__':
     main(parse_args())
+    # test_simulation(parse_args())
 
 
