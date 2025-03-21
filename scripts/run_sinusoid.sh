@@ -82,7 +82,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/hsic_w_thresh/$model/$run \
-                --n-epochs 4000"
+                --n-epochs 10000"
             ;;
         *)
             echo "\
@@ -90,7 +90,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/$method/$model/$run \
-                --n-epochs 4000"
+                --n-epochs 4000"    # 10000 hsic/c2st/...; 4000 for mi (b/c mi too expensive)
             ;;
     esac
 }
@@ -181,21 +181,37 @@ function eval_args {
 # dataset_to_testsize["sinusoid.4000"]="50 100 200 500 1000 2000"
 # source eval.sh $run "nwj" "$datasets"
 
+# ----------- Mutual Information Tests -----------
 # runs 7/8/9 are with minus trace (which fails)
 # runs 10/11/12 are with minus trace/(n*n-1)
 # runs 13/14/15 are with nce-like code
 
-run=power_vs_datasize/15
-datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
-for item in $datasets; do
-    source train.sh $run "mi" "$item"
-    source eval.sh $run "mi" "$item"
-done
+# run=power_vs_datasize/15
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# for item in $datasets; do
+#     source train.sh $run "mi" "$item"
+#     source eval.sh $run "mi" "$item"
+# done
 
-run=power_vs_testsize/15
-datasets="sinusoid"
-source train.sh $run "mi" "$datasets"
-source eval.sh $run "mi" "$datasets"
+# run=power_vs_testsize/15
+# datasets="sinusoid"
+# source train.sh $run "mi" "$datasets"
+# source eval.sh $run "mi" "$datasets"
+
+
+# ----------- HSIC w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="sinusoid"
+# source train.sh $run "hsic-w/" "$datasets"
+# source eval.sh $run "hsic-w/" "$datasets"
+
+# run=power_vs_datasize/3
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# for item in $datasets; do
+#     source train.sh $run "hsic-w/" "$item"
+#     source eval.sh $run "hsic-w/" "$item"
+# done
+
 
 
 unset dataset_to_testsize

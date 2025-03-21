@@ -144,7 +144,7 @@ function train_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic_w_thresh/$model/$run \
-                --n-epochs 2000"
+                --n-epochs 1000"
             ;;
         *)
             echo "\
@@ -152,7 +152,7 @@ function train_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/$method/$model/$run \
-                --n-epochs 2000"
+                --n-epochs 1000"    # 1000 for hsic/c2st/...; 2000 for mi (b/c results too poor)
             ;;
     esac
 }
@@ -269,6 +269,7 @@ function eval_args {
 # source eval.sh $run "hsic-raw bandwidth" "$datasets"
 
 
+# ----------- Mutual Information Tests -----------
 # hdgm<20 takes 4h/1000 epochs
 # hdgm>=20 takes 38h/1000 epochs
 # hdgm 40/50 should use 500 epochs
@@ -291,10 +292,27 @@ function eval_args {
 
 # hdgm 4/8/10 are with 3000 epochs
 # hdgm 20/30 are with 1000 epochs
-run=power_vs_testsize/6
-datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+# run=power_vs_testsize/6
+# datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
 # source train.sh $run "mi" "$datasets"
-source eval.sh $run "mi" "$datasets"
+# source eval.sh $run "mi" "$datasets"
+
+
+# ----------- HSIC w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+# for item in $datasets; do
+#     source train.sh $run "hsic-w/" "$item"
+#     source eval.sh $run "hsic-w/" "$item"
+# done
+
+# run=power_vs_datasize/3
+# datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000"
+# for item in $datasets; do
+#     source train.sh $run "hsic-w/" "$item"
+#     source eval.sh $run "hsic-w/" "$item"
+# done
+
 
 
 unset dataset_to_testsize

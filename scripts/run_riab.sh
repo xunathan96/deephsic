@@ -177,17 +177,32 @@ function eval_args {
 # source train.sh $run "nwj" "$datasets"
 # source eval.sh $run "nwj" "$datasets"
 
+
+# ----------- Mutual Information Tests -----------
 # runs 7/8/9 are with minus trace (which fails)
 # runs 10/11/12 are with minus trace/(n*n-1)
 # runs 13/14/15 are with nce-like code
 # runs 16/17/18/19/20/21 are with batch=512 instead of 128
 
-run=power_vs_datasize/21
-datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
-for item in $datasets; do
-    source train.sh $run "mi" "$item"
-    source eval.sh $run "mi" "$item"
-done
+# run=power_vs_datasize/21
+# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+# for item in $datasets; do
+#     source train.sh $run "mi" "$item"
+#     source eval.sh $run "mi" "$item"
+# done
+
+# ----------- HSIC w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="riab.present"
+# source train.sh $run "hsic-w/" "$datasets"
+# source eval.sh $run "hsic-w/" "$datasets"
+
+# run=power_vs_datasize/3
+# datasets="riab.present.500 riab.present.1000 riab.present.2000 riab.present.3000 riab.present.4000 riab.present.5000"
+# for item in $datasets; do
+#     source train.sh $run "hsic-w/" "$item"
+#     source eval.sh $run "hsic-w/" "$item"
+# done
 
 
 unset dataset_to_testsize
