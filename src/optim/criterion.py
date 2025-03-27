@@ -89,7 +89,7 @@ class HSICTestPower(nn.Module):
         m = X.shape[0]
         Kxx = k(X, X)
         Lyy = l(Y, Y)
-        hsic, var = metrics.hsic.hsic_fast(Kxx, Lyy, compute_var=True)
+        hsic, var = metrics.hsic.hsic_fast(Kxx, Lyy, statistic='v', compute_var=True)
         # asymptotic threshold based on (differentiable) gamma approx.
         e0 = metrics.hsic.null_mean(Kxx, Lyy)
         v0 = metrics.hsic.null_var(Kxx, Lyy)

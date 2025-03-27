@@ -111,7 +111,8 @@ class HSICTrainer(HSICBaseTrainer):
     @torch.no_grad
     def inference(self,
                   n_tests: int = 100,
-                  n_permutations: int = 500):
+                  n_permutations: int = 500,
+                  statistic: str = 'u'):
         self.model['k'].eval()
         self.model['l'].eval()
         samples = list()
@@ -130,6 +131,7 @@ class HSICTrainer(HSICBaseTrainer):
             Y = batch[1].to(self.device)    # (B,Dy)
             hsic, var, p_value, r = metrics.hsic.permutation_test(self.model['k'], self.model['l'],
                                                                   X, Y,
+                                                                  statistic,
                                                                   compute_var=False,
                                                                   n_permutations=n_permutations)
             samples.append((hsic, var, p_value, r))
@@ -166,7 +168,8 @@ class HSICTrainer(HSICBaseTrainer):
             self.dataloader['test'] = self.cfg['dataloader']['test'].build(
                 dataset=self.dataset['test'],
                 batch_size=n_samples)
-        samples = self.inference(n_tests, n_permutations)
+        statistic = kwds.get('statistic', 'u')
+        samples = self.inference(n_tests, n_permutations, statistic)
         stats = self.compute_metrics(samples, significance=0.05)
         return stats
 

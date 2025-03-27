@@ -77,6 +77,7 @@ def main(args):
     stats = pipeline.eval(n_samples=args.n_samples,
                           n_tests=args.n_tests,
                           n_permutations=args.n_permutations,
+                          statistic='u' if not cfg['criterion']['with_threshold'] else 'v',
                           test=args.test,)
     print(stats)
 

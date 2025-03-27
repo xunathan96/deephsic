@@ -178,6 +178,7 @@ def permutation_test(k: Kernel,
                      l: Kernel,
                      X: torch.Tensor,
                      Y: torch.Tensor,
+                     statistic: str = 'u',
                      compute_var: bool = False,
                      n_permutations: int = 500,
                      significance: float = 0.05,):
@@ -185,7 +186,7 @@ def permutation_test(k: Kernel,
     device = X.device
     Kxx = k(X, X)   # (N, N) gram matrix
     Lyy = l(Y, Y)   # (N, N) gram matrix
-    hsic, var = hsic_fast(Kxx, Lyy, compute_var=compute_var)    # NOTE: h potentially overflows when num samples N is large
+    hsic, var = hsic_fast(Kxx, Lyy, statistic, compute_var=compute_var)    # NOTE: h potentially overflows when num samples N is large
 
     count = 0
     stats = []
@@ -198,7 +199,7 @@ def permutation_test(k: Kernel,
         #Lyy_perm = Lyy[np.ix_(shuffle_idx, shuffle_idx)]
         shuffle_idx = torch.randperm(n, device=device)
         Lyy_perm = Lyy[torch.meshgrid(shuffle_idx, shuffle_idx, indexing='ij')]
-        hsic_null,_ = hsic_fast(Kxx, Lyy_perm, compute_var=False)
+        hsic_null,_ = hsic_fast(Kxx, Lyy_perm, statistic, compute_var=False)
         stats.append(hsic_null.item())
         if hsic_null > hsic:
             count += 1
