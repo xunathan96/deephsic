@@ -1,5 +1,6 @@
 # custom losses
 import math
+from scipy.stats import norm
 import torch
 import torch.nn as nn
 from torch.nn import (BCELoss,
@@ -131,7 +132,7 @@ class MITestPower(nn.Module):
         super().__init__()
         self.reg = reg
         self.normalize = normalize
-    
+
     def forward(self,
                 f: nn.Module,
                 X: torch.Tensor,
@@ -143,27 +144,46 @@ class MITestPower(nn.Module):
             return - pscore
 
 
-# class MITestPower_old(nn.Module):
-#     def __init__(self,
-#                  normalize: bool = False,
-#                  reg: float = 1e-8):
-#         super().__init__()
-#         self.reg = reg
-#         self.normalize = normalize
-    
-#     def forward(self,
-#                 f: nn.Module,
-#                 X: torch.Tensor,
-#                 Y: torch.Tensor,) -> torch.Tensor:
-#         T1, var = metrics.mi.T(f, X, Y)
-#         if not self.normalize:
-#             # maximize T / var
-#             return - T1 / torch.sqrt(var + self.reg)
-#         else:
-#             # maximize (T - T0) / var
-#             Fxy = metrics.mi.gram(f, X, Y)  # (n,n)
-#             # T0 = torch.mean(Fxy)
-#             n = Fxy.shape[-1]
-#             T0 = (torch.sum(Fxy) - torch.trace(Fxy)) / (n*(n-1))
-#             return - (T1 - T0) / torch.sqrt(var + self.reg)
+class NDSTestPower(nn.Module):
+
+    def __init__(self,
+                 with_threshold: bool = False,
+                 significance: float = 0.05,
+                 reg: float = 1e-8):
+        super().__init__()
+        self.reg = reg
+        self.with_threshold = with_threshold
+        self.significance = significance
+
+    def forward(self,
+                f: nn.Module,
+                X: torch.Tensor,
+                Y: torch.Tensor,) -> torch.Tensor:
+        if self.with_threshold:
+            return self.snr_w_thresh(f, X, Y)
+        else:
+            return self.snr_wo_thresh(f, X, Y)
+
+    def snr_wo_thresh(self,
+                      f: nn.Module,
+                      X: torch.Tensor,
+                      Y: torch.Tensor,) -> torch.Tensor:
+        pscore, var = metrics.mi.pairscore(f, X, Y)
+        return - pscore / torch.sqrt(var + self.reg)
+
+    def snr_w_thresh(self,
+                     f: nn.Module,
+                     X: torch.Tensor,
+                     Y: torch.Tensor,) -> torch.Tensor:
+        m = X.shape[0]
+        Fxy = metrics.mi.gram(f, X, Y)
+        var_alt = torch.var(torch.diagonal(Fxy))
+        var_null = torch.var(Fxy[torch.where(~torch.eye(m, dtype=bool))])
+        pscore = metrics.mi.pairscore_fast(Fxy)
+
+        var1 = torch.sqrt(var_alt + self.reg)
+        var0 = torch.sqrt(var_null + self.reg)
+
+        J = (pscore / var1) - (var0 / var1) * norm.ppf(1 - self.significance) / math.sqrt(m)
+        return -J
 

@@ -103,6 +103,8 @@ method_to_model["infonce"]="$(printf "%s:id-id@mlp4x8x12x8x1;" "hdgm4" "hdgm4.n1
                             "
 method_to_model["nwj"]="${method_to_model["infonce"]}"
 method_to_model["mi"]="${method_to_model["infonce"]}"
+method_to_model["nds"]="${method_to_model["infonce"]}"
+method_to_model["nds-w/"]="${method_to_model["infonce"]}"
 method_to_model["bandwidth"]="$(printf "%s:bandwidth-squared;" "hdgm4" "hdgm4.n1000" "hdgm4.n2000" "hdgm4.n3000" "hdgm4.n4000")\
                               $(printf "%s:bandwidth-squared;" "hdgm8" "hdgm8.n1000" "hdgm8.n2000" "hdgm8.n3000" "hdgm8.n4000")\
                               $(printf "%s:bandwidth-squared;" "hdgm10" "hdgm10.n2000" "hdgm10.n4000" "hdgm10.n6000" "hdgm10.n8000")\
@@ -145,6 +147,14 @@ function train_args {
                 --model-config $model_root/hsic/$model.yml \
                 --save-dir $save_root/hdgm/$dataset/hsic_w_thresh/$model/$run \
                 --n-epochs 1000"
+            ;;
+        nds-w/)
+            echo "\
+                --train-config $train_root/nds/train.nds.w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/nds/$model.yml \
+                --save-dir $save_root/hdgm/$dataset/nds_w_thresh/$model/$run \
+                --n-epochs 2000"
             ;;
         *)
             echo "\
@@ -200,6 +210,15 @@ function eval_args {
                 --data-config $data_root/hdgm/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/hdgm/$dataset/hsic_w_thresh/$model/$run/best.pt \
+                --log-dir $log_root/hdgm/$run \
+                --n-samples $n_samples"
+            ;;
+        nds-w/)
+            echo "\
+                --eval-config $eval_root/nds/eval.nds.w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/hdgm/$dataset.yml \
+                --model-config $model_root/nds/$model.yml \
+                --pretrained-path $save_root/hdgm/$dataset/nds_w_thresh/$model/$run/best.pt \
                 --log-dir $log_root/hdgm/$run \
                 --n-samples $n_samples"
             ;;

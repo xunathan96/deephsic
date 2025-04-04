@@ -47,6 +47,8 @@ method_to_model["c2st-l"]=$(printf "%s:id-id@mlp2x8x12x8x1;" "${!dataset_to_test
 method_to_model["infonce"]=$(printf "%s:id-id@mlp2x8x12x8x1;" "${!dataset_to_testsize[@]}")
 method_to_model["nwj"]=$(printf "%s:id-id@mlp2x8x12x8x1;" "${!dataset_to_testsize[@]}")
 method_to_model["mi"]=$(printf "%s:id-id@mlp2x8x12x8x1;" "${!dataset_to_testsize[@]}")
+method_to_model["nds"]="${method_to_model["infonce"]}"
+method_to_model["nds-w/"]="${method_to_model["infonce"]}"
 method_to_model["bandwidth"]=$(printf "%s:bandwidth-squared;" "${!dataset_to_testsize[@]}")
 
 
@@ -84,13 +86,21 @@ function train_args {
                 --save-dir $save_root/sinusoid/$dataset/hsic_w_thresh/$model/$run \
                 --n-epochs 10000"
             ;;
+        nds-w/)
+            echo "\
+                --train-config $train_root/nds/train.nds.w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/sinusoid/$dataset.yml \
+                --model-config $model_root/nds/$model.yml \
+                --save-dir $save_root/sinusoid/$dataset/nds_w_thresh/$model/$run \
+                --n-epochs 10000"
+            ;;
         *)
             echo "\
                 --train-config $train_root/$method/train.$method.batch512.adamw.1e-4.yml \
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/$method/$model/$run \
-                --n-epochs 4000"    # 10000 hsic/c2st/...; 4000 for mi (b/c mi too expensive)
+                --n-epochs 4000"    # 10000 hsic/c2st/...; 4000 for mi (b/c mi too expensive).. actually 10000 seems okay? ~3h
             ;;
     esac
 }
@@ -138,6 +148,15 @@ function eval_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/hsic/$model.yml \
                 --pretrained-path $save_root/sinusoid/$dataset/hsic_w_thresh/$model/$run/best.pt \
+                --log-dir $log_root/sinusoid/$run \
+                --n-samples $n_samples"
+            ;;
+        nds-w/)
+            echo "\
+                --eval-config $eval_root/nds/eval.nds.w_thresh.batch512.adamw.1e-4.yml \
+                --data-config $data_root/sinusoid/$dataset.yml \
+                --model-config $model_root/nds/$model.yml \
+                --pretrained-path $save_root/sinusoid/$dataset/nds_w_thresh/$model/$run/best.pt \
                 --log-dir $log_root/sinusoid/$run \
                 --n-samples $n_samples"
             ;;

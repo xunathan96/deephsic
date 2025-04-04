@@ -7,6 +7,7 @@ from .mmd import MMDTrainer
 from .infonce import InfoNCETrainer
 from .nwj import NWJTrainer
 from .mi import MITrainer
+from .nds import NDSTrainer
 
 class TrainerRegistry:
     
@@ -33,6 +34,7 @@ trainerRegistry.register('mmd', MMDTrainer)
 trainerRegistry.register('infonce', InfoNCETrainer)
 trainerRegistry.register('nwj', NWJTrainer)
 trainerRegistry.register('mi', MITrainer)
+trainerRegistry.register('nds', NDSTrainer)
 
 
 def get(key) -> BaseTrainer:

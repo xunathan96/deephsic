@@ -77,7 +77,7 @@ def main(args):
     stats = pipeline.eval(n_samples=args.n_samples,
                           n_tests=args.n_tests,
                           n_permutations=args.n_permutations,
-                          statistic='u' if not cfg['criterion']['with_threshold'] else 'v',
+                          statistic='u' if not ('with_threshold' in cfg['criterion'] and cfg['criterion']['with_threshold']) else 'v',
                           test=args.test,)
     print(stats)
 
@@ -89,6 +89,8 @@ def main(args):
         method = 'hsic-raw'
     elif cfg['method'] == 'hsic' and pipeline.criterion.with_threshold:
         method = 'hsic-w/'
+    elif cfg['method'] == 'nds' and pipeline.criterion.with_threshold:
+        method = 'nds-w/'
     table = utils.Tabular(f"{args.log_dir}/stats-{cfg['method']}.csv")
     row = {
         'dataset': cfg['dataset']['name'],

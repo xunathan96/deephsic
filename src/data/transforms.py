@@ -9,6 +9,19 @@ class NumpyToTensor:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
+class NumpyToDoubleTensor:
+    def __call__(self, ndarray):
+        return torch.from_numpy(ndarray)
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
+class NumpyToFloatTensor:
+    def __call__(self, ndarray):
+        return torch.from_numpy(ndarray).float()
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
+
 def identity(input):
     return input
 
