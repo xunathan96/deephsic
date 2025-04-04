@@ -231,6 +231,18 @@ function eval_args {
 #     source eval.sh $run "hsic-w/" "$item"
 # done
 
+# ----------- HSIC w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="sinusoid"
+# source train.sh $run "nds-w/" "$datasets"
+# source eval.sh $run "nds-w/" "$datasets"
+
+# run=power_vs_datasize/1
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
+# done
 
 
 unset dataset_to_testsize

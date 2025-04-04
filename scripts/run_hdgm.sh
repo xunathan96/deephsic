@@ -333,6 +333,21 @@ function eval_args {
 # done
 
 
+# ----------- NDS w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
+# done
+
+# run=power_vs_datasize/1
+# datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
+# done
+
 
 unset dataset_to_testsize
 unset method_to_model
