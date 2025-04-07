@@ -317,6 +317,21 @@ function eval_args {
 # source eval.sh $run "mi" "$datasets"
 
 
+# ----------- InfoNCE -----------
+# run=power_vs_testsize/3
+# datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+# for item in $datasets; do
+#     source train.sh $run "infonce" "$item"
+#     source eval.sh $run "infonce" "$item"
+# done
+
+# run=power_vs_datasize/3
+# datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000"
+# for item in $datasets; do
+#     source train.sh $run "infonce" "$item"
+#     source eval.sh $run "infonce" "$item"
+# done
+
 # ----------- HSIC w/ thresh -----------
 # run=power_vs_testsize/3
 # datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
@@ -330,6 +345,21 @@ function eval_args {
 # for item in $datasets; do
 #     source train.sh $run "hsic-w/" "$item"
 #     source eval.sh $run "hsic-w/" "$item"
+# done
+
+# ----------- NDS w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="hdgm4 hdgm8 hdgm10 hdgm20 hdgm30 hdgm40 hdgm50"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
+# done
+
+# run=power_vs_datasize/3
+# datasets="hdgm10.n2000 hdgm10.n4000 hdgm10.n6000 hdgm10.n8000"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
 # done
 
 

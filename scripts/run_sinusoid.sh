@@ -100,7 +100,7 @@ function train_args {
                 --data-config $data_root/sinusoid/$dataset.yml \
                 --model-config $model_root/$method/$model.yml \
                 --save-dir $save_root/sinusoid/$dataset/$method/$model/$run \
-                --n-epochs 4000"    # 10000 hsic/c2st/...; 4000 for mi (b/c mi too expensive).. actually 10000 seems okay? ~3h
+                --n-epochs 10000"    # 10000 hsic/c2st/...; 4000 for mi (b/c mi too expensive).. actually 10000 seems okay? ~3h
             ;;
     esac
 }
@@ -218,6 +218,20 @@ function eval_args {
 # source eval.sh $run "mi" "$datasets"
 
 
+# ----------- InfoNCE -----------
+# run=power_vs_testsize/3
+# datasets="sinusoid"
+# source train.sh $run "infonce" "$datasets"
+# source eval.sh $run "infonce" "$datasets"
+
+# run=power_vs_datasize/3
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# for item in $datasets; do
+#     source train.sh $run "infonce" "$item"
+#     source eval.sh $run "infonce" "$item"
+# done
+
+
 # ----------- HSIC w/ thresh -----------
 # run=power_vs_testsize/3
 # datasets="sinusoid"
@@ -231,6 +245,18 @@ function eval_args {
 #     source eval.sh $run "hsic-w/" "$item"
 # done
 
+# ----------- NDS w/ thresh -----------
+# run=power_vs_testsize/3
+# datasets="sinusoid"
+# source train.sh $run "nds-w/" "$datasets"
+# source eval.sh $run "nds-w/" "$datasets"
+
+# run=power_vs_datasize/3
+# datasets="sinusoid.1000 sinusoid.2000 sinusoid.3000 sinusoid.4000"
+# for item in $datasets; do
+#     source train.sh $run "nds-w/" "$item"
+#     source eval.sh $run "nds-w/" "$item"
+# done
 
 
 unset dataset_to_testsize
