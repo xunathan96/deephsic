@@ -1,0 +1,8 @@
+# -----------------------
+#    DATASET SETTINGS
+# -----------------------
+name: Sinusoid
+
+test: !generator.Sinusoid
+  dim: 1
+  frequency: 1

@@ -1,0 +1,24 @@
+# -----------------------
+#       ID-ID > MLP
+# -----------------------
+
+!kernel.DeepKernel
+name: id-id
+featurizer: !model.Neck
+  backbones: !nn.ModuleList
+    - !model.Identity
+    - !model.Identity
+  heads: !nn.ModuleList
+    - !model.Identity
+  connection: cat
+  squeeze_single_head: True
+feature_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: False
+smoothing_kernel: !kernel.Gaussian
+  scale: 1
+  bandwidth: 1
+  trainable: False
+eps: 0.
+trainable: False
