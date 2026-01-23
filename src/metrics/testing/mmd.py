@@ -216,6 +216,49 @@ def permutation_test_independence(k: Kernel,
                   dynamic_ncols=True,
                   leave=False):
         # permute samples Y for null hypothesis (i.e. Pxy=Px*Py)
+        perm = torch.randperm(n, device=device)
+        Y00 = Y_shuff[perm]
+        Y10 = Y[perm]
+        Z_null = (X, Y00)
+        Z_alt = (X, Y10)
+        mmd2_null,_ = mmd2(k, Z_null, Z_alt, compute_var=False)
+        stats.append(mmd2_null.item())
+        if mmd2_null > mmd2_est:
+            count += 1
+
+    # compute p-value (prob of hsic, assuming the null hypothesis is true)
+    p_value = count/n_permutations
+    # compute rejection threshold r
+    stats.sort()
+    thresh = n*stats[int(n_permutations*(1-significance)//1)]   # NOTE: multiply by n since r is scaled by n
+    return (mmd2_est.item(),
+            var_est.item() if var_est is not None else None,
+            p_value,
+            thresh)
+
+
+
+def permutation_test_independence_old(k: Kernel,
+                                  X: torch.Tensor,
+                                  Y: torch.Tensor,
+                                  compute_var: bool = False,
+                                  n_permutations: int = 500,
+                                  significance: float = 0.05,):
+    n = X.shape[0]
+    device = X.device
+    # compile samples Z=(X,Y) for the independence testing problem
+    Y_shuff = Y[torch.randperm(n, device=device)]
+    Z_null = (X, Y_shuff)    # null: Px*Py
+    Z_alt = (X, Y)           # alternate: Pxy
+    mmd2_est, var_est = mmd2(k, Z_null, Z_alt, compute_var=compute_var)
+
+    count = 0
+    stats = []
+    for i in tqdm(range(n_permutations),
+                  bar_format="running permutation test... |{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",
+                  dynamic_ncols=True,
+                  leave=False):
+        # permute samples Y for null hypothesis (i.e. Pxy=Px*Py)
         Y_shuff = Y[torch.randperm(n, device=device)]
         Z_alt = (X, Y_shuff)
         mmd2_null,_ = mmd2(k, Z_null, Z_alt, compute_var=False)
