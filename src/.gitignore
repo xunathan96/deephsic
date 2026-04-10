@@ -10,5 +10,6 @@ eval_type1.py
 
 eval_hsic_agg.py
 eval_hsic_median.py
+eval_hsic_vs_mmd.py
 eval_snr.py
 gram.py
