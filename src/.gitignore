@@ -2,3 +2,13 @@
 /exp
 data/mnist
 data/cifar10h/raw
+
+eval_type1_c2st.py
+eval_type1_hsic.py
+eval_type1_mmd.py
+eval_type1.py
+
+eval_hsic_agg.py
+eval_hsic_median.py
+eval_snr.py
+gram.py
